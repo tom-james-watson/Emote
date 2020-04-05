@@ -6,6 +6,7 @@ from emote import emojis
 
 
 GRID_SIZE = 10
+EMOJI_COLUMNS = 9
 
 
 class EmojiPicker(Gtk.Window):
@@ -69,7 +70,7 @@ class EmojiPicker(Gtk.Window):
                 orientation=Gtk.Orientation.VERTICAL,
                 spacing=GRID_SIZE
             )
-            emoji_box.add(category_box)
+            emoji_box.pack_start(category_box, True, True, 0)
 
             label_box = Gtk.Box()
             label = Gtk.Label()
@@ -78,16 +79,14 @@ class EmojiPicker(Gtk.Window):
             label_box.pack_start(label, False, False, GRID_SIZE)
             category_box.add(label_box)
 
-            flowbox = Gtk.FlowBox()
-            flowbox.set_valign(Gtk.Align.START)
-            flowbox.set_min_children_per_line(8)
-            flowbox.set_max_children_per_line(50)
-            # Investigate how this works? Can we fix navigation to not have
-            # doulbe layer of FlowBoxChild and Button? If we set to NONE we can
-            # set CSS for outline instead. Better to use system styles?
-            flowbox.set_selection_mode(Gtk.SelectionMode.BROWSE)
+            count = 0
+            category_emoji_box = None
 
             for emoji in emoji_categories[category]:
+                if count % EMOJI_COLUMNS == 0:
+                    category_emoji_box = Gtk.Box(spacing=GRID_SIZE)
+                    category_emoji_box.props.halign = Gtk.Align.CENTER
+                    category_box.pack_start(category_emoji_box, True, True, 0)
                 # print(
                 #     emoji.char,
                 #     len(emoji.char),
@@ -99,9 +98,8 @@ class EmojiPicker(Gtk.Window):
                 btn = Gtk.Button(label=emoji.char)
                 btn.set_name('emoji_button')
                 btn.connect('clicked', self.on_emoji_selected)
-                flowbox.add(btn)
-
-            category_box.add(flowbox)
+                category_emoji_box.add(btn)
+                count += 1
 
         scrolled.add(emoji_box)
         self.app_container.remove(self.spinner)
