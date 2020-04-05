@@ -5,6 +5,9 @@ import emoji_data_python
 MAX_VERSION = 10.0
 
 
+registered_emoji = {}
+
+
 def get_category_order():
     '''Return the categories in the order want to render them in'''
     return [
@@ -26,6 +29,7 @@ def get_emojis_by_category():
     for emoji in emoji_data_python.emoji_data:
         if (float(emoji.added_in) > MAX_VERSION):
             continue
+        registered_emoji[emoji.short_name] = True
         categories[emoji.category].append(emoji)
 
     for category_key in categories.keys():
@@ -35,3 +39,10 @@ def get_emojis_by_category():
         )
 
     return categories
+
+
+def search(query):
+    return filter(
+        lambda emoji: emoji.short_name in registered_emoji,
+        emoji_data_python.find_by_shortname(query)
+    )

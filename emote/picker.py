@@ -28,6 +28,7 @@ class EmojiPicker(Gtk.Window):
         search_box = Gtk.Box()
         search = Gtk.SearchEntry()
         search_box.pack_start(search, True, True, GRID_SIZE)
+        search.connect('focus-in-event', self.on_search_focus)
         self.app_container.pack_start(search_box, False, False, GRID_SIZE)
 
         self.spinner = Gtk.Spinner()
@@ -46,12 +47,26 @@ class EmojiPicker(Gtk.Window):
         GLib.idle_add(self.create_emoji_list)
 
     def register_window_state_event_handler(self):
-        self.connect('window-state-event', self.handle_window_state_event)
+        self.connect('window-state-event', self.on_window_state_event)
 
-    def handle_window_state_event(self, widget, event):
+    def on_window_state_event(self, widget, event):
         '''If the window has just unfocussed, exit'''
         if not (event.new_window_state & Gdk.WindowState.FOCUSED):
             Gtk.main_quit()
+
+    def on_flowbox_child_activated(self, flow_box, child):
+        self.on_emoji_selected(child.emoji)
+
+    def on_emoji_focus(self, flowbox_child, event):
+        focused_flowbox = flowbox_child.parent
+
+        for flowbox in self.flowboxes:
+            if flowbox.category != focused_flowbox.category:
+                flowbox.unselect_all()
+
+    def on_search_focus(self, search_entry, event):
+        for flowbox in self.flowboxes:
+            flowbox.unselect_all()
 
     def create_emoji_list(self):
         scrolled = Gtk.ScrolledWindow()
@@ -63,6 +78,8 @@ class EmojiPicker(Gtk.Window):
         )
 
         emoji_categories = emojis.get_emojis_by_category()
+
+        self.flowboxes = []
 
         for category in emojis.get_category_order():
             category_box = Gtk.Box(
@@ -78,28 +95,33 @@ class EmojiPicker(Gtk.Window):
             label_box.pack_start(label, False, False, GRID_SIZE)
             category_box.add(label_box)
 
-            flowbox = Gtk.FlowBox()
-            flowbox.set_valign(Gtk.Align.START)
-            flowbox.set_min_children_per_line(8)
-            flowbox.set_max_children_per_line(50)
-            # Investigate how this works? Can we fix navigation to not have
-            # doulbe layer of FlowBoxChild and Button? If we set to NONE we can
-            # set CSS for outline instead. Better to use system styles?
-            flowbox.set_selection_mode(Gtk.SelectionMode.BROWSE)
+            flowbox = Gtk.FlowBox(
+                valign=Gtk.Align.START,
+                min_children_per_line=8,
+                max_children_per_line=50,
+                selection_mode=Gtk.SelectionMode.MULTIPLE
+            )
+            flowbox.category = category
+            self.flowboxes.append(flowbox)
+            flowbox.connect('child_activated', self.on_flowbox_child_activated)
 
             for emoji in emoji_categories[category]:
-                # print(
-                #     emoji.char,
-                #     len(emoji.char),
-                #     emoji.is_doublebyte,
-                #     emoji.short_name,
-                #     emoji.chars,
-                #     emoji.added_in
-                # )
-                btn = Gtk.Button(label=emoji.char)
-                btn.set_name('emoji_button')
-                btn.connect('clicked', self.on_emoji_selected)
-                flowbox.add(btn)
+                btn = Gtk.Button(
+                    label=emoji.char,
+                    name='emoji_button',
+                    can_focus=False,
+                    relief=Gtk.ReliefStyle.NONE
+                )
+                btn.connect(
+                    'clicked',
+                    lambda widget: self.on_emoji_selected(widget.get_label())
+                )
+                flowbox_child = Gtk.FlowBoxChild()
+                flowbox_child.add(btn)
+                flowbox_child.parent = flowbox
+                flowbox_child.emoji = emoji.char
+                flowbox_child.connect('focus-in-event', self.on_emoji_focus)
+                flowbox.add(flowbox_child)
 
             category_box.add(flowbox)
 
@@ -109,10 +131,8 @@ class EmojiPicker(Gtk.Window):
 
         self.show_all()
 
-    def on_emoji_selected(self, widget):
+    def on_emoji_selected(self, emoji):
         '''Copy the selected emoji to the clipboard'''
-        emoji = widget.get_label()
-
         self.hide()
 
         cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
