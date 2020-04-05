@@ -24,16 +24,26 @@ class EmojiPicker(Gtk.Window):
         header.set_subtitle('Select an emoji to copy it')
         self.set_titlebar(header)
 
-        self.create_emoji_list()
+        self.app_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        search_box = Gtk.Box()
+        search = Gtk.SearchEntry()
+        search_box.pack_start(search, True, True, GRID_SIZE)
+        self.app_container.pack_start(search_box, False, False, GRID_SIZE)
 
-        # search = Gtk.SearchEntry()
-        # self.add(search)
+        self.spinner = Gtk.Spinner()
+        self.spinner.start()
+        self.app_container.pack_start(self.spinner, False, False, GRID_SIZE)
+
+        self.add(self.app_container)
 
         self.show_all()
 
         # Delay registering events by 100ms. For some reason FOCUS of Window is
         # momentarily False during window creation.
         GLib.timeout_add(100, self.register_window_state_event_handler)
+
+        # Release the main loop before creating the emoji list
+        GLib.idle_add(self.create_emoji_list)
 
     def register_window_state_event_handler(self):
         self.connect('window-state-event', self.handle_window_state_event)
@@ -44,13 +54,6 @@ class EmojiPicker(Gtk.Window):
             Gtk.main_quit()
 
     def create_emoji_list(self):
-        emoji_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-
-        search_box = Gtk.Box()
-        search = Gtk.SearchEntry()
-        search_box.pack_start(search, True, True, GRID_SIZE)
-        emoji_container.pack_start(search_box, False, False, GRID_SIZE)
-
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_hexpand(False)
 
@@ -82,7 +85,7 @@ class EmojiPicker(Gtk.Window):
             # Investigate how this works? Can we fix navigation to not have
             # doulbe layer of FlowBoxChild and Button? If we set to NONE we can
             # set CSS for outline instead. Better to use system styles?
-            flowbox.set_selection_mode(Gtk.SelectionMode.NONE)
+            flowbox.set_selection_mode(Gtk.SelectionMode.BROWSE)
 
             for emoji in emoji_categories[category]:
                 # print(
@@ -101,8 +104,10 @@ class EmojiPicker(Gtk.Window):
             category_box.add(flowbox)
 
         scrolled.add(emoji_box)
-        emoji_container.pack_end(scrolled, True, True, 0)
-        self.add(emoji_container)
+        self.app_container.remove(self.spinner)
+        self.app_container.pack_end(scrolled, True, True, 0)
+
+        self.show_all()
 
     def on_emoji_selected(self, widget):
         '''Copy the selected emoji to the clipboard'''
