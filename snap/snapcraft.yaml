@@ -1,0 +1,78 @@
+name: emote
+version: '0.1.0'
+license: GPL-3.0+
+summary: A modern emoji picker built on GTK3
+description: |
+  Emote is a simple emoji picker that is launched with a keyboard shortcut and
+  copies the selected emoji to the clipboard. Emote is lightweight and stays
+  out of your way.
+
+base: core18
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: devmode # or strict
+
+slots:
+  # for GtkApplication registration
+  emote:
+    interface: dbus
+    bus: session
+    name: com.tom-james-watson.emote
+
+parts:
+  emote:
+    plugin: python
+    python-version: python3
+    source: .
+    python-packages:
+      - wheel
+      - pygobject
+      - emoji-data-python
+      - setuptools
+    build-packages:
+      - python3-setuptools
+      - python3-xlib
+      - pkg-config
+    build-packages:
+      - libgirepository1.0-dev
+    stage-packages:
+      - libcairo-gobject2
+      - libcairo2
+      - libfontconfig1
+      - libfreetype6
+      - libgirepository-1.0-1
+      - libpixman-1-0
+      - libpng16-16
+      - libx11-6
+      - libxau6
+      - libxcb-render0
+      - libxcb-shm0
+      - libxcb1
+      - libxdmcp6
+      - libxext6
+      - libxrender1
+      - libkeybinder-3.0-0
+      - gir1.2-keybinder-3.0
+      - python3-distutils-extra
+      - sound-theme-freedesktop
+      - pulseaudio-utils
+      - python3-gi
+      - gir1.2-unity-5.0
+      - gir1.2-notify-0.7
+      - gir1.2-gtk-3.0
+      - gir1.2-pango-1.0
+  static:
+    plugin: dump
+    source: static/
+    organize:
+      '*.css': static/
+
+apps:
+  emote:
+    command: desktop-launch $SNAP/bin/emote
+    extensions: [gnome-3-28]
+    slots:
+      - emote
+    common-id: com.tom-james-watson.emote
+    plugs:
+      - desktop
+      - x11

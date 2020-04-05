@@ -1,0 +1,42 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "7e5dfe8f554a93ddca280497cd8049589748cb39b090c048bec2598a583f1fa7"
+        },
+        "pipfile-spec": 6,
+        "requires": {
+            "python_version": "3.7"
+        },
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "emoji-data-python": {
+            "hashes": [
+                "sha256:60a59bff2177edced8bf5994ceb9509c872554e79f471a7eca470981642a9fe2",
+                "sha256:befa8bfce5e55bcc11d11185b1ee12f31d0b0ad8905d3c132a3ea7b25b6deb96"
+            ],
+            "index": "pypi",
+            "version": "==1.4.2"
+        },
+        "pycairo": {
+            "hashes": [
+                "sha256:2c143183280feb67f5beb4e543fd49990c28e7df427301ede04fc550d3562e84"
+            ],
+            "version": "==1.19.1"
+        },
+        "pygobject": {
+            "hashes": [
+                "sha256:b97f570e55017fcd3732164811f24ecf63983a4834f61b55b0aaf64ecefac856"
+            ],
+            "index": "pypi",
+            "version": "==3.36.0"
+        }
+    },
+    "develop": {}
+}
