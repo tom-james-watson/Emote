@@ -1,3 +1,0 @@
-# Requirements
-pygobject
-emoji-data-python
