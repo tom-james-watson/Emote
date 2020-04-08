@@ -1,7 +1,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GLib
-from emote import emojis
+from emote import emojis, threading
 
 
 GRID_SIZE = 10
@@ -106,7 +106,17 @@ class EmojiPicker(Gtk.Window):
             orientation=Gtk.Orientation.VERTICAL,
             spacing=GRID_SIZE
         )
-        self.search_flowbox = self.create_emoji_flowbox(emojis.search(query))
+        print('1')
+        search_thread = threading.ReturnThread(
+            target=emojis.search,
+            args=(query,)
+        )
+        search_thread.start()
+        print('2')
+        results = search_thread.join()
+        print('3')
+        print(results)
+        self.search_flowbox = self.create_emoji_flowbox(results)
         self.search_box.pack_start(self.search_flowbox, True, True, 0)
         self.search_scrolled.add(self.search_box)
         self.app_container.pack_start(self.search_scrolled, True, True, 0)
