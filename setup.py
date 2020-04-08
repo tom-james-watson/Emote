@@ -1,4 +1,6 @@
-from setuptools import setup, find_packages
+from setuptools import setup
+
+
 setup(
     name="Emote",
     version="0.1.0",

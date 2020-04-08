@@ -8,6 +8,10 @@ MAX_VERSION = 10.0
 registered_emoji = {}
 
 
+# TODO - migrate to https://github.com/muan/emojilib/blob/master/emojis.json
+# It has proper keyword associations
+
+
 def get_category_order():
     '''Return the categories in the order want to render them in'''
     return [
@@ -29,6 +33,7 @@ def get_emojis_by_category():
     for emoji in emoji_data_python.emoji_data:
         if (float(emoji.added_in) > MAX_VERSION):
             continue
+        # print(emoji.char, emoji.short_name, emoji.name)
         registered_emoji[emoji.short_name] = True
         categories[emoji.category].append(emoji)
 
@@ -42,7 +47,7 @@ def get_emojis_by_category():
 
 
 def search(query):
-    return filter(
+    return list(filter(
         lambda emoji: emoji.short_name in registered_emoji,
-        emoji_data_python.find_by_shortname(query)
-    )
+        emoji_data_python.find_by_name(query)
+    ))
