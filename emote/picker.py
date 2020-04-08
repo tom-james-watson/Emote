@@ -14,10 +14,10 @@ class EmojiPicker(Gtk.Window):
             self,
             title='Emote',
             window_position=Gtk.WindowPosition.CENTER,
+            resizable=False,
+            deletable=False
         )
-        self.set_default_size(450, 400)
-        self.set_resizable(False)
-        self.set_deletable(False)
+        self.set_default_size(350, 450)
 
         header = Gtk.HeaderBar(title='Emote')
         header.set_subtitle('Select an emoji to copy it')
@@ -28,7 +28,7 @@ class EmojiPicker(Gtk.Window):
         search = Gtk.SearchEntry()
         search_box.pack_start(search, True, True, GRID_SIZE)
         search.connect('focus-in-event', self.on_search_focus)
-        search.connect('search-changed', self.on_search_changed)
+        search.connect('changed', self.on_search_changed)
         self.app_container.pack_start(search_box, False, False, GRID_SIZE)
 
         self.spinner = Gtk.Spinner()
@@ -59,9 +59,7 @@ class EmojiPicker(Gtk.Window):
 
     def on_window_state_event(self, widget, event):
         '''If the window has just unfocussed, exit'''
-        print('on_window_state_event')
         if not (event.new_window_state & Gdk.WindowState.FOCUSED):
-            print('destroy')
             self.destroy()
 
     def on_flowbox_child_activated(self, flow_box, child):
@@ -73,6 +71,7 @@ class EmojiPicker(Gtk.Window):
         for flowbox in self.flowboxes:
             if (
                 hasattr(flowbox, 'category') and
+                hasattr(focused_flowbox, 'category') and
                 flowbox.category != focused_flowbox.category
             ):
                 flowbox.unselect_all()
@@ -126,7 +125,7 @@ class EmojiPicker(Gtk.Window):
 
         self.flowboxes = []
 
-        for category in emojis.get_category_order():
+        for (category, category_display_name) in emojis.get_category_order():
             category_box = Gtk.Box(
                 orientation=Gtk.Orientation.VERTICAL,
                 spacing=GRID_SIZE
@@ -135,7 +134,7 @@ class EmojiPicker(Gtk.Window):
 
             label_box = Gtk.Box()
             label = Gtk.Label()
-            label.set_text(category)
+            label.set_text(category_display_name)
             label.set_justify(Gtk.Justification.LEFT)
             label_box.pack_start(label, False, False, GRID_SIZE)
             category_box.add(label_box)
@@ -156,9 +155,10 @@ class EmojiPicker(Gtk.Window):
     def create_emoji_flowbox(self, emojis, category=None):
         flowbox = Gtk.FlowBox(
             valign=Gtk.Align.START,
-            min_children_per_line=8,
-            max_children_per_line=50,
-            selection_mode=Gtk.SelectionMode.MULTIPLE
+            # min_children_per_line=8,
+            max_children_per_line=10,
+            selection_mode=Gtk.SelectionMode.MULTIPLE,
+            homogeneous=True
         )
 
         if category:
@@ -169,7 +169,7 @@ class EmojiPicker(Gtk.Window):
 
         for emoji in emojis:
             btn = Gtk.Button(
-                label=emoji.char,
+                label=emoji['char'],
                 name='emoji_button',
                 can_focus=False,
                 relief=Gtk.ReliefStyle.NONE
@@ -181,7 +181,7 @@ class EmojiPicker(Gtk.Window):
             flowbox_child = Gtk.FlowBoxChild()
             flowbox_child.add(btn)
             flowbox_child.parent = flowbox
-            flowbox_child.emoji = emoji.char
+            flowbox_child.emoji = emoji['char']
             flowbox_child.connect('focus-in-event', self.on_emoji_focus)
             flowbox.add(flowbox_child)
 

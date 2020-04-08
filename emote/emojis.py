@@ -1,53 +1,65 @@
+import os
+import json
 from collections import defaultdict
-import emoji_data_python
 
 
 MAX_VERSION = 10.0
 
 
-registered_emoji = {}
+emojis_by_category = defaultdict(list)
+all_emojis = []
 
 
-# TODO - migrate to https://github.com/muan/emojilib/blob/master/emojis.json
-# It has proper keyword associations
+def init():
+    global all_emojis
+    global emojis_by_category
+
+    snap = os.environ.get("SNAP")
+
+    if snap:
+        filename = f'{snap}/static/emojis.json'
+    else:
+        filename = 'static/emojis.json'
+
+    with open(filename, 'r') as f:
+        emojis = json.load(f)
+
+        for emoji_key in emojis.keys():
+            emoji = emojis[emoji_key].copy()
+            emoji.update({'name': emoji_key})
+
+            emojis_by_category[emoji['category']].append(emoji)
+            all_emojis.append(emoji)
 
 
 def get_category_order():
-    '''Return the categories in the order want to render them in'''
+    '''
+    Return the categories in the order want to render them in
+
+    Returned as arrays of tuples in the form
+    (<category name>, <category display name>)
+    '''
     return [
-        'Smileys & Emotion',
-        'People & Body',
-        'Animals & Nature',
-        'Food & Drink',
-        'Objects',
-        'Activities',
-        'Travel & Places',
-        'Symbols',
-        'Flags'
+        ('people', 'Smileys & People'),
+        ('animals_and_nature', 'Animals & Nature'),
+        ('food_and_drink', 'Food & Drink'),
+        ('objects', 'Objects'),
+        ('activity', 'Activities'),
+        ('travel_and_places', 'Travel & Places'),
+        ('symbols', 'Symbols'),
+        ('flags', 'Flags')
     ]
 
 
 def get_emojis_by_category():
-    categories = defaultdict(list)
-
-    for emoji in emoji_data_python.emoji_data:
-        if (float(emoji.added_in) > MAX_VERSION):
-            continue
-        # print(emoji.char, emoji.short_name, emoji.name)
-        registered_emoji[emoji.short_name] = True
-        categories[emoji.category].append(emoji)
-
-    for category_key in categories.keys():
-        categories[category_key] = sorted(
-            categories[category_key],
-            key=lambda x: x.sort_order
-        )
-
-    return categories
+    return emojis_by_category
 
 
 def search(query):
-    return list(filter(
-        lambda emoji: emoji.short_name in registered_emoji,
-        emoji_data_python.find_by_name(query)
-    ))
+    def search_filter(emoji):
+        return (
+            emoji['name'].startswith(query) or
+            any(keyword.startswith(query) for keyword in emoji['keywords'])
+        )
+
+    return list(filter(search_filter, all_emojis))

@@ -5,7 +5,6 @@ verify_ssl = true
 
 [packages]
 pygobject = "==3.36.0"
-emoji-data-python = "==1.4.2"
 
 [requires]
 python_version = "3.7"

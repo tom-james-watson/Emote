@@ -2,7 +2,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Keybinder', '3.0')
 from gi.repository import Gtk, Keybinder
-from emote import picker, css
+from emote import picker, css, emojis
 
 
 def create_picker():
@@ -15,6 +15,8 @@ def main():
     Gtk.Application(application_id='org.tom-james-watson.EmojiGTK')
 
     css.load_css()
+
+    emojis.init()
 
     # Register global shortcut for invoking the emoji picker
     Keybinder.init()

@@ -13,6 +13,5 @@ setup(
     },
     install_requires=[
         "pygobject==3.36.0",
-        "emoji-data-python==1.4.2"
     ]
 )

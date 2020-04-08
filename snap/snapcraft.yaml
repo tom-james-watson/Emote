@@ -26,7 +26,6 @@ parts:
     python-packages:
       - wheel
       - pygobject
-      - emoji-data-python
       - setuptools
     build-packages:
       - python3-setuptools
@@ -64,7 +63,7 @@ parts:
     plugin: dump
     source: static/
     organize:
-      '*.css': static/
+      '*': static/
 
 apps:
   emote:
