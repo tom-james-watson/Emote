@@ -161,6 +161,7 @@ class EmojiPicker(Gtk.Window):
 
         toggled_category_selector = self.category_selectors[index]
         toggled_category_selector.set_active(True)
+        toggled_category_selector.grab_focus()
 
         self.on_category_selector_toggled(toggled_category_selector)
 
