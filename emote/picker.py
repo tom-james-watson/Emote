@@ -37,6 +37,8 @@ class EmojiPicker(Gtk.Window):
         # momentarily False during window creation.
         GLib.timeout_add(500, self.register_window_state_event_handler)
 
+        self.connect("key-press-event", self.on_key_press_event)
+
     def init_header(self):
         header = Gtk.HeaderBar(title='Emote')
         header.set_subtitle('Select an emoji to copy it')
@@ -87,6 +89,19 @@ class EmojiPicker(Gtk.Window):
         '''If the window has just unfocussed, exit'''
         if not (event.new_window_state & Gdk.WindowState.FOCUSED):
             self.destroy()
+
+    def on_key_press_event(self, widget, event):
+        keyval = event.keyval
+        keyval_name = Gdk.keyval_name(keyval)
+        state = event.state
+        ctrl = (state & Gdk.ModifierType.CONTROL_MASK)
+
+        if ctrl and keyval_name == 'f':
+            self.search_entry.grab_focus()
+        else:
+            return False
+
+        return True
 
     def on_category_selector_toggled(self, toggled_category_selector, category):
         if not toggled_category_selector.get_active():
