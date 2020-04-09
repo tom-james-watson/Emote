@@ -64,8 +64,7 @@ class EmojiPicker(Gtk.Window):
 
             category_selector.connect(
                 'toggled',
-                self.on_category_selector_toggled,
-                category
+                self.on_category_selector_toggled
             )
 
             hbox.pack_start(category_selector, True, False, GRID_SIZE)
@@ -88,7 +87,6 @@ class EmojiPicker(Gtk.Window):
     def on_window_state_event(self, widget, event):
         '''If the window has just unfocussed, exit'''
         if not (event.new_window_state & Gdk.WindowState.FOCUSED):
-            self.exit()
             self.destroy()
 
     def on_key_press_event(self, widget, event):
@@ -96,29 +94,58 @@ class EmojiPicker(Gtk.Window):
         keyval_name = Gdk.keyval_name(keyval)
         state = event.state
         ctrl = (state & Gdk.ModifierType.CONTROL_MASK)
+        shift = (state & Gdk.ModifierType.SHIFT_MASK)
+        tab = keyval_name == 'Tab' or keyval_name == 'ISO_Left_Tab'
 
         if ctrl and keyval_name == 'f':
             self.search_entry.grab_focus()
-        if keyval_name == 'Escape':
+        elif ctrl and shift and tab:
+            self.on_cycle_category(True)
+        elif ctrl and tab:
+            self.on_cycle_category()
+        elif keyval_name == 'Escape':
             self.destroy()
         else:
             return False
 
         return True
 
-    def on_category_selector_toggled(self, toggled_category_selector, category):
+    def on_category_selector_toggled(self, toggled_category_selector):
         if not toggled_category_selector.get_active():
             return
 
-        self.selected_emoji_category = category
+        self.selected_emoji_category = toggled_category_selector.category
 
         for category_selector in self.category_selectors:
-            if category_selector.category != category:
+            if category_selector.category != self.selected_emoji_category:
                 category_selector.set_active(False)
 
-        # When the user selects a category, we should cancel any ongoing search
         self.search_entry.set_text('')
         self.render_selected_emoji_category()
+
+    def on_cycle_category(self, backwards=False):
+        index = None
+
+        for (i, category_selector) in enumerate(self.category_selectors):
+            if category_selector.category == self.selected_emoji_category:
+                index = i
+                break
+
+        if backwards:
+            if index == 0:
+                index = -1
+            else:
+                index -= 1
+        else:
+            if index == len(self.category_selectors) - 1:
+                index = 0
+            else:
+                index += 1
+
+        toggled_category_selector = self.category_selectors[index]
+        toggled_category_selector.set_active(True)
+
+        self.on_category_selector_toggled(toggled_category_selector)
 
     def on_flowbox_child_activated(self, flow_box, child):
         self.on_emoji_selected(child.emoji)
