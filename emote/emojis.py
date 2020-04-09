@@ -1,6 +1,7 @@
 import os
 import json
 from collections import defaultdict
+from emote import user_data
 
 
 MAX_VERSION = 10.0
@@ -31,6 +32,18 @@ def init():
             emojis_by_category[emoji['category']].append(emoji)
             all_emojis.append(emoji)
 
+    update_recent_category()
+
+
+def update_recent_category():
+    emojis_by_category['recent'] = []
+
+    for emoji in user_data.load_recent_emojis():
+        emojis_by_category['recent'].append({
+            "char": emoji,
+            "category": "recent"
+        })
+
 
 def get_category_order():
     '''
@@ -40,6 +53,7 @@ def get_category_order():
     (<category name>, <category display name>, <category_image>)
     '''
     return [
+        ('recent', 'Recently Used', '🕙'),
         ('people', 'Smileys & People', '🙂'),
         ('animals_and_nature', 'Animals & Nature', '🐯'),
         ('food_and_drink', 'Food & Drink', '🍔'),
