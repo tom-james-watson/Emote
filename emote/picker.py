@@ -17,42 +17,68 @@ class EmojiPicker(Gtk.Window):
             resizable=False,
             deletable=False
         )
-        self.set_default_size(350, 450)
-
-        header = Gtk.HeaderBar(title='Emote')
-        header.set_subtitle('Select an emoji to copy it')
-        self.set_titlebar(header)
+        self.set_default_size(500, 450)
+        self.set_keep_above(True)
 
         self.app_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        search_box = Gtk.Box()
-        search = Gtk.SearchEntry()
-        search_box.pack_start(search, True, True, GRID_SIZE)
-        search.connect('focus-in-event', self.on_search_focus)
-        search.connect('changed', self.on_search_changed)
-        self.app_container.pack_start(search_box, False, False, GRID_SIZE)
-
-        self.spinner = Gtk.Spinner()
-        self.spinner.start()
-        self.app_container.pack_start(self.spinner, False, False, GRID_SIZE)
-
         self.add(self.app_container)
 
-        self.search_scrolled = None
-        self.search_flowbox = None
+        self.init_header()
+        self.init_category_selectors()
+        self.init_search()
+        self.render_selected_emoji_category()
 
-        self.set_keep_above(True)
-        self.present_with_time(open_time)
+        self.search_scrolled = None
 
         self.show_all()
+        self.present_with_time(open_time)
 
         # Delay registering events by 100ms. For some reason FOCUS of Window is
         # momentarily False during window creation.
         GLib.timeout_add(500, self.register_window_state_event_handler)
 
-        # Release the main loop before creating the emoji list
-        GLib.idle_add(self.create_emoji_list)
+    def init_header(self):
+        header = Gtk.HeaderBar(title='Emote')
+        header.set_subtitle('Select an emoji to copy it')
+        self.set_titlebar(header)
 
-        GLib.idle_add(search.grab_focus)
+    def init_category_selectors(self):
+        hbox = Gtk.Box()
+
+        self.category_selectors = []
+        self.selected_emoji_category = 'people'
+
+        for (category, _, category_image) in emojis.get_category_order():
+            category_selector = Gtk.ToggleButton(
+                label=category_image,
+                name='category_selector_button'
+            )
+            category_selector.category = category
+
+            if category == self.selected_emoji_category:
+                category_selector.set_active(True)
+
+            self.category_selectors.append(category_selector)
+
+            category_selector.connect(
+                'toggled',
+                self.on_category_selector_toggled,
+                category
+            )
+
+            hbox.pack_start(category_selector, True, False, GRID_SIZE)
+
+        self.app_container.pack_start(hbox, False, False, GRID_SIZE)
+
+    def init_search(self):
+        search_box = Gtk.Box()
+        self.search_entry = Gtk.SearchEntry()
+        search_box.pack_start(self.search_entry, True, True, GRID_SIZE)
+        self.search_entry.connect('focus-in-event', self.on_search_focus)
+        self.search_entry.connect('changed', self.on_search_changed)
+        self.app_container.add(search_box)
+
+        GLib.idle_add(self.search_entry.grab_focus)
 
     def register_window_state_event_handler(self):
         self.connect('window-state-event', self.on_window_state_event)
@@ -62,42 +88,52 @@ class EmojiPicker(Gtk.Window):
         if not (event.new_window_state & Gdk.WindowState.FOCUSED):
             self.destroy()
 
+    def on_category_selector_toggled(self, toggled_category_selector, category):
+        if not toggled_category_selector.get_active():
+            return
+
+        self.selected_emoji_category = category
+
+        for category_selector in self.category_selectors:
+            if category_selector.category != category:
+                category_selector.set_active(False)
+
+        # When the user selects a category, we should cancel any ongoing search
+        self.search_entry.set_text('')
+        self.render_selected_emoji_category()
+
     def on_flowbox_child_activated(self, flow_box, child):
         self.on_emoji_selected(child.emoji)
 
-    def on_emoji_focus(self, flowbox_child, event):
-        focused_flowbox = flowbox_child.parent
-
-        for flowbox in self.flowboxes:
-            if (
-                hasattr(flowbox, 'category') and
-                hasattr(focused_flowbox, 'category') and
-                flowbox.category != focused_flowbox.category
-            ):
-                flowbox.unselect_all()
-
     def on_search_focus(self, search_entry, event):
-        for flowbox in self.flowboxes:
-            flowbox.unselect_all()
-
-        if self.search_flowbox:
-            self.search_flowbox.unselect_all()
+        if self.emoji_flowbox:
+            self.emoji_flowbox.unselect_all()
 
     def on_search_changed(self, search_entry):
-        query = search_entry.props.text
+        query = self.search_entry.props.text
 
         if query == '':
-            self.search_flowbox = None
             if self.search_scrolled:
                 self.search_scrolled.destroy()
                 self.search_scrolled = None
-            self.app_container.pack_end(self.scrolled, True, True, 0)
-            return
 
-        self.app_container.remove(self.scrolled)
+            # Retoggle the previously selected emoji category
+            for category_selector in self.category_selectors:
+                if category_selector.category == self.selected_emoji_category:
+                    category_selector.set_active(True)
 
+            self.render_selected_emoji_category()
+
+        else:
+            self.app_container.remove(self.category_scrolled)
+            self.render_emoji_search_results(query)
+
+    def render_emoji_search_results(self, query):
         if self.search_scrolled:
             self.search_scrolled.destroy()
+
+        for category_selector in self.category_selectors:
+            category_selector.set_active(False)
 
         self.search_scrolled = Gtk.ScrolledWindow()
         self.search_scrolled.set_hexpand(False)
@@ -106,65 +142,71 @@ class EmojiPicker(Gtk.Window):
             orientation=Gtk.Orientation.VERTICAL,
             spacing=GRID_SIZE
         )
-        self.search_flowbox = self.create_emoji_flowbox(emojis.search(query))
-        self.search_box.pack_start(self.search_flowbox, True, True, 0)
+        self.search_box.pack_start(
+            self.create_emoji_flowbox(emojis.search(query)),
+            True,
+            True,
+            GRID_SIZE
+        )
+
         self.search_scrolled.add(self.search_box)
+
         self.app_container.pack_start(self.search_scrolled, True, True, 0)
         self.show_all()
 
-    def create_emoji_list(self):
-        self.scrolled = Gtk.ScrolledWindow()
-        self.scrolled.set_hexpand(False)
+    def render_selected_emoji_category(self):
+        if hasattr(self, 'category_scrolled'):
+            self.app_container.remove(self.category_scrolled)
 
-        self.categories_box = Gtk.Box(
+        self.category_scrolled = Gtk.ScrolledWindow()
+        self.category_scrolled.set_hexpand(False)
+
+        category = self.selected_emoji_category
+        category_display_name = None
+
+        for (c, display_name, _) in emojis.get_category_order():
+            if c == category:
+                category_display_name = display_name
+                break
+
+        category_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL,
             spacing=GRID_SIZE
         )
 
-        emoji_categories = emojis.get_emojis_by_category()
+        label_box = Gtk.Box()
+        label = Gtk.Label()
+        label.set_text(category_display_name)
+        label.set_justify(Gtk.Justification.LEFT)
+        label_box.pack_start(label, False, False, GRID_SIZE)
+        category_box.pack_start(Gtk.Box(), False, False, GRID_SIZE / 2)
+        category_box.add(label_box)
 
-        self.flowboxes = []
+        category_box.pack_start(
+            self.create_emoji_flowbox(
+                emojis.get_emojis_by_category()[category],
+                category=category
+            ),
+            True,
+            True,
+            0
+        )
 
-        for (category, category_display_name) in emojis.get_category_order():
-            category_box = Gtk.Box(
-                orientation=Gtk.Orientation.VERTICAL,
-                spacing=GRID_SIZE
-            )
-            self.categories_box.add(category_box)
-
-            label_box = Gtk.Box()
-            label = Gtk.Label()
-            label.set_text(category_display_name)
-            label.set_justify(Gtk.Justification.LEFT)
-            label_box.pack_start(label, False, False, GRID_SIZE)
-            category_box.add(label_box)
-
-            category_box.add(
-                self.create_emoji_flowbox(
-                    emoji_categories[category],
-                    category=category
-                )
-            )
-
-        self.scrolled.add(self.categories_box)
-        self.app_container.remove(self.spinner)
-        self.app_container.pack_end(self.scrolled, True, True, 0)
+        self.category_scrolled.add(category_box)
+        self.app_container.pack_end(self.category_scrolled, True, True, 0)
 
         self.show_all()
 
     def create_emoji_flowbox(self, emojis, category=None):
         flowbox = Gtk.FlowBox(
             valign=Gtk.Align.START,
-            # min_children_per_line=8,
             max_children_per_line=10,
             selection_mode=Gtk.SelectionMode.MULTIPLE,
             homogeneous=True
         )
 
-        if category:
-            flowbox.category = category
+        self.emoji_flowbox = flowbox
 
-        self.flowboxes.append(flowbox)
         flowbox.connect('child_activated', self.on_flowbox_child_activated)
 
         for emoji in emojis:
@@ -182,7 +224,6 @@ class EmojiPicker(Gtk.Window):
             flowbox_child.add(btn)
             flowbox_child.parent = flowbox
             flowbox_child.emoji = emoji['char']
-            flowbox_child.connect('focus-in-event', self.on_emoji_focus)
             flowbox.add(flowbox_child)
 
         return flowbox

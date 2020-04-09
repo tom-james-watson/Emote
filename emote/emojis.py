@@ -37,17 +37,17 @@ def get_category_order():
     Return the categories in the order want to render them in
 
     Returned as arrays of tuples in the form
-    (<category name>, <category display name>)
+    (<category name>, <category display name>, <category_image>)
     '''
     return [
-        ('people', 'Smileys & People'),
-        ('animals_and_nature', 'Animals & Nature'),
-        ('food_and_drink', 'Food & Drink'),
-        ('objects', 'Objects'),
-        ('activity', 'Activities'),
-        ('travel_and_places', 'Travel & Places'),
-        ('symbols', 'Symbols'),
-        ('flags', 'Flags')
+        ('people', 'Smileys & People', '🙂'),
+        ('animals_and_nature', 'Animals & Nature', '🐯'),
+        ('food_and_drink', 'Food & Drink', '🍔'),
+        ('activity', 'Activities', '⚽'),
+        ('travel_and_places', 'Travel & Places', '✈️'),
+        ('objects', 'Objects', '💡'),
+        ('symbols', 'Symbols', '❤️'),
+        ('flags', 'Flags', '🇺🇳')
     ]
 
 
