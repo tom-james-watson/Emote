@@ -20,6 +20,9 @@ class EmojiPicker(Gtk.Window):
         self.set_default_size(500, 450)
         self.set_keep_above(True)
 
+        self.search_scrolled = None
+        self.current_emojis = []
+
         self.app_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.app_container)
 
@@ -27,8 +30,6 @@ class EmojiPicker(Gtk.Window):
         self.init_category_selectors()
         self.init_search()
         self.render_selected_emoji_category()
-
-        self.search_scrolled = None
 
         self.show_all()
         self.present_with_time(open_time)
@@ -77,6 +78,10 @@ class EmojiPicker(Gtk.Window):
         search_box.pack_start(self.search_entry, True, True, GRID_SIZE)
         self.search_entry.connect('focus-in-event', self.on_search_focus)
         self.search_entry.connect('changed', self.on_search_changed)
+        self.search_entry.connect(
+            "key-press-event",
+            self.on_search_entry_key_press_event
+        )
         self.app_container.add(search_box)
 
         GLib.idle_add(self.search_entry.grab_focus)
@@ -105,6 +110,18 @@ class EmojiPicker(Gtk.Window):
             self.on_cycle_category()
         elif keyval_name == 'Escape':
             self.destroy()
+        else:
+            return False
+
+        return True
+
+    def on_search_entry_key_press_event(self, widget, event):
+        keyval = event.keyval
+        keyval_name = Gdk.keyval_name(keyval)
+
+        if keyval_name == 'Return':
+            if len(self.current_emojis) > 0:
+                self.on_emoji_selected(self.current_emojis[0]['char'])
         else:
             return False
 
@@ -251,6 +268,7 @@ class EmojiPicker(Gtk.Window):
         )
 
         self.emoji_flowbox = flowbox
+        self.current_emojis = emojis
 
         flowbox.connect('child_activated', self.on_flowbox_child_activated)
 
