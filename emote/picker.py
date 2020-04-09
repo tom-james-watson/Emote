@@ -88,6 +88,7 @@ class EmojiPicker(Gtk.Window):
     def on_window_state_event(self, widget, event):
         '''If the window has just unfocussed, exit'''
         if not (event.new_window_state & Gdk.WindowState.FOCUSED):
+            self.exit()
             self.destroy()
 
     def on_key_press_event(self, widget, event):
@@ -98,6 +99,8 @@ class EmojiPicker(Gtk.Window):
 
         if ctrl and keyval_name == 'f':
             self.search_entry.grab_focus()
+        if keyval_name == 'Escape':
+            self.destroy()
         else:
             return False
 
