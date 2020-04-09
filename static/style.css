@@ -6,6 +6,10 @@
   padding-right: 5px;
 }
 
+stackswitcher button.text-button {
+  min-width: 10px;
+}
+
 flowboxchild {
   outline: none;
 }

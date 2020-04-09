@@ -43,9 +43,9 @@ def get_category_order():
         ('people', 'Smileys & People'),
         ('animals_and_nature', 'Animals & Nature'),
         ('food_and_drink', 'Food & Drink'),
-        ('objects', 'Objects'),
         ('activity', 'Activities'),
         ('travel_and_places', 'Travel & Places'),
+        ('objects', 'Objects'),
         ('symbols', 'Symbols'),
         ('flags', 'Flags')
     ]

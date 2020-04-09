@@ -17,13 +17,51 @@ class EmojiPicker(Gtk.Window):
             resizable=False,
             deletable=False
         )
-        self.set_default_size(350, 450)
+        self.set_default_size(500, 450)
 
         header = Gtk.HeaderBar(title='Emote')
         header.set_subtitle('Select an emoji to copy it')
         self.set_titlebar(header)
 
         self.app_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+        stack = Gtk.Stack(
+            transition_type=Gtk.StackTransitionType.SLIDE_LEFT_RIGHT
+        )
+        stack.set_transition_duration(250)
+
+        stack.add_titled(Gtk.CheckButton("Click me!"), "recent", "🕙")
+
+        checkbutton = Gtk.CheckButton("Click me!")
+        stack.add_titled(checkbutton, "check", "🙂")
+
+        label = Gtk.Label()
+        label.set_markup("<big>A fancy label</big>")
+        stack.add_titled(label, "label", "🌱")
+        label1 = Gtk.Label()
+        label1.set_markup("<big>A fancy label</big>")
+        stack.add_titled(label1, "label1", "🍴")
+        label2 = Gtk.Label()
+        label2.set_markup("<big>A fancy label</big>")
+        stack.add_titled(label2, "label2", "💡")
+        label3 = Gtk.Label()
+        label3.set_markup("<big>A fancy label</big>")
+        stack.add_titled(label3, "label3", "⚽")
+        label4 = Gtk.Label()
+        label4.set_markup("<big>A fancy label</big>")
+        stack.add_titled(label4, "label4", "✈️")
+        label6 = Gtk.Label()
+        label6.set_markup("<big>A fancy label</big>")
+        stack.add_titled(label6, "label6", "⚠️")
+        label7 = Gtk.Label()
+        label7.set_markup("<big>A fancy label</big>")
+        stack.add_titled(label7, "label7", "🇺🇳")
+
+        stack_switcher = Gtk.StackSwitcher(name="stack_label")
+        stack_switcher.set_stack(stack)
+        self.app_container.pack_start(stack_switcher, False, False, 0)
+        self.app_container.pack_start(stack, True, True, 0)
+
         search_box = Gtk.Box()
         search = Gtk.SearchEntry()
         search_box.pack_start(search, True, True, GRID_SIZE)
@@ -108,7 +146,9 @@ class EmojiPicker(Gtk.Window):
         )
         self.search_flowbox = self.create_emoji_flowbox(emojis.search(query))
         self.search_box.pack_start(self.search_flowbox, True, True, 0)
+
         self.search_scrolled.add(self.search_box)
+
         self.app_container.pack_start(self.search_scrolled, True, True, 0)
         self.show_all()
 
