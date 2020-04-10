@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Emote
 Type=Application
-Comment=An emoji picker for the linux desktop
+Comment=Modern popup emoji picker
 Exec=emote
 Categories=Utility;GTK;
 Keywords=emoji

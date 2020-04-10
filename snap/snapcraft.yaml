@@ -1,7 +1,7 @@
 name: emote
 version: '0.1.0'
 license: GPL-3.0+
-summary: A modern emoji picker built on GTK3
+summary: Modern emoji picker built on GTK3
 description: |
   Emote is a simple emoji picker that is launched with a keyboard shortcut and
   copies the selected emoji to the clipboard. Emote is lightweight and stays
@@ -10,7 +10,7 @@ icon: snap/gui/emote.svg
 
 base: core18
 grade: devel # Must be 'stable' to release into candidate/stable channels
-confinement: strict # or devmode
+confinement: devmode # or strict
 
 parts:
   emote:
@@ -57,35 +57,6 @@ parts:
       - appmenu-gtk3-module
       - libcanberra-gtk-module
       - libcanberra-gtk3-module
-    after:
-      - desktop-gtk3
-  desktop-gtk3:
-    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
-    source-subdir: gtk
-    plugin: make
-    make-parameters: ["FLAVOR=gtk3"]
-    build-packages:
-      - build-essential
-      - libgtk-3-dev
-    stage-packages:
-      - libxkbcommon0  # XKB_CONFIG_ROOT
-      - ttf-ubuntu-font-family
-      - dmz-cursor-theme
-      - light-themes
-      - adwaita-icon-theme
-      - gnome-themes-standard
-      - shared-mime-info
-      - libgtk-3-0
-      - libgdk-pixbuf2.0-0
-      - libglib2.0-bin
-      - libgtk-3-bin
-      - unity-gtk3-module
-      - libappindicator3-1
-      - locales-all
-      - xdg-user-dirs
-      - ibus-gtk3
-      - libibus-1.0-5
-      - fcitx-frontend-gtk3
   static:
     plugin: dump
     source: static/
@@ -105,32 +76,10 @@ apps:
   emote:
     command: desktop-launch $SNAP/bin/emote
     desktop: usr/share/applications/emote.desktop
-    slots:
-      - emote
+    extensions: [gnome-3-28]
     common-id: com.tomjwatson.Emote
     plugs:
       - desktop
       - desktop-legacy
       - x11
       - wayland
-
-slots:
-  # for GtkApplication registration
-  emote:
-    interface: dbus
-    bus: session
-    name: com.tomjwatson.Emote
-
-plugs:
-  gtk-3-themes:
-    interface: content
-    target: $SNAP/data-dir/themes
-    default-provider: gtk-common-themes
-  icon-themes:
-    interface: content
-    target: $SNAP/data-dir/icons
-    default-provider: gtk-common-themes
-  sound-themes:
-    interface: content
-    target: $SNAP/data-dir/sounds
-    default-provider: gtk-common-themes
