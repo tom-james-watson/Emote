@@ -110,6 +110,7 @@ apps:
     common-id: com.tomjwatson.Emote
     plugs:
       - desktop
+      - desktop-legacy
       - x11
       - wayland
 
