@@ -6,17 +6,18 @@ description: |
   Emote is a simple emoji picker that is launched with a keyboard shortcut and
   copies the selected emoji to the clipboard. Emote is lightweight and stays
   out of your way.
+icon: snap/gui/emote.svg
 
 base: core18
-grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # or strict
+grade: stable # or 'devel'. Must be 'stable' to release into candidate/stable channels
+confinement: strict # or devmode
 
 slots:
   # for GtkApplication registration
   emote:
     interface: dbus
     bus: session
-    name: com.tom-james-watson.emote
+    name: com.tomjwatson.Emote
 
 parts:
   emote:
@@ -64,14 +65,21 @@ parts:
     source: static/
     organize:
       '*': static/
+  desktop-resources:
+    plugin: dump
+    source: snap/gui/
+    organize:
+      emote.desktop: usr/share/applications/emote.desktop
+      emote.svg: usr/share/icons/emote.svg
+    stage:
+      - usr/share/applications/emote.desktop
+      - usr/share/icons/emote.svg
 
 apps:
   emote:
     command: desktop-launch $SNAP/bin/emote
+    desktop: usr/share/applications/emote.desktop
     extensions: [gnome-3-28]
     slots:
       - emote
-    common-id: com.tom-james-watson.emote
-    plugs:
-      - desktop
-      - x11
+    common-id: com.tomjwatson.Emote
