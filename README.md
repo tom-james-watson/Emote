@@ -36,3 +36,13 @@ Create a packaged `.snap` file:
 ```bash
 snapcraft
 ```
+
+## Attribution
+
+### App Icon
+
+Copyright 2020 Twitter, Inc and other contributors
+
+Thanks for the awesome team at Twitter.
+
+https://twemoji.twitter.com
