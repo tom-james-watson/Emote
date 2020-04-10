@@ -12,13 +12,6 @@ base: core18
 grade: stable # or 'devel'. Must be 'stable' to release into candidate/stable channels
 confinement: strict # or devmode
 
-slots:
-  # for GtkApplication registration
-  emote:
-    interface: dbus
-    bus: session
-    name: com.tomjwatson.Emote
-
 parts:
   emote:
     plugin: python
@@ -60,6 +53,37 @@ parts:
       - gir1.2-notify-0.7
       - gir1.2-gtk-3.0
       - gir1.2-pango-1.0
+      - appmenu-gtk2-module
+      - appmenu-gtk3-module
+    after:
+      - desktop-gtk3
+  desktop-gtk3:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: gtk
+    plugin: make
+    make-parameters: ["FLAVOR=gtk3"]
+    build-packages:
+      - build-essential
+      - libgtk-3-dev
+    stage-packages:
+      - libxkbcommon0  # XKB_CONFIG_ROOT
+      - ttf-ubuntu-font-family
+      - dmz-cursor-theme
+      - light-themes
+      - adwaita-icon-theme
+      - gnome-themes-standard
+      - shared-mime-info
+      - libgtk-3-0
+      - libgdk-pixbuf2.0-0
+      - libglib2.0-bin
+      - libgtk-3-bin
+      - unity-gtk3-module
+      - libappindicator3-1
+      - locales-all
+      - xdg-user-dirs
+      - ibus-gtk3
+      - libibus-1.0-5
+      - fcitx-frontend-gtk3
   static:
     plugin: dump
     source: static/
@@ -79,7 +103,31 @@ apps:
   emote:
     command: desktop-launch $SNAP/bin/emote
     desktop: usr/share/applications/emote.desktop
-    extensions: [gnome-3-28]
     slots:
       - emote
     common-id: com.tomjwatson.Emote
+    plugs:
+      - desktop
+      - x11
+      - wayland
+
+slots:
+  # for GtkApplication registration
+  emote:
+    interface: dbus
+    bus: session
+    name: com.tomjwatson.Emote
+
+plugs:
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/data-dir/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/data-dir/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/data-dir/sounds
+    default-provider: gtk-common-themes
