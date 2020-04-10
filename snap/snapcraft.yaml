@@ -9,7 +9,7 @@ description: |
 icon: snap/gui/emote.svg
 
 base: core18
-grade: stable # or 'devel'. Must be 'stable' to release into candidate/stable channels
+grade: devel # Must be 'stable' to release into candidate/stable channels
 confinement: strict # or devmode
 
 parts:
@@ -55,6 +55,8 @@ parts:
       - gir1.2-pango-1.0
       - appmenu-gtk2-module
       - appmenu-gtk3-module
+      - libcanberra-gtk-module
+      - libcanberra-gtk3-module
     after:
       - desktop-gtk3
   desktop-gtk3:
