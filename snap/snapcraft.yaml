@@ -78,6 +78,7 @@ apps:
     desktop: usr/share/applications/emote.desktop
     extensions: [gnome-3-28]
     common-id: com.tomjwatson.Emote
+    autostart: emote.desktop
     plugs:
       - desktop
       - desktop-legacy
