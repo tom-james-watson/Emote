@@ -13,6 +13,7 @@ class EmoteApplication(Gtk.Application):
                          **kwargs)
 
         self.activated = False
+        self.picker_window = None
 
     def start_daemon(self):
         # Register global shortcut for invoking the emoji picker
@@ -28,7 +29,11 @@ class EmoteApplication(Gtk.Application):
         Gtk.main()
 
     def create_picker_window(self):
-        picker.EmojiPicker(Keybinder.get_current_event_time())
+        if self.picker_window:
+            self.picker_window.destroy()
+        self.picker_window = picker.EmojiPicker(
+            Keybinder.get_current_event_time()
+        )
 
     def do_activate(self):
         if not self.activated:
