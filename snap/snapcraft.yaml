@@ -1,5 +1,5 @@
 name: emote
-version: '0.2.0'
+version: '0.4.0'
 license: GPL-3.0+
 summary: Modern emoji picker built on GTK3
 description: |
@@ -74,7 +74,7 @@ parts:
 
 apps:
   emote:
-    command: desktop-launch $SNAP/bin/emote
+    command: desktop-launch $SNAP/static/setup-autostart $SNAP/bin/emote
     desktop: usr/share/applications/emote.desktop
     extensions: [gnome-3-28]
     common-id: com.tomjwatson.Emote
