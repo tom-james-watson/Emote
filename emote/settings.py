@@ -10,15 +10,18 @@ GRID_SIZE = 10
 
 class Settings(Gtk.Dialog):
 
-    def __init__(self, parent, update_accelerator):
+    def __init__(self, update_accelerator):
         Gtk.Dialog.__init__(
             self,
-            title='Emote',
+            title='Emote Settings',
             window_position=Gtk.WindowPosition.CENTER,
             resizable=False
         )
 
         self.update_accelerator = update_accelerator
+
+        header = Gtk.HeaderBar(title='Settings', show_close_button=True)
+        self.set_titlebar(header)
 
         box = self.get_content_area()
 
@@ -41,9 +44,6 @@ class Settings(Gtk.Dialog):
 
         hbox.pack_start(shortcut_keybinding, False, False, GRID_SIZE)
         box.pack_start(hbox, False, False, GRID_SIZE)
-
-        header = Gtk.HeaderBar(title='Settings', show_close_button=True)
-        self.set_titlebar(header)
 
         self.show_all()
         self.present()

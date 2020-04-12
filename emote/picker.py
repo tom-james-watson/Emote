@@ -4,7 +4,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GLib, Gio
 from gi.repository.GdkPixbuf import Pixbuf
-from emote import emojis, user_data, settings
+from emote import emojis, user_data, settings, guide
 from emote.version import __version__
 
 
@@ -52,19 +52,28 @@ class EmojiPicker(Gtk.Window):
 
         self.menu_popover = Gtk.Popover()
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        items_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
         prefs_btn = Gtk.ModelButton("Preferences")
         prefs_btn.set_alignment(0, 0.5)
         prefs_btn.connect('clicked', self.on_prefs_btn_clicked)
-        vbox.pack_start(prefs_btn, False, True, 0)
+        items_box.pack_start(prefs_btn, False, True, 0)
+
+        guide_btn = Gtk.ModelButton("Guide")
+        guide_btn.set_alignment(0, 0.5)
+        guide_btn.connect('clicked', self.on_guide_btn_clicked)
+        items_box.pack_start(guide_btn, False, True, 0)
 
         about_btn = Gtk.ModelButton("About")
         about_btn.set_alignment(0, 0.5)
         about_btn.connect('clicked', self.on_about_btn_clicked)
-        vbox.pack_start(about_btn, False, True, 0)
+        items_box.pack_start(about_btn, False, True, 0)
 
-        vbox.show_all()
-        self.menu_popover.add(vbox)
+        vbox.pack_start(items_box, False, False, GRID_SIZE)
+        hbox.pack_start(vbox, False, False, GRID_SIZE)
+        hbox.show_all()
+        self.menu_popover.add(hbox)
         self.menu_popover.set_position(Gtk.PositionType.BOTTOM)
 
         menu_button = Gtk.MenuButton()
@@ -152,8 +161,13 @@ class EmojiPicker(Gtk.Window):
 
     def on_prefs_btn_clicked(self, prefs_btn):
         self.dialog_open = True
-        settings_window = settings.Settings(self, self.update_accelerator)
+        settings_window = settings.Settings(self.update_accelerator)
         settings_window.connect('destroy', self.on_close_dialog)
+
+    def on_guide_btn_clicked(self, prefs_btn):
+        self.dialog_open = True
+        guide_window = guide.Guide()
+        guide_window.connect('destroy', self.on_close_dialog)
 
     def on_about_btn_clicked(self, about_btn):
         snap = os.environ.get("SNAP")
