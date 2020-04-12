@@ -3,7 +3,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Keybinder', '3.0')
 from gi.repository import Gtk, Keybinder
-from emote import picker, css, emojis
+from emote import picker, css, emojis, user_data
 
 
 class EmoteApplication(Gtk.Application):
@@ -16,9 +16,8 @@ class EmoteApplication(Gtk.Application):
         self.picker_window = None
 
     def start_daemon(self):
-        # Register global shortcut for invoking the emoji picker
         Keybinder.init()
-        Keybinder.bind("<Ctrl><Alt>E", lambda x: self.create_picker_window())
+        self.set_accelerator()
 
         css.load_css()
         emojis.init()
@@ -28,11 +27,31 @@ class EmoteApplication(Gtk.Application):
         # Run the main gtk event loop - this prevents the app from quitting
         Gtk.main()
 
+    def set_accelerator(self):
+        '''Register global shortcut for invoking the emoji picker'''
+        accel_string, _ = user_data.load_accelerator()
+
+        if accel_string:
+            Keybinder.bind(accel_string, lambda x: self.create_picker_window())
+
+    def unset_accelerator(self):
+        old_accel_string, _ = user_data.load_accelerator()
+
+        if old_accel_string:
+            Keybinder.unbind(old_accel_string)
+
+    def update_accelerator(self, accel_string, accel_label):
+        print(f'Updating global shortcut to {accel_label}')
+        self.unset_accelerator()
+        user_data.update_accelerator(accel_string, accel_label)
+        self.set_accelerator()
+
     def create_picker_window(self):
         if self.picker_window:
             self.picker_window.destroy()
         self.picker_window = picker.EmojiPicker(
-            Keybinder.get_current_event_time()
+            Keybinder.get_current_event_time(),
+            self.update_accelerator
         )
 
     def do_activate(self):

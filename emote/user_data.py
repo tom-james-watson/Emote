@@ -5,9 +5,16 @@ import shelve
 
 DATA_DIR = os.path.join(Path.home(), '.local/share/Emote')
 SHELVE_PATH = os.path.join(DATA_DIR, 'user_data')
-DEFAULT_RECENT_EMOJIS = ['🙂', '😄', '❤️', '👍', '🤞', '🔥', '🤣', '😍', '😭']
+
 RECENT_EMOJIS = 'recent_emojis'
+DEFAULT_RECENT_EMOJIS = ['🙂', '😄', '❤️', '👍', '🤞', '🔥', '🤣', '😍', '😭']
 MAX_RECENT_EMOJIS = 54
+
+ACCELERATOR_STRING = 'accelerator_string'
+DEFAULT_ACCELERATOR_STRING = '<Primary><Alt>e'
+
+ACCELERATOR_LABEL = 'accelerator_label'
+DEFAULT_ACCELERATOR_LABEL = 'Ctrl+Alt+E'
 
 
 # Ensure the data dir exists
@@ -30,3 +37,17 @@ def update_recent_emojis(emoji):
 
     with shelve.open(SHELVE_PATH) as db:
         db[RECENT_EMOJIS] = new_recent_emojis
+
+
+def load_accelerator():
+    with shelve.open(SHELVE_PATH) as db:
+        return (
+            db.get(ACCELERATOR_STRING, DEFAULT_ACCELERATOR_STRING),
+            db.get(ACCELERATOR_LABEL, DEFAULT_ACCELERATOR_LABEL)
+        )
+
+
+def update_accelerator(accel_string, accel_label):
+    with shelve.open(SHELVE_PATH) as db:
+        db[ACCELERATOR_STRING] = accel_string
+        db[ACCELERATOR_LABEL] = accel_label

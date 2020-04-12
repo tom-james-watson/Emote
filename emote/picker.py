@@ -1,7 +1,11 @@
+import os
+from datetime import datetime
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, GLib
-from emote import emojis, user_data
+from gi.repository import Gtk, Gdk, GLib, Gio
+from gi.repository.GdkPixbuf import Pixbuf
+from emote import emojis, user_data, settings
+from emote.version import __version__
 
 
 GRID_SIZE = 10
@@ -9,7 +13,7 @@ GRID_SIZE = 10
 
 class EmojiPicker(Gtk.Window):
 
-    def __init__(self, open_time):
+    def __init__(self, open_time, update_accelerator):
         Gtk.Window.__init__(
             self,
             title='Emote',
@@ -19,6 +23,8 @@ class EmojiPicker(Gtk.Window):
         )
         self.set_default_size(500, 450)
         self.set_keep_above(True)
+        self.dialog_open = False
+        self.update_accelerator = update_accelerator
 
         self.search_scrolled = None
         self.current_emojis = []
@@ -43,6 +49,32 @@ class EmojiPicker(Gtk.Window):
     def init_header(self):
         header = Gtk.HeaderBar(title='Emote')
         header.set_subtitle('Select an emoji to copy it')
+
+        self.menu_popover = Gtk.Popover()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+        prefs_btn = Gtk.ModelButton("Preferences")
+        prefs_btn.set_alignment(0, 0.5)
+        prefs_btn.connect('clicked', self.on_prefs_btn_clicked)
+        vbox.pack_start(prefs_btn, False, True, 0)
+
+        about_btn = Gtk.ModelButton("About")
+        about_btn.set_alignment(0, 0.5)
+        about_btn.connect('clicked', self.on_about_btn_clicked)
+        vbox.pack_start(about_btn, False, True, 0)
+
+        vbox.show_all()
+        self.menu_popover.add(vbox)
+        self.menu_popover.set_position(Gtk.PositionType.BOTTOM)
+
+        menu_button = Gtk.MenuButton()
+        menu_button.set_popover(self.menu_popover)
+        icon = Gio.ThemedIcon(name='open-menu-symbolic')
+        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
+        menu_button.show()
+        menu_button.add(image)
+        header.pack_start(menu_button)
+
         self.set_titlebar(header)
 
     def init_category_selectors(self):
@@ -91,6 +123,9 @@ class EmojiPicker(Gtk.Window):
 
     def on_window_state_event(self, widget, event):
         '''If the window has just unfocussed, exit'''
+        if self.dialog_open:
+            return
+
         if not (event.new_window_state & Gdk.WindowState.FOCUSED):
             self.destroy()
 
@@ -98,8 +133,8 @@ class EmojiPicker(Gtk.Window):
         keyval = event.keyval
         keyval_name = Gdk.keyval_name(keyval)
         state = event.state
-        ctrl = (state & Gdk.ModifierType.CONTROL_MASK)
-        shift = (state & Gdk.ModifierType.SHIFT_MASK)
+        ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
+        shift = bool(state & Gdk.ModifierType.SHIFT_MASK)
         tab = keyval_name == 'Tab' or keyval_name == 'ISO_Left_Tab'
 
         if ctrl and keyval_name == 'f':
@@ -114,6 +149,41 @@ class EmojiPicker(Gtk.Window):
             return False
 
         return True
+
+    def on_prefs_btn_clicked(self, prefs_btn):
+        self.dialog_open = True
+        settings_window = settings.Settings(self, self.update_accelerator)
+        settings_window.connect('destroy', self.on_close_dialog)
+
+    def on_about_btn_clicked(self, about_btn):
+        snap = os.environ.get("SNAP")
+
+        logo_path = f'{snap}/static/logo.svg' if snap else 'static/logo.svg'
+        logo = Pixbuf.new_from_file(logo_path)
+
+        about_dialog = Gtk.AboutDialog(
+            transient_for=self,
+            modal=True,
+            logo=logo,
+            program_name='Emote',
+            title='About Emote',
+            version=__version__,
+            authors=['Tom Watson'],
+            artists=['Twitter, Inc and other contributors (App Icon)'],
+            documenters=['Irene Auñón'],
+            copyright=f'© Tom Watson {datetime.now().year}',
+            website_label='Source Code',
+            website='https://github.com/tom-james-watson/emote',
+            comments='Modern popup emoji picker',
+            license_type=Gtk.License.GPL_3_0,
+        )
+
+        self.dialog_open = True
+        about_dialog.present()
+        about_dialog.connect('destroy', self.on_close_dialog)
+
+    def on_close_dialog(self, dialog):
+        self.dialog_open = False
 
     def on_search_entry_key_press_event(self, widget, event):
         keyval = event.keyval
