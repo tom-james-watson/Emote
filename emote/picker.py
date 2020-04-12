@@ -335,7 +335,7 @@ class EmojiPicker(Gtk.Window):
         flowbox = Gtk.FlowBox(
             valign=Gtk.Align.START,
             max_children_per_line=10,
-            selection_mode=Gtk.SelectionMode.MULTIPLE,
+            selection_mode=Gtk.SelectionMode.SINGLE,
             homogeneous=True
         )
 
