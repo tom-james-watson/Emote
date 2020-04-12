@@ -1,5 +1,4 @@
-Emote
-=====
+# <span><img width="32" height="32" src="https://github.com/tom-james-watson/Emote/blob/master/static/logo.svg"></span> Emote
 
 Emote is a simple GTK3-based Emoji Picker for linux.
 
