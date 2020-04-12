@@ -72,11 +72,19 @@ parts:
       - usr/share/applications/emote.desktop
       - usr/share/icons/emote.svg
 
+slots:
+  dbus-daemon:
+    interface: dbus
+    bus: session
+    name: com.tomjwatson.Emote
+
+
 apps:
   emote:
     command: desktop-launch $SNAP/static/setup-autostart $SNAP/bin/emote
     desktop: usr/share/applications/emote.desktop
     extensions: [gnome-3-28]
+    slots: [dbus-daemon]
     common-id: com.tomjwatson.Emote
     autostart: emote.desktop
     plugs:
