@@ -16,6 +16,9 @@ DEFAULT_ACCELERATOR_STRING = '<Primary><Alt>e'
 ACCELERATOR_LABEL = 'accelerator_label'
 DEFAULT_ACCELERATOR_LABEL = 'Ctrl+Alt+E'
 
+SHOWN_WELCOME = 'shown_welcome'
+DEFAULT_SHOWN_WELCOME = False
+
 
 # Ensure the data dir exists
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -51,3 +54,13 @@ def update_accelerator(accel_string, accel_label):
     with shelve.open(SHELVE_PATH) as db:
         db[ACCELERATOR_STRING] = accel_string
         db[ACCELERATOR_LABEL] = accel_label
+
+
+def load_shown_welcome():
+    with shelve.open(SHELVE_PATH) as db:
+        return db.get(SHOWN_WELCOME, DEFAULT_SHOWN_WELCOME)
+
+
+def update_shown_welcome():
+    with shelve.open(SHELVE_PATH) as db:
+        db[SHOWN_WELCOME] = True

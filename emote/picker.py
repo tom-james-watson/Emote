@@ -13,7 +13,7 @@ GRID_SIZE = 10
 
 class EmojiPicker(Gtk.Window):
 
-    def __init__(self, open_time, update_accelerator):
+    def __init__(self, open_time, update_accelerator, show_welcome):
         Gtk.Window.__init__(
             self,
             title='Emote',
@@ -40,6 +40,8 @@ class EmojiPicker(Gtk.Window):
         self.show_all()
         self.present_with_time(open_time)
 
+        self.check_welcome(show_welcome)
+
         # Delay registering events by 100ms. For some reason FOCUS of Window is
         # momentarily False during window creation.
         GLib.timeout_add(500, self.register_window_state_event_handler)
@@ -57,17 +59,17 @@ class EmojiPicker(Gtk.Window):
 
         prefs_btn = Gtk.ModelButton("Preferences")
         prefs_btn.set_alignment(0, 0.5)
-        prefs_btn.connect('clicked', self.on_prefs_btn_clicked)
+        prefs_btn.connect('clicked', lambda prefs_btn: self.open_preferences())
         items_box.pack_start(prefs_btn, False, True, 0)
 
         guide_btn = Gtk.ModelButton("Guide")
         guide_btn.set_alignment(0, 0.5)
-        guide_btn.connect('clicked', self.on_guide_btn_clicked)
+        guide_btn.connect('clicked', lambda guide_btn: self.open_guide())
         items_box.pack_start(guide_btn, False, True, 0)
 
         about_btn = Gtk.ModelButton("About")
         about_btn.set_alignment(0, 0.5)
-        about_btn.connect('clicked', self.on_about_btn_clicked)
+        about_btn.connect('clicked', lambda about_btn: self.open_about())
         items_box.pack_start(about_btn, False, True, 0)
 
         vbox.pack_start(items_box, False, False, GRID_SIZE)
@@ -127,6 +129,11 @@ class EmojiPicker(Gtk.Window):
 
         GLib.idle_add(self.search_entry.grab_focus)
 
+    def check_welcome(self, show_welcome):
+        '''Show the guide the first time we run the app'''
+        if show_welcome:
+            self.open_guide()
+
     def register_window_state_event_handler(self):
         self.connect('window-state-event', self.on_window_state_event)
 
@@ -159,17 +166,17 @@ class EmojiPicker(Gtk.Window):
 
         return True
 
-    def on_prefs_btn_clicked(self, prefs_btn):
+    def open_preferences(self):
         self.dialog_open = True
         settings_window = settings.Settings(self.update_accelerator)
         settings_window.connect('destroy', self.on_close_dialog)
 
-    def on_guide_btn_clicked(self, prefs_btn):
+    def open_guide(self):
         self.dialog_open = True
         guide_window = guide.Guide()
         guide_window.connect('destroy', self.on_close_dialog)
 
-    def on_about_btn_clicked(self, about_btn):
+    def open_about(self):
         snap = os.environ.get("SNAP")
 
         logo_path = f'{snap}/static/logo.svg' if snap else 'static/logo.svg'
