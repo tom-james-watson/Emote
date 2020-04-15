@@ -5,7 +5,6 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GLib, Gio
 from gi.repository.GdkPixbuf import Pixbuf
 from emote import emojis, user_data, settings, guide
-from emote.version import __version__
 
 
 GRID_SIZE = 10
@@ -188,7 +187,7 @@ class EmojiPicker(Gtk.Window):
             logo=logo,
             program_name='Emote',
             title='About Emote',
-            version=__version__,
+            version=os.environ.get('SNAP_VERSION', 'dev build'),
             authors=['Tom Watson'],
             artists=['Twitter, Inc and other contributors (App Icon)'],
             documenters=['Irene Auñón'],

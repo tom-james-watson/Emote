@@ -3,7 +3,6 @@ from setuptools import setup
 
 setup(
     name="Emote",
-    version="0.6.0",
     packages=['emote'],
     setup_requires=["setuptools"],
     entry_points={
