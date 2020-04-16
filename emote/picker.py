@@ -354,7 +354,8 @@ class EmojiPicker(Gtk.Window):
     def create_emoji_flowbox(self, emojis, category=None):
         flowbox = Gtk.FlowBox(
             valign=Gtk.Align.START,
-            max_children_per_line=10,
+            max_children_per_line=9,
+            min_children_per_line=9,
             selection_mode=Gtk.SelectionMode.SINGLE,
             homogeneous=True
         )
