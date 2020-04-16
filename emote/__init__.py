@@ -2,7 +2,7 @@ import sys
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Keybinder', '3.0')
-from gi.repository import Gtk, Keybinder
+from gi.repository import Gtk, Gdk, Keybinder
 from emote import picker, css, emojis, user_data
 
 
@@ -14,6 +14,8 @@ class EmoteApplication(Gtk.Application):
 
         self.activated = False
         self.picker_window = None
+
+        self.cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
 
     def start_daemon(self):
         Keybinder.init()
@@ -32,6 +34,13 @@ class EmoteApplication(Gtk.Application):
 
         # Run the main gtk event loop - this prevents the app from quitting
         Gtk.main()
+
+    def select_emoji(self, emoji):
+        print(f'Selecting {emoji}')
+        self.cb.set_text(emoji, -1)
+
+        user_data.update_recent_emojis(emoji)
+        emojis.update_recent_category()
 
     def set_accelerator(self):
         '''Register global shortcut for invoking the emoji picker'''
@@ -55,8 +64,10 @@ class EmoteApplication(Gtk.Application):
     def create_picker_window(self, show_welcome=False):
         if self.picker_window:
             self.picker_window.destroy()
+
         self.picker_window = picker.EmojiPicker(
             Keybinder.get_current_event_time(),
+            self.select_emoji,
             self.update_accelerator,
             show_welcome
         )
