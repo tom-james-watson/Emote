@@ -8,6 +8,34 @@ Emote runs in the background and, when its keyboard shortcut (`Ctrl+Alt+E`) is p
 
 ![Screenshot of picker](./images/screenshot.png)
 
+## Guide
+
+### Launching
+
+Emote runs in the background and automatically starts when you log in.
+
+The emoji picker can be opened with either the keyboard shortcut or by clicking the app icon again.
+
+### Usage
+
+Select an emoji to copy it to your clipboard. You can then paste the emoji wherever you need.
+
+You can select multiple emojis by selecting them with right click.
+
+### Keyboard Shortcuts
+
+Open Emoji Picker: `Ctrl+Alt+E` (configurable)
+
+Select Emoji: `Enter`
+
+Add Emoji to Selection: `Shift+Enter`
+
+Focus Search: `Ctrl+F`
+
+Next Emoji Category: `Ctrl+Tab`
+
+Previous Emoji Category: `Ctrl+Shift+Tab`
+
 ## Development
 
 ### Requirements
