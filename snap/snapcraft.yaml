@@ -1,5 +1,5 @@
 name: emote
-version: '0.10.0'
+version: '0.11.0'
 license: GPL-3.0+
 summary: Modern emoji picker built on GTK3
 description: |
@@ -9,7 +9,7 @@ description: |
 icon: snap/gui/emote.svg
 
 base: core18
-grade: devel # Must be 'stable' to release into candidate/stable channels
+grade: stable # or devel. Must be 'stable' to release into candidate/stable channels
 confinement: strict # or devmode
 
 parts:
