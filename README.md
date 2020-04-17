@@ -4,7 +4,9 @@ Emote is a simple GTK3-based emoji picker for linux.
 
 **NOTE - this application is under active development and is not yet ready for public use**
 
-![Screenshot of picker](./images/screenshot.png)
+<p align="center">
+  <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">
+</p>
 
 ## Guide
 
