@@ -1,12 +1,24 @@
 # <span><img width="24" height="24" src="https://github.com/tom-james-watson/Emote/blob/master/static/logo.svg"></span> Emote
 
-Emote is a simple GTK3-based emoji picker for linux.
+Emote is a modern emoji picker for Linux 🚀.
 
-**NOTE - this application is under active development and is not yet ready for public use**
+Written in GTK3, Emote is lightweight and stays out of your way.
+
+Launch the emoji picker with the configurable keyboard shortcut Ctrl+Alt+E and select one or more emojis to copy them to your clipboard.
 
 <p align="center">
   <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">
 </p>
+
+## Installation
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/emote)
+
+or
+
+```bash
+sudo snap install emote
+```
 
 ## Guide
 
