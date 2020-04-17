@@ -116,7 +116,7 @@ class EmojiPicker(Gtk.Window):
 
     def init_search(self):
         search_box = Gtk.Box()
-        self.search_entry = Gtk.SearchEntry()
+        self.search_entry = Gtk.SearchEntry(margin_bottom=GRID_SIZE)
         search_box.pack_start(self.search_entry, True, True, GRID_SIZE)
         self.search_entry.connect('focus-in-event', self.on_search_focus)
         self.search_entry.connect('changed', self.on_search_changed)
@@ -127,6 +127,33 @@ class EmojiPicker(Gtk.Window):
         self.app_container.add(search_box)
 
         GLib.idle_add(self.search_entry.grab_focus)
+
+    def add_emoji_append_list_preview(self):
+        preview_box = Gtk.Box(
+            spacing=GRID_SIZE,
+            margin=GRID_SIZE,
+            margin_bottom=0
+        )
+
+        label = Gtk.Label()
+        label.set_name('emoji_append_list_preview_label')
+        label.set_text('Selected Emoji:')
+        label.set_alignment(0, 0.2)
+        preview_box.pack_start(label, False, True, 0)
+
+        self.emoji_append_list_preview = Gtk.Entry()
+        self.emoji_append_list_preview.set_name('emoji_append_list_preview')
+        self.emoji_append_list_preview.set_alignment(0)
+        self.emoji_append_list_preview.set_sensitive(False)
+        preview_box.pack_start(
+            self.emoji_append_list_preview, True, True, 0
+        )
+        preview_box.show_all()
+
+        self.app_container.pack_start(preview_box, False, False, 0)
+
+    def update_emoji_append_list_preview(self):
+        self.emoji_append_list_preview.set_text(''.join(self.emoji_append_list))
 
     def check_welcome(self, show_welcome):
         '''Show the guide the first time we run the app'''
@@ -321,6 +348,7 @@ class EmojiPicker(Gtk.Window):
         self.search_scrolled.add(self.search_box)
 
         self.app_container.pack_start(self.search_scrolled, True, True, 0)
+        self.app_container.reorder_child(self.search_scrolled, 2)
         self.show_all()
 
     def render_selected_emoji_category(self):
@@ -338,18 +366,15 @@ class EmojiPicker(Gtk.Window):
                 category_display_name = display_name
                 break
 
-        category_box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL,
-            spacing=GRID_SIZE
-        )
+        category_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
         label_box = Gtk.Box()
-        label = Gtk.Label()
+        label = Gtk.Label(margin_right=GRID_SIZE, margin_left=GRID_SIZE)
         label.set_name('category_label')
         label.set_text(category_display_name)
         label.set_justify(Gtk.Justification.LEFT)
-        label_box.pack_start(label, False, False, GRID_SIZE)
-        category_box.pack_start(Gtk.Box(), False, False, GRID_SIZE / 2)
+        label_box.pack_start(label, False, False, 0)
+        category_box.pack_start(Gtk.Box(), False, False, 0)
         category_box.add(label_box)
 
         category_box.pack_start(
@@ -363,7 +388,8 @@ class EmojiPicker(Gtk.Window):
         )
 
         self.category_scrolled.add(category_box)
-        self.app_container.pack_end(self.category_scrolled, True, True, 0)
+        self.app_container.pack_start(self.category_scrolled, True, True, 0)
+        self.app_container.reorder_child(self.category_scrolled, 2)
 
         self.show_all()
 
@@ -413,6 +439,12 @@ class EmojiPicker(Gtk.Window):
         '''Append the selected emoji to the clipboard'''
         print(f'Appending {emoji} to selection')
         self.emoji_append_list.append(emoji)
+
+        if len(self.emoji_append_list) == 1:
+            self.add_emoji_append_list_preview()
+
+        self.update_emoji_append_list_preview()
+
         self.copy_to_clipboard(''.join(self.emoji_append_list))
         self.add_emoji_to_recent(emoji)
 

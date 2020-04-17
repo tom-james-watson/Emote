@@ -32,6 +32,26 @@ Run the development version:
 pipenv run start
 ```
 
+### Debugging GTK3 with GtkInspector
+
+Install GTK3 dev package:
+
+```bash
+sudo apt install libgtk-3-dev
+```
+
+Enable debug keybinding:
+
+```bash
+gsettings set org.gtk.Settings.Debug enable-inspector-keybinding true
+```
+
+Launch app in debug mode with interactive inspector:
+
+```bash
+GTK_DEBUG=interactive pipenv run start
+```
+
 ### Packaging
 
 Create a packaged `.snap` file:

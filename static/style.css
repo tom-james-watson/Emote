@@ -18,6 +18,16 @@
   font-weight: bold;
 }
 
+#emoji_append_list_preview_label {
+  margin: 5;
+  font-weight: bold;
+}
+
+#emoji_append_list_preview {
+  margin-bottom: 10;
+  font-size: 16px;
+}
+
 flowboxchild {
   outline: none;
 }
