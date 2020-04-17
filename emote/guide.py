@@ -25,12 +25,12 @@ class Guide(Gtk.Dialog):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        usage = Gtk.Label()
-        usage.set_markup(
-            '<span size="large" font_weight="bold" underline="single">Usage</span>'
+        launching = Gtk.Label()
+        launching.set_markup(
+            '<span size="large" font_weight="bold" underline="single">Launching</span>'
         )
-        usage.set_alignment(0, 0.5)
-        vbox.pack_start(usage, True, True, GRID_SIZE)
+        launching.set_alignment(0, 0.5)
+        vbox.pack_start(launching, True, True, GRID_SIZE)
 
         background = Gtk.Label()
         background.set_markup(
@@ -49,6 +49,13 @@ class Guide(Gtk.Dialog):
         opening.set_alignment(0, 0.5)
         vbox.pack_start(opening, True, True, GRID_SIZE)
 
+        usage = Gtk.Label()
+        usage.set_markup(
+            '<span size="large" font_weight="bold" underline="single">Usage</span>'
+        )
+        usage.set_alignment(0, 0.5)
+        vbox.pack_start(usage, True, True, GRID_SIZE)
+
         copying = Gtk.Label()
         copying.set_markup(
             'Select an emoji to copy it to your clipboard. You can then paste the\n'
@@ -57,6 +64,14 @@ class Guide(Gtk.Dialog):
         copying.set_line_wrap(True)
         copying.set_alignment(0, 0.5)
         vbox.pack_start(copying, True, True, GRID_SIZE)
+
+        multiple = Gtk.Label()
+        multiple.set_markup(
+            'You can select multiple emojis by selecting them with right click.'
+        )
+        multiple.set_line_wrap(True)
+        multiple.set_alignment(0, 0.5)
+        vbox.pack_start(multiple, True, True, GRID_SIZE)
 
         shortcuts = Gtk.Label()
         shortcuts.set_markup(
@@ -72,6 +87,22 @@ class Guide(Gtk.Dialog):
         )
         launch_shortcut.set_alignment(0, 0.5)
         vbox.pack_start(launch_shortcut, True, True, GRID_SIZE)
+
+        _, accel_label = user_data.load_accelerator()
+        select_shortcut = Gtk.Label()
+        select_shortcut.set_markup(
+            f'<span font_weight="bold">Select Emoji:</span> Enter'
+        )
+        select_shortcut.set_alignment(0, 0.5)
+        vbox.pack_start(select_shortcut, True, True, GRID_SIZE)
+
+        _, accel_label = user_data.load_accelerator()
+        select_multi_shortcut = Gtk.Label()
+        select_multi_shortcut.set_markup(
+            f'<span font_weight="bold">Add Emoji to Selection:</span> Shift+Enter'
+        )
+        select_multi_shortcut.set_alignment(0, 0.5)
+        vbox.pack_start(select_multi_shortcut, True, True, GRID_SIZE)
 
         search_shortcut = Gtk.Label()
         search_shortcut.set_markup(
