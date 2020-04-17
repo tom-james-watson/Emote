@@ -4,7 +4,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GLib, Gio
 from gi.repository.GdkPixbuf import Pixbuf
-from emote import emojis, settings, guide
+from emote import emojis, user_data, settings, guide
 
 
 GRID_SIZE = 10
@@ -12,7 +12,7 @@ GRID_SIZE = 10
 
 class EmojiPicker(Gtk.Window):
 
-    def __init__(self, open_time, select_emoji, update_accelerator, show_welcome):
+    def __init__(self, open_time, update_accelerator, show_welcome):
         Gtk.Window.__init__(
             self,
             title='Emote',
@@ -23,7 +23,6 @@ class EmojiPicker(Gtk.Window):
         self.set_default_size(500, 450)
         self.set_keep_above(True)
         self.dialog_open = False
-        self.select_emoji = select_emoji
         self.update_accelerator = update_accelerator
 
         self.search_scrolled = None
@@ -388,5 +387,11 @@ class EmojiPicker(Gtk.Window):
     def on_emoji_selected(self, emoji):
         '''Copy the selected emoji to the clipboard'''
         self.hide()
-        self.select_emoji(emoji)
+
+        cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        cb.set_text(emoji, -1)
+
+        user_data.update_recent_emojis(emoji)
+        emojis.update_recent_category()
+
         self.destroy()
