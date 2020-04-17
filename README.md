@@ -1,6 +1,6 @@
-# <span><img width="32" height="32" src="https://github.com/tom-james-watson/Emote/blob/master/static/logo.svg"></span> Emote
+# <span><img width="24" height="24" src="https://github.com/tom-james-watson/Emote/blob/master/static/logo.svg"></span> Emote
 
-Emote is a simple GTK3-based Emoji Picker for linux.
+Emote is a simple GTK3-based emoji picker for linux.
 
 Emote runs in the background and, when its keyboard shortcut (`Ctrl+Alt+E`) is presed, an emoji picker window is opened. The selected emoji is copied to the clipboard.
 
