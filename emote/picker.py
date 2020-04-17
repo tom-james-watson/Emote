@@ -24,8 +24,8 @@ class EmojiPicker(Gtk.Window):
         self.set_keep_above(True)
         self.dialog_open = False
         self.update_accelerator = update_accelerator
-
         self.search_scrolled = None
+        self.emoji_append_list = []
         self.current_emojis = []
 
         self.app_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -208,10 +208,14 @@ class EmojiPicker(Gtk.Window):
     def on_search_entry_key_press_event(self, widget, event):
         keyval = event.keyval
         keyval_name = Gdk.keyval_name(keyval)
+        shift = bool(event.state & Gdk.ModifierType.SHIFT_MASK)
 
-        if keyval_name == 'Return':
+        if shift and keyval_name == 'Return':
             if len(self.current_emojis) > 0:
-                self.on_emoji_selected(self.current_emojis[0]['char'])
+                self.on_emoji_append(self.current_emojis[0]['char'])
+        elif keyval_name == 'Return':
+            if len(self.current_emojis) > 0:
+                self.on_emoji_select(self.current_emojis[0]['char'])
         else:
             return False
 
@@ -255,8 +259,20 @@ class EmojiPicker(Gtk.Window):
 
         self.on_category_selector_toggled(toggled_category_selector)
 
-    def on_flowbox_child_activated(self, flow_box, child):
-        self.on_emoji_selected(child.emoji)
+    def on_flowbox_event(self, flow_box, event):
+        if event.type != Gdk.EventType.KEY_PRESS:
+            return
+
+        keyval = event.keyval
+        keyval_name = Gdk.keyval_name(keyval)
+        shift = bool(event.state & Gdk.ModifierType.SHIFT_MASK)
+
+        emoji = flow_box.get_selected_children()[0].emoji
+
+        if shift and keyval_name == 'Return':
+            self.on_emoji_append(emoji)
+        elif keyval_name == 'Return':
+            self.on_emoji_select(emoji)
 
     def on_search_focus(self, search_entry, event):
         if self.emoji_flowbox:
@@ -363,7 +379,7 @@ class EmojiPicker(Gtk.Window):
         self.emoji_flowbox = flowbox
         self.current_emojis = emojis
 
-        flowbox.connect('child_activated', self.on_flowbox_child_activated)
+        flowbox.connect('event', self.on_flowbox_event)
 
         for emoji in emojis:
             btn = Gtk.Button(
@@ -372,10 +388,7 @@ class EmojiPicker(Gtk.Window):
                 can_focus=False,
                 relief=Gtk.ReliefStyle.NONE
             )
-            btn.connect(
-                'clicked',
-                lambda widget: self.on_emoji_selected(widget.get_label())
-            )
+            btn.connect('event', self.on_emoji_btn_event)
             flowbox_child = Gtk.FlowBoxChild()
             flowbox_child.add(btn)
             flowbox_child.parent = flowbox
@@ -384,14 +397,47 @@ class EmojiPicker(Gtk.Window):
 
         return flowbox
 
-    def on_emoji_selected(self, emoji):
-        '''Copy the selected emoji to the clipboard'''
+    def on_emoji_btn_event(self, btn, event):
+        if event.type != Gdk.EventType.BUTTON_PRESS:
+            return
+
+        if event.button.button == 1:
+            # Left mouse clicked
+            self.on_emoji_select(btn.get_label())
+
+        if event.button.button == 3:
+            # Right mouse clicked
+            self.on_emoji_append(btn.get_label())
+
+    def on_emoji_append(self, emoji):
+        '''Append the selected emoji to the clipboard'''
+        print(f'Appending {emoji} to selection')
+        self.emoji_append_list.append(emoji)
+        self.copy_to_clipboard(''.join(self.emoji_append_list))
+        self.add_emoji_to_recent(emoji)
+
+    def on_emoji_select(self, emoji):
+        '''
+        Copy the selected emoji to the clipboard and exit
+
+        If we have been appending other emojis first, add this final one and
+        copy out all.
+        '''
         self.hide()
 
-        cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-        cb.set_text(emoji, -1)
+        if len(self.emoji_append_list) > 0:
+            self.on_emoji_append(emoji)
+        else:
+            print(f'Selecting {emoji}')
+            self.add_emoji_to_recent(emoji)
+            self.copy_to_clipboard(emoji)
 
+        self.destroy()
+
+    def add_emoji_to_recent(self, emoji):
         user_data.update_recent_emojis(emoji)
         emojis.update_recent_category()
 
-        self.destroy()
+    def copy_to_clipboard(self, content):
+        cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        cb.set_text(content, -1)
