@@ -57,6 +57,12 @@ Previous Emoji Category: `Ctrl+Shift+Tab`
 
 ### Requirements
 
+Install gtk development libraries:
+
+```bash
+sudo apt install libgtk-3-dev libgirepository1.0-dev
+```
+
 Install pipenv:
 
 ```bash
@@ -66,7 +72,7 @@ sudo pip3 install pipenv
 Install dependencies:
 
 ```bash
-pipenv install -d
+make install
 ```
 
 ### Running
@@ -74,16 +80,10 @@ pipenv install -d
 Run the development version:
 
 ```bash
-pipenv run start
+make dev
 ```
 
 ### Debugging GTK3 with GtkInspector
-
-Install GTK3 dev package:
-
-```bash
-sudo apt install libgtk-3-dev
-```
 
 Enable debug keybinding:
 
@@ -94,15 +94,35 @@ gsettings set org.gtk.Settings.Debug enable-inspector-keybinding true
 Launch app in debug mode with interactive inspector:
 
 ```bash
-GTK_DEBUG=interactive pipenv run start
+make dev-debug
 ```
 
 ### Packaging
 
+Ensure you have `snapcraft` installed:
+
+```bash
+sudo snap install --classic snapcraft
+```
+
 Create a packaged `.snap` file:
 
 ```bash
-snapcraft
+make package
+```
+
+### Publishing
+
+Ensure you are logged in to snapcraft:
+
+```bash
+snapcraft login
+```
+
+Push the packaged snap to the `edge` channel on the snap store.
+
+```bash
+snapcraft push --release=edge <path to .snap>
 ```
 
 ## Attribution
