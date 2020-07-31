@@ -6,6 +6,9 @@ dev:
 dev-debug:
 	GTK_DEBUG=interactive pipenv run start
 
+format:
+	pipenv run black emote
+
 install:
 	pipenv install -d
 

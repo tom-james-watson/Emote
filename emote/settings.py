@@ -1,5 +1,6 @@
 import gi
-gi.require_version('Gtk', '3.0')
+
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from emote import user_data
 from emote.keybinding import ButtonKeybinding
@@ -9,29 +10,25 @@ GRID_SIZE = 10
 
 
 class Settings(Gtk.Dialog):
-
     def __init__(self, update_accelerator):
         Gtk.Dialog.__init__(
             self,
-            title='Emote Settings',
+            title="Emote Settings",
             window_position=Gtk.WindowPosition.CENTER,
-            resizable=False
+            resizable=False,
         )
 
         self.update_accelerator = update_accelerator
 
-        header = Gtk.HeaderBar(title='Settings', show_close_button=True)
+        header = Gtk.HeaderBar(title="Settings", show_close_button=True)
         self.set_titlebar(header)
 
         box = self.get_content_area()
 
-        hbox = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL,
-            spacing=GRID_SIZE
-        )
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=GRID_SIZE)
 
         shortcut_label = Gtk.Label()
-        shortcut_label.set_text('Keyboard Shortcut')
+        shortcut_label.set_text("Keyboard Shortcut")
         shortcut_label.set_justify(Gtk.Justification.LEFT)
         hbox.pack_start(shortcut_label, False, False, GRID_SIZE)
 

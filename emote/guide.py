@@ -1,5 +1,6 @@
 import gi
-gi.require_version('Gtk', '3.0')
+
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from emote import user_data
 
@@ -8,16 +9,15 @@ GRID_SIZE = 10
 
 
 class Guide(Gtk.Dialog):
-
     def __init__(self):
         Gtk.Dialog.__init__(
             self,
-            title='Emote Guide',
+            title="Emote Guide",
             window_position=Gtk.WindowPosition.CENTER,
-            resizable=False
+            resizable=False,
         )
 
-        header = Gtk.HeaderBar(title='Guide', show_close_button=True)
+        header = Gtk.HeaderBar(title="Guide", show_close_button=True)
         self.set_titlebar(header)
 
         box = self.get_content_area()
@@ -34,7 +34,7 @@ class Guide(Gtk.Dialog):
 
         background = Gtk.Label()
         background.set_markup(
-            'Emote runs in the background and automatically starts when you log in.'
+            "Emote runs in the background and automatically starts when you log in."
         )
         background.set_line_wrap(True)
         background.set_alignment(0, 0.5)
@@ -42,8 +42,8 @@ class Guide(Gtk.Dialog):
 
         opening = Gtk.Label()
         opening.set_markup(
-            'The emoji picker can be opened with either the keyboard shortcut or by\n'
-            'clicking the app icon again.'
+            "The emoji picker can be opened with either the keyboard shortcut or by\n"
+            "clicking the app icon again."
         )
         opening.set_line_wrap(True)
         opening.set_alignment(0, 0.5)
@@ -58,8 +58,8 @@ class Guide(Gtk.Dialog):
 
         copying = Gtk.Label()
         copying.set_markup(
-            'Select an emoji to copy it to your clipboard. You can then paste the\n'
-            'emoji wherever you need.'
+            "Select an emoji to copy it to your clipboard. You can then paste the\n"
+            "emoji wherever you need."
         )
         copying.set_line_wrap(True)
         copying.set_alignment(0, 0.5)
@@ -67,7 +67,7 @@ class Guide(Gtk.Dialog):
 
         multiple = Gtk.Label()
         multiple.set_markup(
-            'You can select multiple emojis by selecting them with right click.'
+            "You can select multiple emojis by selecting them with right click."
         )
         multiple.set_line_wrap(True)
         multiple.set_alignment(0, 0.5)

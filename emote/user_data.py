@@ -3,20 +3,20 @@ from pathlib import Path
 import shelve
 
 
-DATA_DIR = os.path.join(Path.home(), '.local/share/Emote')
-SHELVE_PATH = os.path.join(DATA_DIR, 'user_data')
+DATA_DIR = os.path.join(Path.home(), ".local/share/Emote")
+SHELVE_PATH = os.path.join(DATA_DIR, "user_data")
 
-RECENT_EMOJIS = 'recent_emojis'
-DEFAULT_RECENT_EMOJIS = ['🙂', '😄', '❤️', '👍', '🤞', '🔥', '🤣', '😍', '😭']
+RECENT_EMOJIS = "recent_emojis"
+DEFAULT_RECENT_EMOJIS = ["🙂", "😄", "❤️", "👍", "🤞", "🔥", "🤣", "😍", "😭"]
 MAX_RECENT_EMOJIS = 54
 
-ACCELERATOR_STRING = 'accelerator_string'
-DEFAULT_ACCELERATOR_STRING = '<Primary><Alt>e'
+ACCELERATOR_STRING = "accelerator_string"
+DEFAULT_ACCELERATOR_STRING = "<Primary><Alt>e"
 
-ACCELERATOR_LABEL = 'accelerator_label'
-DEFAULT_ACCELERATOR_LABEL = 'Ctrl+Alt+E'
+ACCELERATOR_LABEL = "accelerator_label"
+DEFAULT_ACCELERATOR_LABEL = "Ctrl+Alt+E"
 
-SHOWN_WELCOME = 'shown_welcome'
+SHOWN_WELCOME = "shown_welcome"
 DEFAULT_SHOWN_WELCOME = False
 
 
@@ -34,9 +34,9 @@ def update_recent_emojis(emoji):
 
     if emoji in recent_emojis:
         recent_emojis.remove(emoji)
-        new_recent_emojis = [emoji] + recent_emojis[:MAX_RECENT_EMOJIS - 2]
+        new_recent_emojis = [emoji] + recent_emojis[: MAX_RECENT_EMOJIS - 2]
     else:
-        new_recent_emojis = [emoji] + recent_emojis[:MAX_RECENT_EMOJIS - 1]
+        new_recent_emojis = [emoji] + recent_emojis[: MAX_RECENT_EMOJIS - 1]
 
     with shelve.open(SHELVE_PATH) as db:
         db[RECENT_EMOJIS] = new_recent_emojis
@@ -46,7 +46,7 @@ def load_accelerator():
     with shelve.open(SHELVE_PATH) as db:
         return (
             db.get(ACCELERATOR_STRING, DEFAULT_ACCELERATOR_STRING),
-            db.get(ACCELERATOR_LABEL, DEFAULT_ACCELERATOR_LABEL)
+            db.get(ACCELERATOR_LABEL, DEFAULT_ACCELERATOR_LABEL),
         )
 
 
