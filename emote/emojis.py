@@ -35,11 +35,22 @@ def init():
     update_recent_category()
 
 
+def get_emoji_by_char(char):
+    for emoji in all_emojis:
+        if emoji["char"] == char:
+            return emoji
+
+    raise Exception(f"Couldn't find emoji by char {char}")
+
+
 def update_recent_category():
     emojis_by_category["recent"] = []
 
-    for emoji in user_data.load_recent_emojis():
-        emojis_by_category["recent"].append({"char": emoji, "category": "recent"})
+    for char in user_data.load_recent_emojis():
+        emoji = get_emoji_by_char(char)
+        emojis_by_category["recent"].append(
+            {"char": char, "category": "recent", "name": emoji["name"]}
+        )
 
 
 def get_category_order():
