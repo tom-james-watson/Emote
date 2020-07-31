@@ -413,7 +413,13 @@ class EmojiPicker(Gtk.Window):
 
         if event.button.button == 1:
             # Left mouse clicked
-            self.on_emoji_select(btn.get_label())
+            state = event.state
+            shift = bool(state & Gdk.ModifierType.SHIFT_MASK)
+
+            if shift:
+                self.on_emoji_append(btn.get_label())
+            else:
+                self.on_emoji_select(btn.get_label())
 
         if event.button.button == 3:
             # Right mouse clicked

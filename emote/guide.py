@@ -67,7 +67,8 @@ class Guide(Gtk.Dialog):
 
         multiple = Gtk.Label()
         multiple.set_markup(
-            "You can select multiple emojis by selecting them with right click."
+            "You can select multiple emojis by selecting them with shift left click\n"
+            "or with right click"
         )
         multiple.set_line_wrap(True)
         multiple.set_alignment(0, 0.5)
