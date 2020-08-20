@@ -19,12 +19,12 @@
 }
 
 #emoji_append_list_preview_label {
-  margin: 5;
+  margin: 5px;
   font-weight: bold;
 }
 
 #emoji_append_list_preview {
-  margin-bottom: 10;
+  margin-bottom: 10px;
   font-size: 16px;
 }
 
