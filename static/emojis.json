@@ -7379,6 +7379,12 @@
     "fitzpatrick_scale": false,
     "category": "symbols"
   },
+  "transgender-symbol":{
+    "keywords": ["gender", "sex"],
+    "char": "⚧️",
+    "fitzpatrick_scale": false,
+    "category": "symbols"
+  },
   "musical_note": {
     "keywords": ["score", "tone", "sound"],
     "char": "🎵",
