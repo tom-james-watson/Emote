@@ -7368,13 +7368,13 @@
     "category": "symbols"
   },
   "female-sign":{
-    "keywords": ["female", "woman", "venus"],
+    "keywords": ["woman", "venus", "gender", "sex"],
     "char": "♀️",
     "fitzpatrick_scale": false,
     "category": "symbols"
   },
   "male-sign":{
-    "keywords": ["male", "man", "mars"],
+    "keywords": ["man", "mars", "gender", "sex"],
     "char": "♂️",
     "fitzpatrick_scale": false,
     "category": "symbols"
