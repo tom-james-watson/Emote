@@ -37,13 +37,19 @@ class EmoteApplication(Gtk.Application):
         accel_string, _ = user_data.load_accelerator()
 
         if accel_string:
-            Keybinder.bind(accel_string, lambda x: self.create_picker_window())
+            Keybinder.bind(accel_string, self.handle_accelerator)
 
     def unset_accelerator(self):
         old_accel_string, _ = user_data.load_accelerator()
 
         if old_accel_string:
             Keybinder.unbind(old_accel_string)
+
+    def handle_accelerator(self, keystring):
+        if self.picker_window:
+            self.picker_window.destroy()
+        else:
+            self.create_picker_window()
 
     def update_accelerator(self, accel_string, accel_label):
         print(f"Updating global shortcut to {accel_label}")
@@ -57,6 +63,10 @@ class EmoteApplication(Gtk.Application):
         self.picker_window = picker.EmojiPicker(
             Keybinder.get_current_event_time(), self.update_accelerator, show_welcome
         )
+        self.picker_window.connect("destroy", self.handle_picker_destroy)
+
+    def handle_picker_destroy(self, *args):
+        self.picker_window = None
 
     def do_activate(self):
         if not self.activated:
