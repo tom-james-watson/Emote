@@ -7,8 +7,7 @@ verify_ssl = true
 pygobject = "==3.36.0"
 
 [dev-packages]
-black = "*"
-pylint = "*"
+black = "==19.10b0"
 
 [requires]
 python_version = "3.8"
