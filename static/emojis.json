@@ -7536,8 +7536,14 @@
     "category": "symbols"
   },
   "red_circle": {
-    "keywords": ["shape", "error", "danger"],
+    "keywords": ["shape", "error", "danger", "incorrect"],
     "char": "🔴",
+    "fitzpatrick_scale": false,
+    "category": "symbols"
+  },
+  "green_circle": {
+    "keywords": ["shape", "success", "correct"],
+    "char": "🟢",
     "fitzpatrick_scale": false,
     "category": "symbols"
   },
