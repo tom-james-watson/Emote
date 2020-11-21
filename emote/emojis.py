@@ -79,8 +79,9 @@ def get_emojis_by_category():
 
 def search(query):
     def search_filter(emoji):
-        return emoji["name"].startswith(query) or any(
-            keyword.startswith(query) for keyword in emoji["keywords"]
+        search_terms = emoji["name"].split("_") + emoji["keywords"]
+        return any(
+            search_term.startswith(query) for search_term in search_terms
         )
 
     return list(filter(search_filter, all_emojis))
