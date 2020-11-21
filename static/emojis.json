@@ -7367,6 +7367,24 @@
     "fitzpatrick_scale": false,
     "category": "symbols"
   },
+  "female-sign":{
+    "keywords": ["woman", "venus", "gender", "sex"],
+    "char": "♀️",
+    "fitzpatrick_scale": false,
+    "category": "symbols"
+  },
+  "male-sign":{
+    "keywords": ["man", "mars", "gender", "sex"],
+    "char": "♂️",
+    "fitzpatrick_scale": false,
+    "category": "symbols"
+  },
+  "transgender-symbol":{
+    "keywords": ["gender", "sex"],
+    "char": "⚧️",
+    "fitzpatrick_scale": false,
+    "category": "symbols"
+  },
   "musical_note": {
     "keywords": ["score", "tone", "sound"],
     "char": "🎵",
