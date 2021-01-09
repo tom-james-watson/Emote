@@ -47,7 +47,10 @@ def update_recent_category():
     emojis_by_category["recent"] = []
 
     for char in user_data.load_recent_emojis():
-        emoji = get_emoji_by_char(char)
+        try:
+            emoji = get_emoji_by_char(char)
+        except:
+            continue
         emojis_by_category["recent"].append(
             {"char": char, "category": "recent", "name": emoji["name"]}
         )
