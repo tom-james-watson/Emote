@@ -3695,6 +3695,12 @@
     "fitzpatrick_scale": false,
     "category": "food_and_drink"
   },
+  "mate": {
+    "keywords": ["mate", "yerba"],
+    "char": "🧉",
+    "fitzpatrick_scale": false,
+    "category": "food_and_drink"
+  },
   "baby_bottle": {
     "keywords": ["food", "container", "milk"],
     "char": "🍼",
