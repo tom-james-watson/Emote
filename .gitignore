@@ -4,3 +4,6 @@ dist
 .venv
 venv
 *.snap
+
+# Editors
+.vim
