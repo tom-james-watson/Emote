@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime
 import gi
 
@@ -49,7 +50,6 @@ class EmojiPicker(Gtk.Window):
 
     def init_header(self):
         header = Gtk.HeaderBar(title="Emote")
-        header.set_subtitle("Select an emoji to copy it")
 
         self.menu_popover = Gtk.Popover()
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -441,10 +441,11 @@ class EmojiPicker(Gtk.Window):
 
     def on_emoji_select(self, emoji):
         """
-        Copy the selected emoji to the clipboard and exit
+        Copy the selected emoji to the clipboard, close the picker window and
+        make the user's system perform a paste after 150ms, pasting the emoji
+        to the currently focussed application window.
 
-        If we have been appending other emojis first, add this final one and
-        copy out all.
+        If we have been appending other emojis first, add this final one first.
         """
         self.hide()
 
@@ -456,6 +457,9 @@ class EmojiPicker(Gtk.Window):
             self.copy_to_clipboard(emoji)
 
         self.destroy()
+
+        time.sleep(0.15)
+        os.system("xdotool key ctrl+v")
 
     def add_emoji_to_recent(self, emoji):
         user_data.update_recent_emojis(emoji)
