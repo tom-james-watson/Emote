@@ -9,7 +9,9 @@
 
 Emote is a modern emoji picker for Linux 🚀. Written in GTK3, Emote is lightweight and stays out of your way.
 
-Launch the emoji picker with the configurable keyboard shortcut Ctrl+Alt+E and select one or more emojis to copy them to your clipboard.
+Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E` and select one or more emojis to have them be automatically pasted into your currently focussed app.
+
+Note - Emote is currently only compatible with X11.
 
 <p align="center">
   <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">
@@ -35,7 +37,7 @@ The emoji picker can be opened with either the keyboard shortcut or by clicking 
 
 ### Usage
 
-Select an emoji to copy it to your clipboard. You can then paste the emoji wherever you need.
+Select an emoji to and have it be pasted to your currently focussed app. The emoji will also be copied to your clipboard, so you can then paste the emoji wherever you need.
 
 You can select multiple emojis by selecting them with right click.
 
@@ -129,8 +131,8 @@ snapcraft push --release=edge <path to .snap>
 
 ### App Icon
 
-Copyright 2020 Twitter, Inc and other contributors
+Copyright 2020 Twitter, Inc and other contributors.
 
-Thanks for the awesome team at Twitter.
+Thanks to the awesome team at Twitter.
 
 https://twemoji.twitter.com

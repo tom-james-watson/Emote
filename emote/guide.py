@@ -58,8 +58,9 @@ class Guide(Gtk.Dialog):
 
         copying = Gtk.Label()
         copying.set_markup(
-            "Select an emoji to copy it to your clipboard. You can then paste the\n"
-            "emoji wherever you need."
+            "Select an emoji to have it pasted to your currently focussed app. The\n"
+            "emoji is also copied to the clipboard so you can then paste the emoji\n"
+            "wherever you need."
         )
         copying.set_line_wrap(True)
         copying.set_alignment(0, 0.5)
