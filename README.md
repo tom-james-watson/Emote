@@ -115,6 +115,8 @@ make package
 
 ### Publishing
 
+First, ensure a git tag for the current version has been pushed.
+
 Ensure you are logged in to snapcraft:
 
 ```bash
