@@ -1,7 +1,7 @@
 import os
 import json
 from collections import defaultdict
-from emote import user_data
+from emote import user_data, config
 
 
 MAX_VERSION = 10.0
@@ -15,10 +15,8 @@ def init():
     global all_emojis
     global emojis_by_category
 
-    snap = os.environ.get("SNAP")
-
-    if snap:
-        filename = f"{snap}/static/emojis.json"
+    if config.is_snap:
+        filename = f"{config.snap_root}/static/emojis.json"
     else:
         filename = "static/emojis.json"
 
@@ -83,8 +81,6 @@ def get_emojis_by_category():
 def search(query):
     def search_filter(emoji):
         search_terms = emoji["name"].split("_") + emoji["keywords"]
-        return any(
-            search_term.startswith(query) for search_term in search_terms
-        )
+        return any(search_term.startswith(query) for search_term in search_terms)
 
     return list(filter(search_filter, all_emojis))

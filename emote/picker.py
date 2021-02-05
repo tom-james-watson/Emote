@@ -6,7 +6,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, Gio
 from gi.repository.GdkPixbuf import Pixbuf
-from emote import emojis, user_data, settings, guide
+from emote import emojis, user_data, settings, guide, config
 
 
 GRID_SIZE = 10
@@ -33,8 +33,8 @@ class EmojiPicker(Gtk.Window):
         self.add(self.app_container)
 
         self.init_header()
-        self.init_category_selectors()
         self.init_search()
+        self.init_category_selectors()
         self.render_selected_emoji_category()
 
         self.show_all()
@@ -56,10 +56,11 @@ class EmojiPicker(Gtk.Window):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         items_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        prefs_btn = Gtk.ModelButton("Preferences")
-        prefs_btn.set_alignment(0, 0.5)
-        prefs_btn.connect("clicked", lambda prefs_btn: self.open_preferences())
-        items_box.pack_start(prefs_btn, False, True, 0)
+        if not config.is_wayland:
+            prefs_btn = Gtk.ModelButton("Preferences")
+            prefs_btn.set_alignment(0, 0.5)
+            prefs_btn.connect("clicked", lambda prefs_btn: self.open_preferences())
+            items_box.pack_start(prefs_btn, False, True, 0)
 
         guide_btn = Gtk.ModelButton("Guide")
         guide_btn.set_alignment(0, 0.5)
@@ -88,7 +89,7 @@ class EmojiPicker(Gtk.Window):
         self.set_titlebar(header)
 
     def init_category_selectors(self):
-        hbox = Gtk.Box()
+        hbox = Gtk.Box(margin_bottom=GRID_SIZE)
 
         self.category_selectors = []
         self.selected_emoji_category = "recent"
@@ -108,18 +109,18 @@ class EmojiPicker(Gtk.Window):
 
             hbox.pack_start(category_selector, True, False, GRID_SIZE)
 
-        self.app_container.pack_start(hbox, False, False, GRID_SIZE)
+        self.app_container.add(hbox)
 
     def init_search(self):
         search_box = Gtk.Box()
-        self.search_entry = Gtk.SearchEntry(margin_bottom=GRID_SIZE)
+        self.search_entry = Gtk.SearchEntry()
         search_box.pack_start(self.search_entry, True, True, GRID_SIZE)
         self.search_entry.connect("focus-in-event", self.on_search_focus)
         self.search_entry.connect("changed", self.on_search_changed)
         self.search_entry.connect(
             "key-press-event", self.on_search_entry_key_press_event
         )
-        self.app_container.add(search_box)
+        self.app_container.pack_start(search_box, False, False, GRID_SIZE)
 
         GLib.idle_add(self.search_entry.grab_focus)
 
@@ -192,9 +193,11 @@ class EmojiPicker(Gtk.Window):
         guide_window.connect("destroy", self.on_close_dialog)
 
     def open_about(self):
-        snap = os.environ.get("SNAP")
-
-        logo_path = f"{snap}/static/logo.svg" if snap else "static/logo.svg"
+        logo_path = (
+            f"{config.snap_root}/static/logo.svg"
+            if config.is_snap
+            else "static/logo.svg"
+        )
         logo = Pixbuf.new_from_file(logo_path)
 
         about_dialog = Gtk.AboutDialog(
@@ -459,7 +462,16 @@ class EmojiPicker(Gtk.Window):
         self.destroy()
 
         time.sleep(0.15)
-        os.system("xdotool key ctrl+v")
+
+        if config.is_wayland:
+            ydotool_path = (
+                f"{config.snap_root}/static/ydotool"
+                if config.is_snap
+                else "static/ydotool"
+            )
+            os.system(f"{ydotool_path} key ctrl+v")
+        else:
+            os.system("xdotool key ctrl+v")
 
     def add_emoji_to_recent(self, emoji):
         user_data.update_recent_emojis(emoji)

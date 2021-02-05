@@ -2,7 +2,7 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-from emote import user_data
+from emote import user_data, config
 
 
 GRID_SIZE = 10
@@ -40,14 +40,24 @@ class Guide(Gtk.Dialog):
         background.set_alignment(0, 0.5)
         vbox.pack_start(background, True, True, GRID_SIZE)
 
-        opening = Gtk.Label()
-        opening.set_markup(
-            "The emoji picker can be opened with either the keyboard shortcut or by\n"
-            "clicking the app icon again."
-        )
-        opening.set_line_wrap(True)
-        opening.set_alignment(0, 0.5)
-        vbox.pack_start(opening, True, True, GRID_SIZE)
+        if config.is_wayland:
+            opening = Gtk.Label()
+            opening.set_markup(
+                "The emoji picker can be opened by clicking the app icon again, or by\n"
+                'setting a custom app shortcut. See <a href="https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland" title="See Wayland shortcut instructions">the wiki</a> for details.'
+            )
+            opening.set_line_wrap(True)
+            opening.set_alignment(0, 0.5)
+            vbox.pack_start(opening, True, True, GRID_SIZE)
+        else:
+            opening = Gtk.Label()
+            opening.set_markup(
+                "The emoji picker can be opened with either the keyboard shortcut or by\n"
+                "clicking the app icon again."
+            )
+            opening.set_line_wrap(True)
+            opening.set_alignment(0, 0.5)
+            vbox.pack_start(opening, True, True, GRID_SIZE)
 
         usage = Gtk.Label()
         usage.set_markup(
@@ -82,13 +92,14 @@ class Guide(Gtk.Dialog):
         shortcuts.set_alignment(0, 0.5)
         vbox.pack_start(shortcuts, True, True, GRID_SIZE)
 
-        _, accel_label = user_data.load_accelerator()
-        launch_shortcut = Gtk.Label()
-        launch_shortcut.set_markup(
-            f'<span font_weight="bold">Open Emoji Picker:</span> {accel_label}'
-        )
-        launch_shortcut.set_alignment(0, 0.5)
-        vbox.pack_start(launch_shortcut, True, True, GRID_SIZE)
+        if not config.is_wayland:
+            _, accel_label = user_data.load_accelerator()
+            launch_shortcut = Gtk.Label()
+            launch_shortcut.set_markup(
+                f'<span font_weight="bold">Open Emoji Picker:</span> {accel_label}'
+            )
+            launch_shortcut.set_alignment(0, 0.5)
+            vbox.pack_start(launch_shortcut, True, True, GRID_SIZE)
 
         _, accel_label = user_data.load_accelerator()
         select_shortcut = Gtk.Label()

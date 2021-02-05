@@ -3,20 +3,17 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
+from emote import config
 
 
 def load_css():
     """
     Load associated CSS for the window.
-
-    $SNAP is only set when the app is bundled and running as a snap.
     """
     css_provider = Gtk.CssProvider()
 
-    snap = os.environ.get("SNAP")
-
-    if snap:
-        css_provider.load_from_path(f"{snap}/static/style.css")
+    if config.is_snap:
+        css_provider.load_from_path(f"{config.snap_root}/static/style.css")
     else:
         css_provider.load_from_path("static/style.css")
 

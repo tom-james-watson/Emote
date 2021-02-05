@@ -1,10 +1,11 @@
 import sys
+import subprocess
 import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Keybinder", "3.0")
 from gi.repository import Gtk, Keybinder
-from emote import picker, css, emojis, user_data
+from emote import picker, css, emojis, user_data, config
 
 
 class EmoteApplication(Gtk.Application):
@@ -15,8 +16,9 @@ class EmoteApplication(Gtk.Application):
         self.picker_window = None
 
     def start_daemon(self):
-        Keybinder.init()
-        self.set_accelerator()
+        if not config.is_wayland:
+            Keybinder.init()
+            self.set_accelerator()
 
         css.load_css()
         emojis.init()
@@ -28,6 +30,14 @@ class EmoteApplication(Gtk.Application):
         if not user_data.load_shown_welcome():
             self.create_picker_window(True)
             user_data.update_shown_welcome()
+
+        if config.is_wayland:
+            # Start ydotool daemon. This will be killed when emote exits.
+            subprocess.Popen(
+                f"{config.snap_root}/static/ydotoold"
+                if config.is_snap
+                else "static/ydotoold"
+            )
 
         # Run the main gtk event loop - this prevents the app from quitting
         Gtk.main()

@@ -11,7 +11,7 @@ Emote is a modern emoji picker for Linux 🚀. Written in GTK3, Emote is lightwe
 
 Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E` and select one or more emojis to have them be automatically pasted into your currently focussed app.
 
-Note - Emote is currently only compatible with X11.
+Note - Emote under Wayland requires manual registering of a global keyboard shortcut - [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland).
 
 <p align="center">
   <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">
