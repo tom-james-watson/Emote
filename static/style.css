@@ -1,3 +1,11 @@
+#emote_window {
+  border-radius: 4px;
+}
+
+#menu_button {
+  margin-right: 10px;
+}
+
 #category_selector_button {
   font-size: 20px;
   padding-top: 5px;

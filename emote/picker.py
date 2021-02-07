@@ -20,6 +20,8 @@ class EmojiPicker(Gtk.Window):
             window_position=Gtk.WindowPosition.CENTER,
             resizable=False,
             deletable=False,
+            decorated=False,
+            name="emote_window",
         )
         self.set_default_size(500, 450)
         self.set_keep_above(True)
@@ -33,7 +35,6 @@ class EmojiPicker(Gtk.Window):
         self.add(self.app_container)
 
         self.init_header()
-        self.init_search()
         self.init_category_selectors()
         self.render_selected_emoji_category()
 
@@ -49,7 +50,17 @@ class EmojiPicker(Gtk.Window):
         self.connect("key-press-event", self.on_key_press_event)
 
     def init_header(self):
-        header = Gtk.HeaderBar(title="Emote")
+        header = Gtk.Box()
+
+        self.search_entry = Gtk.SearchEntry()
+        header.pack_start(self.search_entry, True, True, GRID_SIZE)
+        self.search_entry.connect("focus-in-event", self.on_search_focus)
+        self.search_entry.connect("changed", self.on_search_changed)
+        self.search_entry.connect(
+            "key-press-event", self.on_search_entry_key_press_event
+        )
+
+        GLib.idle_add(self.search_entry.grab_focus)
 
         self.menu_popover = Gtk.Popover()
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -78,15 +89,15 @@ class EmojiPicker(Gtk.Window):
         self.menu_popover.add(hbox)
         self.menu_popover.set_position(Gtk.PositionType.BOTTOM)
 
-        menu_button = Gtk.MenuButton()
+        menu_button = Gtk.MenuButton(name="menu_button")
         menu_button.set_popover(self.menu_popover)
         icon = Gio.ThemedIcon(name="open-menu-symbolic")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
         menu_button.show()
         menu_button.add(image)
-        header.pack_start(menu_button)
+        header.pack_end(menu_button, False, False, 0)
 
-        self.set_titlebar(header)
+        self.app_container.pack_start(header, False, False, GRID_SIZE)
 
     def init_category_selectors(self):
         hbox = Gtk.Box(margin_bottom=GRID_SIZE)
@@ -110,19 +121,6 @@ class EmojiPicker(Gtk.Window):
             hbox.pack_start(category_selector, True, False, GRID_SIZE)
 
         self.app_container.add(hbox)
-
-    def init_search(self):
-        search_box = Gtk.Box()
-        self.search_entry = Gtk.SearchEntry()
-        search_box.pack_start(self.search_entry, True, True, GRID_SIZE)
-        self.search_entry.connect("focus-in-event", self.on_search_focus)
-        self.search_entry.connect("changed", self.on_search_changed)
-        self.search_entry.connect(
-            "key-press-event", self.on_search_entry_key_press_event
-        )
-        self.app_container.pack_start(search_box, False, False, GRID_SIZE)
-
-        GLib.idle_add(self.search_entry.grab_focus)
 
     def add_emoji_append_list_preview(self):
         preview_box = Gtk.Box(spacing=GRID_SIZE, margin=GRID_SIZE, margin_bottom=0)
@@ -156,6 +154,9 @@ class EmojiPicker(Gtk.Window):
     def on_window_state_event(self, widget, event):
         """If the window has just unfocussed, exit"""
         if self.dialog_open:
+            return
+
+        if config.is_debug:
             return
 
         if not (event.new_window_state & Gdk.WindowState.FOCUSED):
@@ -326,14 +327,14 @@ class EmojiPicker(Gtk.Window):
         self.search_scrolled = Gtk.ScrolledWindow()
         self.search_scrolled.set_hexpand(False)
 
-        self.search_box = Gtk.Box(
+        search_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=GRID_SIZE
         )
-        self.search_box.pack_start(
+        search_box.pack_start(
             self.create_emoji_flowbox(emojis.search(query)), True, True, GRID_SIZE
         )
 
-        self.search_scrolled.add(self.search_box)
+        self.search_scrolled.add(search_box)
 
         self.app_container.pack_start(self.search_scrolled, True, True, 0)
         self.app_container.reorder_child(self.search_scrolled, 2)
