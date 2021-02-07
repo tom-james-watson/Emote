@@ -2,6 +2,7 @@ import os
 import time
 from datetime import datetime
 import gi
+from itertools import zip_longest
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, Gio
@@ -10,6 +11,12 @@ from emote import emojis, user_data, settings, guide, config
 
 
 GRID_SIZE = 10
+EMOJIS_PER_ROW = 10
+
+
+def grouper(iterable, n, fillvalue=None):
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
 
 
 class EmojiPicker(Gtk.Window):
@@ -279,24 +286,8 @@ class EmojiPicker(Gtk.Window):
 
         self.on_category_selector_toggled(toggled_category_selector)
 
-    def on_flowbox_event(self, flow_box, event):
-        if event.type != Gdk.EventType.KEY_PRESS:
-            return
-
-        keyval = event.keyval
-        keyval_name = Gdk.keyval_name(keyval)
-        shift = bool(event.state & Gdk.ModifierType.SHIFT_MASK)
-
-        emoji = flow_box.get_selected_children()[0].emoji
-
-        if shift and keyval_name == "Return":
-            self.on_emoji_append(emoji)
-        elif keyval_name == "Return":
-            self.on_emoji_select(emoji)
-
     def on_search_focus(self, search_entry, event):
-        if self.emoji_flowbox:
-            self.emoji_flowbox.unselect_all()
+        pass
 
     def on_search_changed(self, search_entry):
         query = self.search_entry.props.text
@@ -331,7 +322,7 @@ class EmojiPicker(Gtk.Window):
             orientation=Gtk.Orientation.VERTICAL, spacing=GRID_SIZE
         )
         search_box.pack_start(
-            self.create_emoji_flowbox(emojis.search(query)), True, True, GRID_SIZE
+            self.create_emoji_results(emojis.search(query)), False, False, GRID_SIZE
         )
 
         self.search_scrolled.add(search_box)
@@ -367,11 +358,11 @@ class EmojiPicker(Gtk.Window):
         category_box.add(label_box)
 
         category_box.pack_start(
-            self.create_emoji_flowbox(
+            self.create_emoji_results(
                 emojis.get_emojis_by_category()[category], category=category
             ),
-            True,
-            True,
+            False,
+            False,
             0,
         )
 
@@ -381,54 +372,85 @@ class EmojiPicker(Gtk.Window):
 
         self.show_all()
 
-    def create_emoji_flowbox(self, emojis, category=None):
-        flowbox = Gtk.FlowBox(
-            valign=Gtk.Align.START,
-            max_children_per_line=9,
-            min_children_per_line=9,
-            selection_mode=Gtk.SelectionMode.SINGLE,
-            homogeneous=True,
-        )
-
-        self.emoji_flowbox = flowbox
+    def create_emoji_results(self, emojis, category=None):
         self.current_emojis = emojis
 
-        flowbox.connect("event", self.on_flowbox_event)
+        results_grid = Gtk.Grid(
+            orientation=Gtk.Orientation.VERTICAL,
+            margin=GRID_SIZE,
+            margin_bottom=0
+        )
+        results_grid.set_row_homogeneous(True)
+        results_grid.set_column_homogeneous(True)
 
-        for emoji in emojis:
-            btn = Gtk.Button(
-                label=emoji["char"],
-                name="emoji_button",
-                can_focus=False,
-                relief=Gtk.ReliefStyle.NONE,
-            )
-            btn.set_tooltip_text(emoji["name"])
-            btn.connect("event", self.on_emoji_btn_event)
-            flowbox_child = Gtk.FlowBoxChild()
-            flowbox_child.add(btn)
-            flowbox_child.parent = flowbox
-            flowbox_child.emoji = emoji["char"]
-            flowbox.add(flowbox_child)
+        row = 0
 
-        return flowbox
+        for emoji_row in grouper(emojis, EMOJIS_PER_ROW, None):
+            row += 1
+
+            column = 0
+
+            for emoji in emoji_row:
+                column += 1
+
+                if emoji is None:
+                    btn = Gtk.Button(
+                        label=" ",
+                        name="emoji_button",
+                        can_focus=False,
+                        relief=Gtk.ReliefStyle.NONE,
+                        sensitive=False,
+                    )
+                else:
+                    btn = Gtk.Button(
+                        label=emoji["char"],
+                        name="emoji_button",
+                        # can_focus=False,
+                        relief=Gtk.ReliefStyle.NONE,
+                    )
+                    btn.set_tooltip_text(emoji["name"])
+                    btn.connect("event", self.on_emoji_btn_event)
+
+                btn.set_size_request(10, 10)
+
+                btn_af = Gtk.AspectFrame(
+                    xalign=0.5,
+                    yalign=0.5,
+                    ratio=1.0,
+                )
+                btn_af.add(btn)
+
+                results_grid.attach(btn_af, column, row, 1, 1)
+
+        return results_grid
 
     def on_emoji_btn_event(self, btn, event):
-        if event.type != Gdk.EventType.BUTTON_PRESS:
-            return
+        if event.type == Gdk.EventType.BUTTON_PRESS:
+            if event.button.button == 1:
+                # Left mouse clicked
+                state = event.state
+                shift = bool(state & Gdk.ModifierType.SHIFT_MASK)
 
-        if event.button.button == 1:
-            # Left mouse clicked
-            state = event.state
-            shift = bool(state & Gdk.ModifierType.SHIFT_MASK)
+                if shift:
+                    self.on_emoji_append(btn.get_label())
+                else:
+                    self.on_emoji_select(btn.get_label())
 
-            if shift:
+            if event.button.button == 3:
+                # Right mouse clicked
                 self.on_emoji_append(btn.get_label())
-            else:
-                self.on_emoji_select(btn.get_label())
 
-        if event.button.button == 3:
-            # Right mouse clicked
-            self.on_emoji_append(btn.get_label())
+        elif event.type == Gdk.EventType.KEY_PRESS:
+            keyval = event.keyval
+            keyval_name = Gdk.keyval_name(keyval)
+            shift = bool(event.state & Gdk.ModifierType.SHIFT_MASK)
+
+            emoji = btn.get_label()
+
+            if shift and keyval_name == "Return":
+                self.on_emoji_append(emoji)
+            elif keyval_name == "Return":
+                self.on_emoji_select(emoji)
 
     def on_emoji_append(self, emoji):
         """Append the selected emoji to the clipboard"""
