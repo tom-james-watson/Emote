@@ -61,7 +61,6 @@ class EmojiPicker(Gtk.Window):
 
         self.search_entry = Gtk.SearchEntry()
         header.pack_start(self.search_entry, True, True, GRID_SIZE)
-        self.search_entry.connect("focus-in-event", self.on_search_focus)
         self.search_entry.connect("changed", self.on_search_changed)
         self.search_entry.connect(
             "key-press-event", self.on_search_entry_key_press_event
@@ -107,7 +106,7 @@ class EmojiPicker(Gtk.Window):
         self.app_container.pack_start(header, False, False, GRID_SIZE)
 
     def init_category_selectors(self):
-        hbox = Gtk.Box(margin_bottom=GRID_SIZE)
+        self.categories_box = Gtk.Box(margin_bottom=GRID_SIZE)
 
         self.category_selectors = []
         self.selected_emoji_category = "recent"
@@ -125,9 +124,9 @@ class EmojiPicker(Gtk.Window):
 
             category_selector.connect("toggled", self.on_category_selector_toggled)
 
-            hbox.pack_start(category_selector, True, False, GRID_SIZE)
+            self.categories_box.pack_start(category_selector, True, False, GRID_SIZE)
 
-        self.app_container.add(hbox)
+        self.app_container.add(self.categories_box)
 
     def add_emoji_append_list_preview(self):
         preview_box = Gtk.Box(spacing=GRID_SIZE, margin=GRID_SIZE, margin_bottom=0)
@@ -286,9 +285,6 @@ class EmojiPicker(Gtk.Window):
 
         self.on_category_selector_toggled(toggled_category_selector)
 
-    def on_search_focus(self, search_entry, event):
-        pass
-
     def on_search_changed(self, search_entry):
         query = self.search_entry.props.text
 
@@ -297,10 +293,7 @@ class EmojiPicker(Gtk.Window):
                 self.search_scrolled.destroy()
                 self.search_scrolled = None
 
-            # Retoggle the previously selected emoji category
-            for category_selector in self.category_selectors:
-                if category_selector.category == self.selected_emoji_category:
-                    category_selector.set_active(True)
+            self.categories_box.show()
 
             self.render_selected_emoji_category()
 
@@ -312,9 +305,6 @@ class EmojiPicker(Gtk.Window):
         if self.search_scrolled:
             self.search_scrolled.destroy()
 
-        for category_selector in self.category_selectors:
-            category_selector.set_active(False)
-
         self.search_scrolled = Gtk.ScrolledWindow()
         self.search_scrolled.set_hexpand(False)
 
@@ -322,14 +312,18 @@ class EmojiPicker(Gtk.Window):
             orientation=Gtk.Orientation.VERTICAL, spacing=GRID_SIZE
         )
         search_box.pack_start(
-            self.create_emoji_results(emojis.search(query)), False, False, GRID_SIZE
+            self.create_emoji_results(emojis.search(query)),
+            False,
+            False,
+            0
         )
 
         self.search_scrolled.add(search_box)
-
         self.app_container.pack_start(self.search_scrolled, True, True, 0)
         self.app_container.reorder_child(self.search_scrolled, 2)
+
         self.show_all()
+        self.categories_box.hide()
 
     def render_selected_emoji_category(self):
         if hasattr(self, "category_scrolled"):
@@ -359,7 +353,8 @@ class EmojiPicker(Gtk.Window):
 
         category_box.pack_start(
             self.create_emoji_results(
-                emojis.get_emojis_by_category()[category], category=category
+                emojis.get_emojis_by_category()[category],
+                True
             ),
             False,
             False,
@@ -372,13 +367,14 @@ class EmojiPicker(Gtk.Window):
 
         self.show_all()
 
-    def create_emoji_results(self, emojis, category=None):
+    def create_emoji_results(self, emojis, for_category=False):
         self.current_emojis = emojis
 
         results_grid = Gtk.Grid(
             orientation=Gtk.Orientation.VERTICAL,
             margin=GRID_SIZE,
-            margin_bottom=0
+            margin_bottom=0,
+            margin_top=GRID_SIZE if for_category else 0
         )
         results_grid.set_row_homogeneous(True)
         results_grid.set_column_homogeneous(True)
