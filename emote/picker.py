@@ -36,6 +36,7 @@ class EmojiPicker(Gtk.Window):
         self.search_scrolled = None
         self.emoji_append_list = []
         self.current_emojis = []
+        self.first_emoji_widget = None
 
         self.app_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.app_container)
@@ -242,6 +243,8 @@ class EmojiPicker(Gtk.Window):
         elif keyval_name == "Return":
             if len(self.current_emojis) > 0:
                 self.on_emoji_select(self.current_emojis[0]["char"])
+        elif keyval_name == "Down" and self.first_emoji_widget:
+            self.first_emoji_widget.grab_focus()
         else:
             return False
 
@@ -408,6 +411,9 @@ class EmojiPicker(Gtk.Window):
                     )
                     btn.set_tooltip_text(emoji["name"])
                     btn.connect("event", self.on_emoji_btn_event)
+
+                if row == 1 and column == 1:
+                    self.first_emoji_widget = btn
 
                 btn.set_size_request(10, 10)
 
