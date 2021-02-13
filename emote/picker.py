@@ -27,7 +27,6 @@ class EmojiPicker(Gtk.Window):
             window_position=Gtk.WindowPosition.CENTER,
             resizable=False,
             deletable=False,
-            decorated=False,
             name="emote_window",
         )
         self.set_default_size(500, 450)
@@ -57,14 +56,15 @@ class EmojiPicker(Gtk.Window):
         self.connect("key-press-event", self.on_key_press_event)
 
     def init_header(self):
-        header = Gtk.Box()
+        header = Gtk.HeaderBar(name="header")
 
         self.search_entry = Gtk.SearchEntry()
-        header.pack_start(self.search_entry, True, True, GRID_SIZE)
+        self.search_entry.set_hexpand(True)
         self.search_entry.connect("changed", self.on_search_changed)
         self.search_entry.connect(
             "key-press-event", self.on_search_entry_key_press_event
         )
+        header.set_custom_title(self.search_entry)
 
         GLib.idle_add(self.search_entry.grab_focus)
 
@@ -101,12 +101,12 @@ class EmojiPicker(Gtk.Window):
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
         menu_button.show()
         menu_button.add(image)
-        header.pack_end(menu_button, False, False, 0)
+        header.pack_end(menu_button)
 
-        self.app_container.pack_start(header, False, False, GRID_SIZE)
+        self.set_titlebar(header)
 
     def init_category_selectors(self):
-        self.categories_box = Gtk.Box(margin_bottom=GRID_SIZE)
+        self.categories_box = Gtk.Box(margin_bottom=GRID_SIZE, margin_top=GRID_SIZE)
 
         self.category_selectors = []
         self.selected_emoji_category = "recent"
@@ -309,7 +309,9 @@ class EmojiPicker(Gtk.Window):
         self.search_scrolled.set_hexpand(False)
 
         search_box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL, spacing=GRID_SIZE
+            orientation=Gtk.Orientation.VERTICAL,
+            spacing=GRID_SIZE,
+            margin_top=GRID_SIZE
         )
         search_box.pack_start(
             self.create_emoji_results(emojis.search(query)),
