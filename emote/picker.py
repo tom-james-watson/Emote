@@ -409,7 +409,7 @@ class EmojiPicker(Gtk.Window):
                         # can_focus=False,
                         relief=Gtk.ReliefStyle.NONE,
                     )
-                    btn.set_tooltip_text(emoji["name"])
+                    btn.set_tooltip_text(f":{emoji['name']}:")
                     btn.connect("event", self.on_emoji_btn_event)
 
                 if row == 1 and column == 1:
