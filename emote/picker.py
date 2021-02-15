@@ -314,13 +314,10 @@ class EmojiPicker(Gtk.Window):
         search_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL,
             spacing=GRID_SIZE,
-            margin_top=GRID_SIZE
+            margin_top=GRID_SIZE,
         )
         search_box.pack_start(
-            self.create_emoji_results(emojis.search(query)),
-            False,
-            False,
-            0
+            self.create_emoji_results(emojis.search(query)), False, False, 0
         )
 
         self.search_scrolled.add(search_box)
@@ -357,10 +354,7 @@ class EmojiPicker(Gtk.Window):
         category_box.add(label_box)
 
         category_box.pack_start(
-            self.create_emoji_results(
-                emojis.get_emojis_by_category()[category],
-                True
-            ),
+            self.create_emoji_results(emojis.get_emojis_by_category()[category], True),
             False,
             False,
             0,
@@ -379,7 +373,7 @@ class EmojiPicker(Gtk.Window):
             orientation=Gtk.Orientation.VERTICAL,
             margin=GRID_SIZE,
             margin_bottom=0,
-            margin_top=GRID_SIZE if for_category else 0
+            margin_top=GRID_SIZE if for_category else 0,
         )
         results_grid.set_row_homogeneous(True)
         results_grid.set_column_homogeneous(True)
@@ -417,11 +411,7 @@ class EmojiPicker(Gtk.Window):
 
                 btn.set_size_request(10, 10)
 
-                btn_af = Gtk.AspectFrame(
-                    xalign=0.5,
-                    yalign=0.5,
-                    ratio=1.0,
-                )
+                btn_af = Gtk.AspectFrame(xalign=0.5, yalign=0.5, ratio=1.0,)
                 btn_af.add(btn)
 
                 results_grid.attach(btn_af, column, row, 1, 1)
