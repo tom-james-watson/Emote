@@ -117,6 +117,7 @@ class EmojiPicker(Gtk.Window):
             category_selector = Gtk.ToggleButton(
                 label=category_image, name="category_selector_button"
             )
+            category_selector.set_tooltip_text(self.get_category_display_name(category))
             category_selector.category = category
 
             if category == self.selected_emoji_category:
@@ -328,6 +329,16 @@ class EmojiPicker(Gtk.Window):
         self.show_all()
         self.categories_box.hide()
 
+    def get_category_display_name(self, category):
+        category_display_name = None
+
+        for (c, display_name, _) in emojis.get_category_order():
+            if c == category:
+                category_display_name = display_name
+                break
+
+        return category_display_name
+
     def render_selected_emoji_category(self):
         if hasattr(self, "category_scrolled"):
             self.app_container.remove(self.category_scrolled)
@@ -336,19 +347,13 @@ class EmojiPicker(Gtk.Window):
         self.category_scrolled.set_hexpand(False)
 
         category = self.selected_emoji_category
-        category_display_name = None
-
-        for (c, display_name, _) in emojis.get_category_order():
-            if c == category:
-                category_display_name = display_name
-                break
 
         category_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
         label_box = Gtk.Box()
         label = Gtk.Label(margin_right=GRID_SIZE, margin_left=GRID_SIZE)
         label.set_name("category_label")
-        label.set_text(category_display_name)
+        label.set_text(self.get_category_display_name(category))
         label.set_justify(Gtk.Justification.LEFT)
         label_box.pack_start(label, False, False, 0)
         category_box.pack_start(Gtk.Box(), False, False, 0)
