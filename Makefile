@@ -14,3 +14,6 @@ install:
 
 package:
 	snapcraft
+
+clean:
+	snapcraft clean
