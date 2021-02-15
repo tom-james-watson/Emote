@@ -20,7 +20,7 @@ def grouper(iterable, n, fillvalue=None):
 
 
 class EmojiPicker(Gtk.Window):
-    def __init__(self, open_time, update_accelerator, show_welcome):
+    def __init__(self, open_time, update_accelerator, update_theme, show_welcome):
         Gtk.Window.__init__(
             self,
             title="Emote",
@@ -33,6 +33,7 @@ class EmojiPicker(Gtk.Window):
         self.set_keep_above(True)
         self.dialog_open = False
         self.update_accelerator = update_accelerator
+        self.update_theme = update_theme
         self.search_scrolled = None
         self.emoji_append_list = []
         self.current_emojis = []
@@ -74,7 +75,7 @@ class EmojiPicker(Gtk.Window):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         items_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        if not config.is_wayland:
+        if (not config.is_wayland) or config.is_snap:
             prefs_btn = Gtk.ModelButton("Preferences")
             prefs_btn.set_alignment(0, 0.5)
             prefs_btn.connect("clicked", lambda prefs_btn: self.open_preferences())
@@ -192,7 +193,7 @@ class EmojiPicker(Gtk.Window):
 
     def open_preferences(self):
         self.dialog_open = True
-        settings_window = settings.Settings(self.update_accelerator)
+        settings_window = settings.Settings(self.update_accelerator, self.update_theme)
         settings_window.connect("destroy", self.on_close_dialog)
 
     def open_guide(self):
