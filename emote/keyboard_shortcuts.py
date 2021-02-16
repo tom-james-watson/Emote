@@ -28,7 +28,7 @@ class KeyboardShortcuts(Gtk.Dialog):
         shortcuts_grid = Gtk.Grid(
             orientation=Gtk.Orientation.VERTICAL,
             margin=GRID_SIZE,
-            row_spacing=GRID_SIZE
+            row_spacing=GRID_SIZE,
         )
         shortcuts_grid.set_row_homogeneous(False)
         shortcuts_grid.set_column_homogeneous(True)

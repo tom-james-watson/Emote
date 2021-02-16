@@ -31,3 +31,12 @@
 frame border {
   border: none;
 }
+
+#previewed_emoji_label {
+  font-size: 34px;
+}
+
+#previewed_emoji_name_label {
+  font-weight: bold;
+  font-size: 16px;
+}

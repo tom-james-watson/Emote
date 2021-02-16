@@ -27,7 +27,7 @@ class Settings(Gtk.Dialog):
         settings_grid = Gtk.Grid(
             orientation=Gtk.Orientation.VERTICAL,
             margin=GRID_SIZE,
-            row_spacing=GRID_SIZE
+            row_spacing=GRID_SIZE,
         )
         settings_grid.set_row_homogeneous(False)
         settings_grid.set_column_homogeneous(True)
