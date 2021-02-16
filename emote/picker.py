@@ -7,7 +7,7 @@ from itertools import zip_longest
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, Gio
 from gi.repository.GdkPixbuf import Pixbuf
-from emote import emojis, user_data, settings, guide, config
+from emote import emojis, user_data, settings, keyboard_shortcuts, guide, config
 
 
 GRID_SIZE = 10
@@ -75,11 +75,16 @@ class EmojiPicker(Gtk.Window):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         items_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        if (not config.is_wayland) or config.is_snap:
+        if config.is_snap or config.is_dev:
             prefs_btn = Gtk.ModelButton("Preferences")
             prefs_btn.set_alignment(0, 0.5)
             prefs_btn.connect("clicked", lambda prefs_btn: self.open_preferences())
             items_box.pack_start(prefs_btn, False, True, 0)
+
+        keyboard_shortcuts_btn = Gtk.ModelButton("Keyboard Shortcuts")
+        keyboard_shortcuts_btn.set_alignment(0, 0.5)
+        keyboard_shortcuts_btn.connect("clicked", lambda keyboard_shortcuts_btn: self.open_keyboard_shortcuts())
+        items_box.pack_start(keyboard_shortcuts_btn, False, True, 0)
 
         guide_btn = Gtk.ModelButton("Guide")
         guide_btn.set_alignment(0, 0.5)
@@ -194,8 +199,13 @@ class EmojiPicker(Gtk.Window):
 
     def open_preferences(self):
         self.dialog_open = True
-        settings_window = settings.Settings(self.update_accelerator, self.update_theme)
+        settings_window = settings.Settings(self.update_theme)
         settings_window.connect("destroy", self.on_close_dialog)
+
+    def open_keyboard_shortcuts(self):
+        self.dialog_open = True
+        keyboard_shortcuts_window = keyboard_shortcuts.KeyboardShortcuts(self.update_accelerator)
+        keyboard_shortcuts_window.connect("destroy", self.on_close_dialog)
 
     def open_guide(self):
         self.dialog_open = True

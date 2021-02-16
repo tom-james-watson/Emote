@@ -1,10 +1,10 @@
 OS := $(shell uname)
 
 dev:
-	pipenv run start
+	ENV=dev pipenv run start
 
 dev-debug:
-	GTK_DEBUG=interactive pipenv run start
+	GTK_DEBUG=interactive ENV=dev pipenv run start
 
 format:
 	pipenv run black emote

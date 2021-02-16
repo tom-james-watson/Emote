@@ -8,7 +8,7 @@ pygobject = "==3.38.0"
 
 [dev-packages]
 black = "==19.10b0"
-pylint = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.8"
