@@ -128,13 +128,3 @@ Push the packaged snap to the `edge` channel on the snap store.
 ```bash
 snapcraft push --release=edge <path to .snap>
 ```
-
-## Attribution
-
-### App Icon
-
-Copyright 2020 Twitter, Inc and other contributors.
-
-Thanks to the awesome team at Twitter.
-
-https://twemoji.twitter.com

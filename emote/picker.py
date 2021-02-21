@@ -288,7 +288,6 @@ class EmojiPicker(Gtk.Window):
             title="About Emote",
             version=os.environ.get("SNAP_VERSION", "dev build"),
             authors=["Tom Watson"],
-            artists=["Twitter, Inc and other contributors (App Icon)"],
             documenters=["Irene Auñón"],
             copyright=f"© Tom Watson {datetime.now().year}",
             website_label="Source Code",
