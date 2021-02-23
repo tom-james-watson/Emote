@@ -8,7 +8,7 @@ SHELVE_PATH = os.path.join(DATA_DIR, "user_data")
 
 RECENT_EMOJIS = "recent_emojis"
 DEFAULT_RECENT_EMOJIS = ["🙂", "😄", "❤️", "👍", "🤞", "🔥", "🤣", "😍", "😭"]
-MAX_RECENT_EMOJIS = 54
+MAX_RECENT_EMOJIS = 60
 
 ACCELERATOR_STRING = "accelerator_string"
 DEFAULT_ACCELERATOR_STRING = "<Primary><Alt>e"
