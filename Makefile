@@ -1,10 +1,10 @@
 OS := $(shell uname)
 
 dev:
-	pipenv run start
+	ENV=dev GDK_BACKEND="x11" pipenv run start
 
 dev-debug:
-	GTK_DEBUG=interactive pipenv run start
+	GTK_DEBUG=interactive GDK_BACKEND="x11" ENV=dev pipenv run start
 
 format:
 	pipenv run black emote
@@ -14,3 +14,6 @@ install:
 
 package:
 	snapcraft
+
+clean:
+	snapcraft clean

@@ -11,7 +11,7 @@ Emote is a modern emoji picker for Linux 🚀. Written in GTK3, Emote is lightwe
 
 Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E` and select one or more emojis to have them be automatically pasted into your currently focussed app.
 
-Note - Emote under Wayland requires manual registering of a global keyboard shortcut - [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland).
+Note - Emote under Wayland cannot automatically paste the emoji into other apps and also requires manual registering of a global keyboard shortcut - [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland). This is due to intentional restrictions in the design of Wayland itself.
 
 <p align="center">
   <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">
@@ -128,13 +128,3 @@ Push the packaged snap to the `edge` channel on the snap store.
 ```bash
 snapcraft push --release=edge <path to .snap>
 ```
-
-## Attribution
-
-### App Icon
-
-Copyright 2020 Twitter, Inc and other contributors.
-
-Thanks to the awesome team at Twitter.
-
-https://twemoji.twitter.com

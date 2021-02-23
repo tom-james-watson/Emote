@@ -66,77 +66,34 @@ class Guide(Gtk.Dialog):
         usage.set_alignment(0, 0.5)
         vbox.pack_start(usage, True, True, GRID_SIZE)
 
-        copying = Gtk.Label()
-        copying.set_markup(
-            "Select an emoji to have it pasted to your currently focussed app. The\n"
-            "emoji is also copied to the clipboard so you can then paste the emoji\n"
-            "wherever you need."
-        )
-        copying.set_line_wrap(True)
-        copying.set_alignment(0, 0.5)
-        vbox.pack_start(copying, True, True, GRID_SIZE)
+        if config.is_wayland:
+            copying = Gtk.Label()
+            copying.set_markup(
+                "Select an emoji to have it copied to your clipboard. You can then paste the\n"
+                "emoji wherever you need."
+            )
+            copying.set_line_wrap(True)
+            copying.set_alignment(0, 0.5)
+            vbox.pack_start(copying, True, True, GRID_SIZE)
+        else:
+            copying = Gtk.Label()
+            copying.set_markup(
+                "Select an emoji to have it pasted to your currently focussed app. The\n"
+                "emoji is also copied to the clipboard so you can then paste the emoji\n"
+                "wherever you need."
+            )
+            copying.set_line_wrap(True)
+            copying.set_alignment(0, 0.5)
+            vbox.pack_start(copying, True, True, GRID_SIZE)
 
         multiple = Gtk.Label()
         multiple.set_markup(
             "You can select multiple emojis by selecting them with shift left click\n"
-            "or with right click"
+            "or with right click."
         )
         multiple.set_line_wrap(True)
         multiple.set_alignment(0, 0.5)
         vbox.pack_start(multiple, True, True, GRID_SIZE)
-
-        shortcuts = Gtk.Label()
-        shortcuts.set_markup(
-            '<span size="large" font_weight="bold" underline="single">Keyboard Shortcuts</span>'
-        )
-        shortcuts.set_alignment(0, 0.5)
-        vbox.pack_start(shortcuts, True, True, GRID_SIZE)
-
-        if not config.is_wayland:
-            _, accel_label = user_data.load_accelerator()
-            launch_shortcut = Gtk.Label()
-            launch_shortcut.set_markup(
-                f'<span font_weight="bold">Open Emoji Picker:</span> {accel_label}'
-            )
-            launch_shortcut.set_alignment(0, 0.5)
-            vbox.pack_start(launch_shortcut, True, True, GRID_SIZE)
-
-        _, accel_label = user_data.load_accelerator()
-        select_shortcut = Gtk.Label()
-        select_shortcut.set_markup(
-            f'<span font_weight="bold">Select Emoji:</span> Enter'
-        )
-        select_shortcut.set_alignment(0, 0.5)
-        vbox.pack_start(select_shortcut, True, True, GRID_SIZE)
-
-        _, accel_label = user_data.load_accelerator()
-        select_multi_shortcut = Gtk.Label()
-        select_multi_shortcut.set_markup(
-            f'<span font_weight="bold">Add Emoji to Selection:</span> Shift+Enter'
-        )
-        select_multi_shortcut.set_alignment(0, 0.5)
-        vbox.pack_start(select_multi_shortcut, True, True, GRID_SIZE)
-
-        search_shortcut = Gtk.Label()
-        search_shortcut.set_markup(
-            f'<span font_weight="bold">Focus Search:</span> Ctrl+F'
-        )
-        search_shortcut.set_alignment(0, 0.5)
-        vbox.pack_start(search_shortcut, True, True, GRID_SIZE)
-
-        next_cat_shortcut = Gtk.Label()
-        next_cat_shortcut.set_markup(
-            f'<span font_weight="bold">Next Emoji Category:</span> Ctrl+Tab'
-        )
-        next_cat_shortcut.set_alignment(0, 0.5)
-        vbox.pack_start(next_cat_shortcut, True, True, GRID_SIZE)
-
-        prev_cat_shortcut = Gtk.Label()
-        prev_cat_shortcut.set_markup(
-            f'<span font_weight="bold">Previous Emoji Category:</span> Ctrl+Shift+Tab'
-        )
-        prev_cat_shortcut.set_alignment(0, 0.5)
-        vbox.pack_start(prev_cat_shortcut, True, True, GRID_SIZE)
 
         hbox.pack_start(vbox, True, True, GRID_SIZE)
         box.pack_start(hbox, True, True, GRID_SIZE)
