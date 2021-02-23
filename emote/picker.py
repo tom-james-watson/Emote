@@ -576,14 +576,7 @@ class EmojiPicker(Gtk.Window):
 
         time.sleep(0.15)
 
-        if config.is_wayland:
-            ydotool_path = (
-                f"{config.snap_root}/static/ydotool"
-                if config.is_snap
-                else "static/ydotool"
-            )
-            os.system(f"{ydotool_path} key ctrl+v")
-        else:
+        if not config.is_wayland:
             os.system("xdotool key ctrl+v")
 
     def add_emoji_to_recent(self, emoji):

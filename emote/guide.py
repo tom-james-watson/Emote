@@ -66,15 +66,25 @@ class Guide(Gtk.Dialog):
         usage.set_alignment(0, 0.5)
         vbox.pack_start(usage, True, True, GRID_SIZE)
 
-        copying = Gtk.Label()
-        copying.set_markup(
-            "Select an emoji to have it pasted to your currently focussed app. The\n"
-            "emoji is also copied to the clipboard so you can then paste the emoji\n"
-            "wherever you need."
-        )
-        copying.set_line_wrap(True)
-        copying.set_alignment(0, 0.5)
-        vbox.pack_start(copying, True, True, GRID_SIZE)
+        if config.is_wayland:
+            copying = Gtk.Label()
+            copying.set_markup(
+                "Select an emoji to have it copied to your clipboard. You can then paste the\n"
+                "emoji wherever you need."
+            )
+            copying.set_line_wrap(True)
+            copying.set_alignment(0, 0.5)
+            vbox.pack_start(copying, True, True, GRID_SIZE)
+        else:
+            copying = Gtk.Label()
+            copying.set_markup(
+                "Select an emoji to have it pasted to your currently focussed app. The\n"
+                "emoji is also copied to the clipboard so you can then paste the emoji\n"
+                "wherever you need."
+            )
+            copying.set_line_wrap(True)
+            copying.set_alignment(0, 0.5)
+            vbox.pack_start(copying, True, True, GRID_SIZE)
 
         multiple = Gtk.Label()
         multiple.set_markup(

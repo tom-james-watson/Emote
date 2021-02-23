@@ -34,14 +34,6 @@ class EmoteApplication(Gtk.Application):
             self.create_picker_window(True)
             user_data.update_shown_welcome()
 
-        if config.is_wayland:
-            # Start ydotool daemon. This will be killed when emote exits.
-            subprocess.Popen(
-                f"{config.snap_root}/static/ydotoold"
-                if config.is_snap
-                else "static/ydotoold"
-            )
-
         self.set_theme()
 
         # Run the main gtk event loop - this prevents the app from quitting
