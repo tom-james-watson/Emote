@@ -576,7 +576,9 @@ class EmojiPicker(Gtk.Window):
 
         time.sleep(0.15)
 
-        if not config.is_wayland:
+        if config.is_wayland:
+            os.system("wtype -M shift -p Insert -P Insert -m ctrl")
+        else:
             os.system("xdotool key ctrl+v")
 
     def add_emoji_to_recent(self, emoji):
