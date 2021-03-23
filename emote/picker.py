@@ -577,7 +577,7 @@ class EmojiPicker(Gtk.Window):
         time.sleep(0.15)
 
         if config.is_wayland:
-            os.system("ydotool key control+v")
+            os.system("ydotool key ctrl+v")
         else:
             os.system("xdotool key ctrl+v")
 
