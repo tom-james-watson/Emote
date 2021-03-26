@@ -7372,7 +7372,14 @@
     "category": "symbols"
   },
   "u6709": {
-    "keywords": ["orange-square", "chinese", "have", "kanji"],
+    "keywords": [
+      "orange-square",
+      "chinese",
+      "have",
+      "kanji",
+      "paid",
+      "not-free"
+    ],
     "char": "🈶",
     "fitzpatrick_scale": false,
     "category": "symbols"
