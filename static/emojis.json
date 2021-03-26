@@ -7441,7 +7441,15 @@
     "category": "symbols"
   },
   "ideograph_advantage": {
-    "keywords": ["chinese", "kanji", "obtain", "get", "circle"],
+    "keywords": [
+      "chinese",
+      "kanji",
+      "obtain",
+      "get",
+      "circle",
+      "bargain",
+      "value"
+    ],
     "char": "🉐",
     "fitzpatrick_scale": false,
     "category": "symbols"
