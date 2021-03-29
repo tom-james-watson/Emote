@@ -27,6 +27,8 @@ or
 sudo snap install emote
 ```
 
+An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote.
+
 ## Guide
 
 ### Launching
