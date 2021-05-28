@@ -20,7 +20,7 @@ def grouper(iterable, n, fillvalue=None):
 
 
 class EmojiPicker(Gtk.Window):
-    def __init__(self, open_time, update_accelerator, update_theme, show_welcome):
+    def __init__(self, open_time, current_window, update_accelerator, update_theme, show_welcome):
         Gtk.Window.__init__(
             self,
             title="Emote",
@@ -29,6 +29,7 @@ class EmojiPicker(Gtk.Window):
             deletable=False,
             name="emote_window",
         )
+        self.current_window = current_window
         self.set_default_size(500, 450)
         self.set_keep_above(True)
         self.dialog_open = False
@@ -541,7 +542,7 @@ class EmojiPicker(Gtk.Window):
             self.show_emoji_preview(emoji)
 
     def on_emoji_append(self, emoji):
-        """Append the selected emoji to the clipboard"""
+        """Append the selected emoji to the current selection"""
         print(f"Appending {emoji} to selection")
         self.emoji_append_list.append(emoji)
 
@@ -551,38 +552,30 @@ class EmojiPicker(Gtk.Window):
             self.previewed_emoji_shortcode_label.set_max_width_chars(20)
 
         self.update_emoji_append_list_preview()
-
-        self.copy_to_clipboard("".join(self.emoji_append_list))
         self.add_emoji_to_recent(emoji)
 
     def on_emoji_select(self, emoji):
         """
-        Copy the selected emoji to the clipboard, close the picker window and
-        make the user's system perform a paste after 150ms, pasting the emoji
-        to the currently focussed application window.
-
-        If we have been appending other emojis first, add this final one first.
+        Append the given emoji to the current selection.
+        Then, close the picker window and:
+         - for X11, make the user's system "type" the selected characters
+           into the currently focussed application window;
+         - for Wayland, copy the selected characters to the clipboard.
         """
         self.hide()
-
-        if len(self.emoji_append_list) > 0:
-            self.on_emoji_append(emoji)
-        else:
-            print(f"Selecting {emoji}")
-            self.add_emoji_to_recent(emoji)
-            self.copy_to_clipboard(emoji)
-
+        self.on_emoji_append(emoji)
         self.destroy()
 
-        time.sleep(0.15)
-
-        if not config.is_wayland:
-            os.system("xdotool key ctrl+v")
+        emojis = "".join(self.emoji_append_list)
+        if not config.is_wayland and self.current_window:
+            os.system(f"xdotool windowfocus --sync '{self.current_window}' type --args 1 '{emojis}'")
+        else:
+            self.copy_to_clipboard(emojis)
 
     def add_emoji_to_recent(self, emoji):
         user_data.update_recent_emojis(emoji)
         emojis.update_recent_category()
-
+        
     def copy_to_clipboard(self, content):
         cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         cb.set_text(content, -1)

@@ -83,6 +83,7 @@ class EmoteApplication(Gtk.Application):
             self.picker_window.destroy()
         self.picker_window = picker.EmojiPicker(
             Keybinder.get_current_event_time(),
+            self.get_current_window(),
             self.update_accelerator,
             self.update_theme,
             show_welcome,
@@ -100,6 +101,14 @@ class EmoteApplication(Gtk.Application):
             print("Second instance launched")
             self.create_picker_window()
 
+    def get_current_window(self):
+        if not config.is_wayland:
+            result = subprocess.run(
+                ['xdotool', 'getactivewindow'], 
+                capture_output = True,
+                check = True
+            )
+            return result.stdout.decode("utf-8").strip()
 
 def main():
     app = EmoteApplication()
