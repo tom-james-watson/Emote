@@ -224,7 +224,7 @@ class EmojiPicker(Gtk.Window):
         self.connect("window-state-event", self.on_window_state_event)
 
     def on_window_state_event(self, widget, event):
-        """If the window has just unfocussed, exit"""
+        """If the window has just unfocused, exit"""
         if self.dialog_open:
             return
 
@@ -559,7 +559,7 @@ class EmojiPicker(Gtk.Window):
         """
         Copy the selected emoji to the clipboard, close the picker window and
         make the user's system perform a paste after 150ms, pasting the emoji
-        to the currently focussed application window.
+        to the currently focused application window.
 
         If we have been appending other emojis first, add this final one first.
         """
