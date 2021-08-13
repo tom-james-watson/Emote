@@ -5,6 +5,7 @@ verify_ssl = true
 
 [packages]
 pygobject = "==3.38.0"
+manimpango = "==0.3.0"
 
 [dev-packages]
 black = "==19.10b0"
