@@ -15,5 +15,8 @@ install:
 package:
 	snapcraft
 
+package-debug:
+	snapcraft --debug
+
 clean:
 	snapcraft clean

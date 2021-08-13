@@ -67,6 +67,12 @@ Install gtk development libraries:
 sudo apt install libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev
 ```
 
+Install build requirements:
+
+```bash
+sudo apt install build-essential meson ninja-build
+```
+
 Install pipenv:
 
 ```bash
