@@ -25,7 +25,7 @@ class EmojiPicker(Gtk.Window):
             self,
             title="Emote",
             window_position=Gtk.WindowPosition.CENTER,
-            resizable=True,
+            resizable=False,
             deletable=False,
             name="emote_window",
         )
