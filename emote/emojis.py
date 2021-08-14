@@ -1,9 +1,10 @@
 import csv
+import re
 from collections import defaultdict
 from emote import user_data, config
 
 
-MAX_VERSION = 10.0
+SUPPORTED_SEQUENCES_UNICODE_VERSION = 11
 
 
 emojis_by_category = defaultdict(list)
@@ -27,19 +28,37 @@ def init():
         for row in reader:
             category = row["group"]
 
+            # Ignore uninteresting emojis
             if category in blocklisted_emoji_categories:
                 continue
 
+            # Ignore emojis that are skintone combinations of other emojis. We
+            # will handle this ourself in the app.
             if row["skintone"] != "":
                 continue
+
+            # Ignore emojis that are in recent unicode versions that are
+            # sequences of emojis. The app itself bundles a recent version of
+            # the NotoColorEmoji font and so can display recent single char
+            # emojis, however any emojis that are sequences also require a
+            # recent version of pango for the OS to recognise and combine the
+            # sequences.
+            # Upgrading to core20 should let us include more recent versions:
+            # https://github.com/tom-james-watson/Emote/issues/48.
+            if (
+                float(row["unicode"]) > SUPPORTED_SEQUENCES_UNICODE_VERSION
+                and len(row["emoji"]) > 1
+            ):
+                continue
+
+            shortcode = row["annotation"].lower().replace("-", " ")
+            shortcode = re.sub(r"[^\w\s]", "", shortcode).replace(" ", "_")
 
             emoji = {
                 "keywords": row["tags"].split(", "),
                 "char": row["emoji"],
-                "name": " ".join(
-                    [part.capitalize() for part in row["annotation"].split(" ")]
-                ),
-                "shortcode": row["annotation"].replace(" ", "_").replace("-", "_"),
+                "name": row["annotation"].capitalize(),
+                "shortcode": shortcode,
                 "skintone": row["skintone_combination"] == "simple",
             }
             emojis_by_category[row["group"]].append(emoji)
