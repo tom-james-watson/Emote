@@ -85,6 +85,6 @@ def search(query):
         parts = emoji["name"].split("_")
         search_terms = parts + [" ".join(parts)] + emoji["keywords"]
         search_terms = [search_term.lower() for search_term in search_terms]
-        return any(search_term.startswith(query) for search_term in search_terms)
+        return any(query in search_term for search_term in search_terms)
 
     return list(filter(search_filter, all_emojis))
