@@ -223,6 +223,7 @@ SEQUENCE_BLOCKLIST = [
     "woman_in_manual_wheelchair",
     "service_dog",
     "transgender_flag",
+    "mending_heart",
 ]
 EMOJI_CATEGORY_BLOCKLIST = ["component", "extras-openmoji", "extras-unicode"]
 
