@@ -1,5 +1,4 @@
-import os
-import json
+import csv
 from collections import defaultdict
 from emote import user_data, config
 
@@ -9,25 +8,41 @@ MAX_VERSION = 10.0
 
 emojis_by_category = defaultdict(list)
 all_emojis = []
+blocklisted_emoji_categories = ["component", "extras-openmoji", "extras-unicode"]
 
 
 def init():
     global all_emojis
     global emojis_by_category
 
-    if config.is_snap:
-        filename = f"{config.snap_root}/static/emojis.json"
-    else:
-        filename = "static/emojis.json"
+    filename = (
+        f"{config.snap_root}/static/emojis.csv"
+        if config.is_snap
+        else "static/emojis.csv"
+    )
 
-    with open(filename, "r") as f:
-        emojis = json.load(f)
+    with open(filename, newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
 
-        for emoji_key in emojis.keys():
-            emoji = emojis[emoji_key].copy()
-            emoji.update({"name": emoji_key})
+        for row in reader:
+            category = row["group"]
 
-            emojis_by_category[emoji["category"]].append(emoji)
+            if category in blocklisted_emoji_categories:
+                continue
+
+            if row["skintone"] != "":
+                continue
+
+            emoji = {
+                "keywords": row["tags"].split(", "),
+                "char": row["emoji"],
+                "name": " ".join(
+                    [part.capitalize() for part in row["annotation"].split(" ")]
+                ),
+                "shortcode": row["annotation"].replace(" ", "_").replace("-", "_"),
+                "skintone": row["skintone_combination"] == "simple",
+            }
+            emojis_by_category[row["group"]].append(emoji)
             all_emojis.append(emoji)
 
     update_recent_category()
@@ -63,11 +78,11 @@ def get_category_order():
     """
     return [
         ("recent", "Recently Used", "🕙"),
-        ("people", "Smileys & People", "🙂"),
-        ("animals_and_nature", "Animals & Nature", "🐯"),
-        ("food_and_drink", "Food & Drink", "🍔"),
-        ("activity", "Activities", "⚽"),
-        ("travel_and_places", "Travel & Places", "✈️"),
+        ("people-body", "Smileys & People", "🙂"),
+        ("animals-nature", "Animals & Nature", "🐯"),
+        ("food-drink", "Food & Drink", "🍔"),
+        ("activities", "Activities", "⚽"),
+        ("travel-places", "Travel & Places", "✈️"),
         ("objects", "Objects", "💡"),
         ("symbols", "Symbols", "❤️"),
         ("flags", "Flags", "🇺🇳"),

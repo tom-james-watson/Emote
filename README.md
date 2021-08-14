@@ -130,3 +130,7 @@ Push the packaged snap to the `edge` channel on the snap store.
 ```bash
 snapcraft push --release=edge <path to .snap>
 ```
+
+### Attribution
+
+Emoji data is sourced from https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv which is compiled by the lovely people at https://openmoji.org.

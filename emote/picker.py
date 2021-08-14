@@ -198,10 +198,8 @@ class EmojiPicker(Gtk.Window):
     def show_emoji_preview(self, char):
         emoji = emojis.get_emoji_by_char(char)
         self.previewed_emoji_label.set_text(emoji["char"])
-        self.previewed_emoji_shortcode_label.set_text(f':{emoji["name"]}:')
-        self.previewed_emoji_name_label.set_text(
-            " ".join([part.capitalize() for part in emoji["name"].split("_")])
-        )
+        self.previewed_emoji_shortcode_label.set_text(f':{emoji["shortcode"]}:')
+        self.previewed_emoji_name_label.set_text(emoji["name"])
 
     def reset_emoji_preview(self):
         if len(self.current_emojis) > 0:
