@@ -59,6 +59,10 @@ THEMES = [
     "elementary",
 ]
 
+SKINTONE = "skintone"
+DEFAULT_SKINTONE = "🟨"
+SKINTONES = ["🟨", "🏻", "🏼", "🏽", "🏾", "🏿"]
+
 
 # Ensure the data dir exists
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -114,3 +118,13 @@ def load_theme():
 def update_theme(theme):
     with shelve.open(SHELVE_PATH) as db:
         db[THEME] = theme
+
+
+def load_skintone():
+    with shelve.open(SHELVE_PATH) as db:
+        return db.get(SKINTONE, DEFAULT_SKINTONE)
+
+
+def update_skintone(skintone):
+    with shelve.open(SHELVE_PATH) as db:
+        db[SKINTONE] = skintone

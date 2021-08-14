@@ -61,10 +61,10 @@ Previous Emoji Category: `Ctrl+Shift+Tab`
 
 ### Requirements
 
-Install gtk development libraries:
+Install development libraries:
 
 ```bash
-sudo apt install libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev
+sudo apt install xdotool libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev
 ```
 
 Install pipenv:
