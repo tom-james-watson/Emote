@@ -186,7 +186,7 @@ SKINTONE_SEQUENCE_BLOCKLIST = [
 # render as two separate emojis. The app itself bundles a recent version of the
 # NotoColorEmoji font and so can display recent single char emojis, however any
 # emojis that are sequences also require a recent version of pango for the OS
-# to recognise and combine the sequences.  Upgrading to core20 should let us
+# to recognise and combine the sequences. Upgrading to core20 should let us
 # include more recent unicode sequences:
 # https://github.com/tom-james-watson/Emote/issues/48.
 SEQUENCE_BLOCKLIST = [
@@ -280,11 +280,15 @@ def init():
     update_recent_category()
 
 
-def get_emoji_by_char(char):
-    # Strip skintone characters. We can end up looking up characters here that
-    # have already had skintone modifiers applied.
+def strip_char_skintone(char):
     for skintone in user_data.SKINTONES:
         char = char.replace(skintone, "")
+
+    return char
+
+
+def get_emoji_by_char(char):
+    char = strip_char_skintone(char)
 
     for emoji in all_emojis:
         if emoji["char"] == char:
