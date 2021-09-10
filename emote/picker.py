@@ -73,6 +73,12 @@ class EmojiPicker(Gtk.Window):
 
         GLib.idle_add(self.search_entry.grab_focus)
 
+        header.pack_end(self.init_menu_button())
+        header.pack_end(self.init_skintone_button())
+
+        self.set_titlebar(header)
+
+    def init_menu_button(self):
         self.menu_popover = Gtk.Popover()
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
@@ -109,13 +115,40 @@ class EmojiPicker(Gtk.Window):
 
         menu_button = Gtk.MenuButton(name="menu_button")
         menu_button.set_popover(self.menu_popover)
-        icon = Gio.ThemedIcon(name="open-menu-symbolic")
-        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
         menu_button.show()
-        menu_button.add(image)
-        header.pack_end(menu_button)
+        menu_button.add(
+            Gtk.Image.new_from_gicon(
+                Gio.ThemedIcon(name="open-menu-symbolic"), Gtk.IconSize.BUTTON
+            )
+        )
 
-        self.set_titlebar(header)
+        return menu_button
+
+    def init_skintone_button(self):
+        skintone_combo = Gtk.ComboBoxText()
+        skintone_combo.set_entry_text_column(0)
+        skintone_combo.connect("changed", self.on_skintone_combo_changed)
+
+        for skintone in user_data.SKINTONES:
+            skintone_combo.append_text(skintone)
+
+        skintone_combo.set_active(user_data.SKINTONES.index(user_data.load_skintone()))
+
+        return skintone_combo
+
+    def on_skintone_combo_changed(self, combo):
+        skintone = combo.get_active_text()
+
+        if skintone is not None:
+            user_data.update_skintone(skintone)
+
+            query = self.search_entry.props.text
+
+            if query == "":
+                if hasattr(self, "selected_emoji_category"):
+                    self.render_selected_emoji_category()
+            else:
+                self.render_emoji_search_results(query)
 
     def init_category_selectors(self):
         self.categories_box = Gtk.Box(margin_bottom=GRID_SIZE, margin_top=GRID_SIZE)
@@ -195,13 +228,25 @@ class EmojiPicker(Gtk.Window):
 
         self.app_container.pack_end(self.action_bar, False, False, 0)
 
+    def get_skintone_char(self, emoji):
+        char = emoji["char"]
+
+        if not emoji["skintone"]:
+            return char
+
+        skintone = user_data.load_skintone()
+
+        if skintone == user_data.DEFAULT_SKINTONE:
+            return char
+
+        return char + skintone
+
     def show_emoji_preview(self, char):
         emoji = emojis.get_emoji_by_char(char)
-        self.previewed_emoji_label.set_text(emoji["char"])
-        self.previewed_emoji_shortcode_label.set_text(f':{emoji["name"]}:')
-        self.previewed_emoji_name_label.set_text(
-            " ".join([part.capitalize() for part in emoji["name"].split("_")])
-        )
+
+        self.previewed_emoji_label.set_text(self.get_skintone_char(emoji))
+        self.previewed_emoji_shortcode_label.set_text(f':{emoji["shortcode"]}:')
+        self.previewed_emoji_name_label.set_text(emoji["name"])
 
     def reset_emoji_preview(self):
         if len(self.current_emojis) > 0:
@@ -311,10 +356,10 @@ class EmojiPicker(Gtk.Window):
 
         if shift and keyval_name == "Return":
             if len(self.current_emojis) > 0:
-                self.on_emoji_append(self.current_emojis[0]["char"])
+                self.on_emoji_append(self.get_skintone_char(self.current_emojis[0]))
         elif keyval_name == "Return":
             if len(self.current_emojis) > 0:
-                self.on_emoji_select(self.current_emojis[0]["char"])
+                self.on_emoji_select(self.get_skintone_char(self.current_emojis[0]))
         elif keyval_name == "Down" and self.first_emoji_widget:
             self.first_emoji_widget.grab_focus()
         else:
@@ -362,7 +407,7 @@ class EmojiPicker(Gtk.Window):
 
     def on_search_focused(self, search_entry, event):
         if len(self.current_emojis) > 0:
-            self.target_emoji = self.current_emojis[0]["char"]
+            self.target_emoji = self.get_skintone_char(self.current_emojis[0])
         self.reset_emoji_preview()
 
     def on_search_changed(self, search_entry):
@@ -451,7 +496,7 @@ class EmojiPicker(Gtk.Window):
         self.current_emojis = emojis
 
         if len(emojis) > 0:
-            self.target_emoji = emojis[0]["char"]
+            self.target_emoji = self.get_skintone_char(emojis[0])
         self.reset_emoji_preview()
 
         results_grid = Gtk.Grid(
@@ -482,7 +527,7 @@ class EmojiPicker(Gtk.Window):
                     )
                 else:
                     btn = Gtk.Button(
-                        label=emoji["char"],
+                        label=self.get_skintone_char(emoji),
                         name="emoji_button",
                         relief=Gtk.ReliefStyle.NONE,
                     )
