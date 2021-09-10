@@ -267,7 +267,7 @@ def init():
                 continue
 
             emoji = {
-                "keywords": row["tags"].split(", "),
+                "keywords": (row["tags"] + row["openmoji_tags"]).split(", "),
                 "char": row["emoji"],
                 "name": row["annotation"].capitalize(),
                 "shortcode": shortcode,
