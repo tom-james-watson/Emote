@@ -3,6 +3,7 @@ dist
 *.egg-info
 .venv
 venv
+__pycache__
 *.snap
 
 # Editors

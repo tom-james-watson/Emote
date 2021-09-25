@@ -11,11 +11,7 @@ def load_css():
     Load associated CSS for the window.
     """
     css_provider = Gtk.CssProvider()
-
-    if config.is_snap:
-        css_provider.load_from_path(f"{config.snap_root}/static/style.css")
-    else:
-        css_provider.load_from_path("static/style.css")
+    css_provider.load_from_path(f"{config.static_root}/style.css")
 
     screen = Gdk.Screen.get_default()
     styleContext = Gtk.StyleContext()

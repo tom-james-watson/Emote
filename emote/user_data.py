@@ -62,9 +62,8 @@ THEMES = [
 ]
 
 SKINTONE = "skintone"
-DEFAULT_SKINTONE = "🟨"
-SKINTONES = ["🟨", "🏻", "🏼", "🏽", "🏾", "🏿"]
-
+DEFAULT_SKINTONE = ""
+SKINTONES = ["", "\U0001f3fb", "\U0001f3fc", "\U0001f3fd", "\U0001f3fe", "\U0001f3ff"]
 
 # Ensure the data dir exists
 os.makedirs(DATA_DIR, exist_ok=True)

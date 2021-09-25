@@ -9,10 +9,7 @@ from gi.repository import Gtk, Keybinder
 from emote import picker, css, emojis, user_data, config
 
 # Register updated emoji font
-if config.is_snap:
-    manimpango.register_font(f"{config.snap_root}/static/NotoColorEmoji.ttf")
-else:
-    manimpango.register_font("static/NotoColorEmoji.ttf")
+manimpango.register_font(f"{config.static_root}/NotoColorEmoji.ttf")
 
 settings = Gtk.Settings.get_default()
 

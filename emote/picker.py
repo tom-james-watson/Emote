@@ -130,14 +130,14 @@ class EmojiPicker(Gtk.Window):
         skintone_combo.connect("changed", self.on_skintone_combo_changed)
 
         for skintone in user_data.SKINTONES:
-            skintone_combo.append_text(skintone)
+            skintone_combo.append_text("👋" + skintone)
 
         skintone_combo.set_active(user_data.SKINTONES.index(user_data.load_skintone()))
 
         return skintone_combo
 
     def on_skintone_combo_changed(self, combo):
-        skintone = combo.get_active_text()
+        skintone = combo.get_active_text().replace("👋", "")
 
         if skintone is not None:
             user_data.update_skintone(skintone)
@@ -239,7 +239,7 @@ class EmojiPicker(Gtk.Window):
         if skintone == user_data.DEFAULT_SKINTONE:
             return char
 
-        return char + skintone
+        return emoji["skintone_template"].replace("{}", skintone)
 
     def show_emoji_preview(self, char):
         emoji = emojis.get_emoji_by_char(char)
@@ -318,12 +318,7 @@ class EmojiPicker(Gtk.Window):
         guide_window.connect("destroy", self.on_close_dialog)
 
     def open_about(self):
-        logo_path = (
-            f"{config.snap_root}/static/logo.svg"
-            if config.is_snap
-            else "static/logo.svg"
-        )
-        logo = Pixbuf.new_from_file(logo_path)
+        logo = Pixbuf.new_from_file(f"{config.static_root}/logo.svg")
 
         about_dialog = Gtk.AboutDialog(
             transient_for=self,

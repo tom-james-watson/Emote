@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -eu
+
+export LC_ALL=en_US.UTF-8
+
+URL=https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv
+CSV=${0%/*}/static/emojis.csv
+
+TEMP=$(mktemp)
+curl -fL "$URL" >"$TEMP"
+
+# Replace the emoji in columns 1 and 12 (NF - 3) by encoding the UTF-16 code
+# points in columns 2 and 13 (NF - 2) respectively.
+awk -F, -v OFS=, '
+function get_emoji(hexcode, _a, _i, _s) {
+  split(hexcode, _a, "-")
+  for (_i in _a) {
+    _s = _s sprintf("%c", strtonum("0x" _a[_i]))
+  }
+  return _s
+}
+
+{
+  if (NR > 1) {
+    $1 = get_emoji($2)
+    if ($(NF - 2)) {
+      $(NF - 3) = get_emoji($(NF - 2))
+    }
+  }
+  print
+}' "$TEMP" >"$CSV"
