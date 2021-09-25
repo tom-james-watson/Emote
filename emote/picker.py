@@ -125,7 +125,7 @@ class EmojiPicker(Gtk.Window):
         return menu_button
 
     def init_skintone_button(self):
-        skintone_combo = Gtk.ComboBoxText()
+        skintone_combo = Gtk.ComboBoxText(name="skintone_combo")
         skintone_combo.set_entry_text_column(0)
         skintone_combo.connect("changed", self.on_skintone_combo_changed)
 
