@@ -6,7 +6,7 @@ import manimpango
 gi.require_version("Gtk", "3.0")
 gi.require_version("Keybinder", "3.0")
 from gi.repository import Gtk, Keybinder
-from emote import picker, css, emojis, user_data, config
+from emote import picker, css, emojis, user_data, config, debouncer
 
 # Register updated emoji font
 if config.is_snap:
