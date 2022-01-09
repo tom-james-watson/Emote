@@ -1,12 +1,12 @@
 import sys
-import subprocess
 import gi
 import manimpango
+from setproctitle import setproctitle
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Keybinder", "3.0")
 from gi.repository import Gtk, Keybinder
-from emote import picker, css, emojis, user_data, config, debouncer
+from emote import picker, css, emojis, user_data, config
 
 # Register updated emoji font
 if config.is_snap:
@@ -25,6 +25,8 @@ class EmoteApplication(Gtk.Application):
         self.picker_window = None
 
     def start_daemon(self):
+        setproctitle("emote")
+
         if not config.is_wayland:
             Keybinder.init()
             self.set_accelerator()
