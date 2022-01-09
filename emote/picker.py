@@ -7,8 +7,15 @@ from itertools import zip_longest
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, Gio, Pango
 from gi.repository.GdkPixbuf import Pixbuf
-from emote import emojis, user_data, settings, keyboard_shortcuts, guide, config
-
+from emote import (
+    emojis,
+    user_data,
+    settings,
+    keyboard_shortcuts,
+    guide,
+    config,
+    debouncer,
+)
 
 GRID_SIZE = 10
 EMOJIS_PER_ROW = 10
@@ -39,6 +46,7 @@ class EmojiPicker(Gtk.Window):
         self.current_emojis = []
         self.first_emoji_widget = None
         self.target_emoji = None
+        self.search_debouncer = debouncer.SearchDebouncer(self.search_callback)
 
         self.app_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.app_container)
@@ -411,8 +419,9 @@ class EmojiPicker(Gtk.Window):
         self.reset_emoji_preview()
 
     def on_search_changed(self, search_entry):
-        query = self.search_entry.props.text
+        self.search_debouncer.search(self.search_entry.props.text)
 
+    def search_callback(self, query):
         if query == "":
             if self.search_scrolled:
                 self.search_scrolled.destroy()
