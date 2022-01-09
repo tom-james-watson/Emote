@@ -92,11 +92,10 @@ class EmojiPicker(Gtk.Window):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         items_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        if config.is_snap or config.is_dev:
-            prefs_btn = Gtk.ModelButton("Preferences")
-            prefs_btn.set_alignment(0, 0.5)
-            prefs_btn.connect("clicked", lambda prefs_btn: self.open_preferences())
-            items_box.pack_start(prefs_btn, False, True, 0)
+        prefs_btn = Gtk.ModelButton("Preferences")
+        prefs_btn.set_alignment(0, 0.5)
+        prefs_btn.connect("clicked", lambda prefs_btn: self.open_preferences())
+        items_box.pack_start(prefs_btn, False, True, 0)
 
         keyboard_shortcuts_btn = Gtk.ModelButton("Keyboard Shortcuts")
         keyboard_shortcuts_btn.set_alignment(0, 0.5)

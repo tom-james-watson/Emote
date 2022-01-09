@@ -1,0 +1,17 @@
+app-id: com.tomjwatson.Emote
+runtime: "org.gnome.Platform"
+runtime-version: "40"
+sdk: "org.gnome.Sdk"
+command: emote.sh
+modules:
+  - name: emote
+    buildsystem: simple
+    build-commands:
+      - install -D emote.sh /app/bin/emote.sh
+    sources:
+    - type: dir
+      path: dist
+    - type: script
+      dest-filename: emote.sh
+      commands:
+        - /app/main/emote/emote "$@"

@@ -4,6 +4,7 @@ dist
 .venv
 venv
 *.snap
+requirements.txt
 
 # Editors
 .vim

@@ -8,25 +8,16 @@ description: |
   out of your way.
 icon: snap/gui/emote.svg
 
-base: core18
-grade: stable # or devel. Must be 'stable' to release into candidate/stable channels
-confinement: strict # or devmode
+base: core20
+grade: stable
+confinement: strict
 
 parts:
   emote:
-    plugin: python
-    python-version: python3
-    source: .
-    python-packages:
-      - wheel
-      - pygobject
-      - setuptools
-    build-packages:
-      - python3-setuptools
-      - python3-xlib
-      - pkg-config
-    build-packages:
-      - libgirepository1.0-dev
+    plugin: dump
+    source: dist/
+    organize:
+      '*': dist/
     stage-packages:
       - libcairo-gobject2
       - libcairo2
@@ -96,9 +87,9 @@ slots:
 
 apps:
   emote:
-    command: desktop-launch $SNAP/static/prepare-launch $SNAP/bin/emote
+    command: snap/command-chain/desktop-launch $SNAP/static/prepare-launch $SNAP/dist/emote/emote
     desktop: usr/share/applications/emote.desktop
-    extensions: [gnome-3-28]
+    extensions: [gnome-3-38]
     slots: [dbus-daemon]
     common-id: com.tomjwatson.Emote
     autostart: emote.desktop

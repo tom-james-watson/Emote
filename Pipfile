@@ -7,6 +7,7 @@ verify_ssl = true
 pygobject = "==3.38.0"
 manimpango = "==0.3.0"
 setproctitle = "==1.2.2"
+pyinstaller = "==4.3"
 
 [dev-packages]
 black = "==19.10b0"

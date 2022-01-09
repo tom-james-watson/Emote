@@ -1,5 +1,8 @@
 OS := $(shell uname)
 
+build: emote.spec
+	pipenv run pyinstaller emote.spec -y
+
 dev:
 	ENV=dev GDK_BACKEND="x11" pipenv run start
 
@@ -16,4 +19,6 @@ package:
 	snapcraft
 
 clean:
+	pipenv --rm
+	rm -rf dist build
 	snapcraft clean

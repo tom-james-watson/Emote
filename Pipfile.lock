@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f9ed13cddfea6b20cd613d86fad8f401c138e0cddb896b9ae4ee45b17a3ba7f6"
+            "sha256": "6f05128d9dd1506027acd1a3cd171e09d82c53f613ab5d95fda34ffe3825c7a8"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,13 @@
         ]
     },
     "default": {
+        "altgraph": {
+            "hashes": [
+                "sha256:743628f2ac6a7c26f5d9223c91ed8ecbba535f506f4b6f558885a8a56a105857",
+                "sha256:ebf2269361b47d97b3b88e696439f6e4cbc607c17c51feb1754f90fb79839158"
+            ],
+            "version": "==0.17.2"
+        },
         "manimpango": {
             "hashes": [
                 "sha256:00c2cd26b1e4043f24251ec6142f9dc887fd88cbda386c3e6abec86be3b985cd",
@@ -58,6 +65,20 @@
             ],
             "index": "pypi",
             "version": "==3.38.0"
+        },
+        "pyinstaller": {
+            "hashes": [
+                "sha256:5ecf8bbc230d7298a796e52bb745b95eee12878d141f1645612c99246ecd23f2"
+            ],
+            "index": "pypi",
+            "version": "==4.3"
+        },
+        "pyinstaller-hooks-contrib": {
+            "hashes": [
+                "sha256:e47b382c209dd2f62ac2ef26cade49148e9a4702ec91958772b0270599f8c2a9",
+                "sha256:e658281cbf90570d9bc6a06f4b8f64c28d1076c722f6fb80c02a863bcbb8e7cd"
+            ],
+            "version": "==2021.5"
         },
         "setproctitle": {
             "hashes": [
