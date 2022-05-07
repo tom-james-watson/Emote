@@ -624,14 +624,15 @@ class EmojiPicker(Gtk.Window):
         else:
             print(f"Selecting {emoji}")
             self.add_emoji_to_recent(emoji)
-            self.copy_to_clipboard(emoji)
+            if config.is_wayland:
+                self.copy_to_clipboard(emoji)
 
         self.destroy()
 
         time.sleep(0.15)
 
         if not config.is_wayland:
-            os.system("xdotool key ctrl+v")
+            os.system(f'xdotool type --clearmodifiers "{emoji}"')
 
     def add_emoji_to_recent(self, emoji):
         user_data.update_recent_emojis(emoji)
