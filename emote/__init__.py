@@ -5,24 +5,49 @@ from setproctitle import setproctitle
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Keybinder", "3.0")
-from gi.repository import Gtk, Keybinder
+from gi.repository import Gtk, Keybinder, GLib, Gio
 from emote import picker, css, emojis, user_data, config
 
-# Register updated emoji font
-# if config.is_snap:
-#     manimpango.register_font(f"{config.snap_root}/static/NotoColorEmoji.ttf")
-# else:
-#     manimpango.register_font("static/NotoColorEmoji.ttf")
 
 settings = Gtk.Settings.get_default()
 
 
 class EmoteApplication(Gtk.Application):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, application_id="com.tomjwatson.Emote", **kwargs)
+        super().__init__(
+            *args,
+            application_id="com.tomjwatson.Emote",
+            flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE,
+            **kwargs
+        )
+        self.add_main_option(
+            "font", ord("f"),
+            GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
+            "Font path (set to `skip` to not load custom font)",
+            "/path/to/emojifont.ttf"
+        )
 
         self.activated = False
         self.picker_window = None
+
+    def do_command_line(self, command_line):
+        options = command_line.get_options_dict()
+        options = options.end().unpack()
+
+        if config.is_snap:
+            font_path = f"{config.snap_root}/static/NotoColorEmoji.ttf"
+        else:
+            font_path = "static/NotoColorEmoji.ttf"
+        if "font" in options:
+            font_path = options["font"]
+        if font_path == "skip":
+            print(":: Skipping registering font.")
+        else:
+            print(f":: Registering font: {font_path}...")
+            manimpango.register_font(font_path)
+
+        self.activate()
+        return 0
 
     def start_daemon(self):
         setproctitle("emote")
