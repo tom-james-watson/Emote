@@ -1,4 +1,5 @@
 import sys
+import signal
 import gi
 import manimpango
 from setproctitle import setproctitle
@@ -35,6 +36,10 @@ class EmoteApplication(Gtk.Application):
         self.activated = False
         self.picker_window = None
 
+    def sigint_handler(self, sig_num, _frame):
+        print(" Interrupted by user")
+        self.quit()
+
     def do_command_line(self, command_line):
         options = command_line.get_options_dict()
         options = options.end().unpack()
@@ -52,6 +57,7 @@ class EmoteApplication(Gtk.Application):
             print(f":: Registering font: {font_path}...")
             manimpango.register_font(font_path)
 
+        signal.signal(signal.SIGINT, self.sigint_handler)
         self.activate()
         return 0
 
@@ -138,6 +144,10 @@ class EmoteApplication(Gtk.Application):
         else:
             print("Second instance launched")
             self.create_picker_window()
+
+    def quit(self):
+        super().quit()
+        Gtk.main_quit()
 
 
 def main():
