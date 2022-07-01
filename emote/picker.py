@@ -140,7 +140,10 @@ class EmojiPicker(Gtk.Window):
         for skintone in user_data.SKINTONES:
             skintone_combo.append_text(skintone)
 
-        skintone_combo.set_active(user_data.SKINTONES.index(user_data.load_skintone()))
+        skintone_id = 0
+        if user_data.load_skintone() in user_data.SKINTONES:
+            skintone_id = user_data.SKINTONES.index(user_data.load_skintone())
+        skintone_combo.set_active(skintone_id)
 
         return skintone_combo
 
