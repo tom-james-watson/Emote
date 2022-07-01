@@ -12,6 +12,11 @@ from emote import picker, css, emojis, user_data, config
 settings = Gtk.Settings.get_default()
 
 
+class Options:
+    font = "font"
+    font_skip = "skip"
+
+
 class EmoteApplication(Gtk.Application):
     def __init__(self, *args, **kwargs):
         super().__init__(
@@ -21,9 +26,9 @@ class EmoteApplication(Gtk.Application):
             **kwargs
         )
         self.add_main_option(
-            "font", ord("f"),
+            Options.font, ord("f"),
             GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
-            "Font path (set to `skip` to not load custom font)",
+            f"Font path (set to `{Options.font_skip}` to not load custom font)",
             "/path/to/emojifont.ttf"
         )
 
@@ -38,9 +43,9 @@ class EmoteApplication(Gtk.Application):
             font_path = f"{config.snap_root}/static/NotoColorEmoji.ttf"
         else:
             font_path = "static/NotoColorEmoji.ttf"
-        if "font" in options:
-            font_path = options["font"]
-        if font_path == "skip":
+        if Options.font in options:
+            font_path = options[Options.font]
+        if font_path == Options.font_skip:
             print(":: Skipping registering font.")
         else:
             print(f":: Registering font: {font_path}...")
