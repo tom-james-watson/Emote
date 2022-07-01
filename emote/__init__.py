@@ -19,6 +19,9 @@ class Options:
 
 
 class EmoteApplication(Gtk.Application):
+
+    exit_status = 0
+
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
@@ -38,7 +41,7 @@ class EmoteApplication(Gtk.Application):
 
     def sigint_handler(self, sig_num, _frame):
         print(" Interrupted by user")
-        self.quit()
+        self.quit(128 + sig_num)
 
     def do_command_line(self, command_line):
         options = command_line.get_options_dict()
@@ -59,7 +62,7 @@ class EmoteApplication(Gtk.Application):
 
         signal.signal(signal.SIGINT, self.sigint_handler)
         self.activate()
-        return 0
+        return self.exit_status
 
     def start_daemon(self):
         setproctitle("emote")
@@ -145,11 +148,12 @@ class EmoteApplication(Gtk.Application):
             print("Second instance launched")
             self.create_picker_window()
 
-    def quit(self):
+    def quit(self, exit_status=0):
+        self.exit_status = exit_status
         super().quit()
         Gtk.main_quit()
 
 
 def main():
     app = EmoteApplication()
-    app.run(sys.argv)
+    sys.exit(app.run(sys.argv))
