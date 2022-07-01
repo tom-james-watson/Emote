@@ -39,12 +39,13 @@ class EmoteApplication(Gtk.Application):
         options = command_line.get_options_dict()
         options = options.end().unpack()
 
-        if config.is_snap:
+        if Options.font in options:
+            font_path = options[Options.font]
+        elif config.is_snap:
             font_path = f"{config.snap_root}/static/NotoColorEmoji.ttf"
         else:
             font_path = "static/NotoColorEmoji.ttf"
-        if Options.font in options:
-            font_path = options[Options.font]
+
         if font_path == Options.font_skip:
             print(":: Skipping registering font.")
         else:
