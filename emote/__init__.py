@@ -1,16 +1,14 @@
 import sys
 import signal
-import gi
+
 import manimpango
 from setproctitle import setproctitle
-
+import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Keybinder", "3.0")
 from gi.repository import Gtk, Keybinder, GLib, Gio
+
 from emote import picker, css, emojis, user_data, config
-
-
-settings = Gtk.Settings.get_default()
 
 
 class Options:
@@ -23,6 +21,7 @@ class EmoteApplication(Gtk.Application):
     exit_status = 0
 
     def __init__(self, *args, **kwargs):
+        self.settings = Gtk.Settings.get_default()
         super().__init__(
             *args,
             application_id="com.tomjwatson.Emote",
@@ -100,9 +99,9 @@ class EmoteApplication(Gtk.Application):
 
         if theme != user_data.DEFAULT_THEME:
             print(f"Setting theme to {theme}")
-            settings.set_property("gtk-theme-name", theme)
+            self.settings.set_property("gtk-theme-name", theme)
         else:
-            settings.reset_property("gtk-theme-name")
+            self.settings.reset_property("gtk-theme-name")
 
     def unset_accelerator(self):
         old_accel_string, _ = user_data.load_accelerator()
@@ -155,5 +154,6 @@ class EmoteApplication(Gtk.Application):
 
 
 def main():
-    app = EmoteApplication()
-    sys.exit(app.run(sys.argv))
+    sys.exit(
+        EmoteApplication().run(sys.argv)
+    )
