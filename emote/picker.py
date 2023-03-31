@@ -329,6 +329,8 @@ class EmojiPicker(Gtk.Window):
         logo_path = (
             f"{config.snap_root}/static/logo.svg"
             if config.is_snap
+            else f"{config.flatpak_root}/static/logo.svg"
+            if config.is_flatpak
             else "static/logo.svg"
         )
         logo = Pixbuf.new_from_file(logo_path)

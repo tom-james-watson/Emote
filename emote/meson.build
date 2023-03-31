@@ -1,0 +1,32 @@
+pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
+moduledir = join_paths(pkgdatadir, 'emote')
+# gnome = import('gnome')
+
+# gnome.compile_resources('emote',
+#   'emote.gresource.xml',
+#   gresource_bundle: true,
+#   install: true,
+#   install_dir: pkgdatadir,
+# )
+
+python = import('python')
+
+conf = configuration_data()
+conf.set('PYTHON', python.find_installation('python3').path())
+conf.set('VERSION', meson.project_version())
+conf.set('localedir', join_paths(get_option('prefix'), get_option('localedir')))
+conf.set('pkgdatadir', pkgdatadir)
+
+configure_file(
+  input: 'emote.in',
+  output: 'emote',
+  configuration: conf,
+  install: true,
+  install_dir: get_option('bindir')
+)
+
+
+message(get_option('bindir'))
+message(moduledir)
+
+install_subdir('.', install_dir: moduledir)

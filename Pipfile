@@ -4,13 +4,14 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [packages]
-pygobject = "==3.38.0"
+pygobject = "==3.42.2"
 manimpango = "==0.3.0"
 setproctitle = "==1.2.2"
 
 [dev-packages]
 black = "==19.10b0"
 flake8 = "*"
+requirements-parser = "*"
 
 [requires]
 python_version = "3.8"

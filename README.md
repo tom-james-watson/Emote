@@ -64,7 +64,9 @@ Previous Emoji Category: `Ctrl+Shift+Tab`
 Install development libraries:
 
 ```bash
-sudo apt install xdotool libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev
+sudo apt install xdotool libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev flatpak-builder
+# or with dnf
+sudo dnf install xdotool gtk3-devel keybinder3-devel libgirepository1.0-dev
 ```
 
 Install pipenv:
@@ -101,7 +103,7 @@ Launch app in debug mode with interactive inspector:
 make dev-debug
 ```
 
-### Packaging
+### Packaging for Snap
 
 Ensure you have `snapcraft` installed:
 
@@ -130,6 +132,53 @@ Push the packaged snap to the `edge` channel on the snap store.
 ```bash
 snapcraft push --release=edge <path to .snap>
 ```
+
+### Packaging for Flatpak
+
+https://docs.flatpak.org/en/latest/first-build.html
+
+Install `flatpak-builder` and the GNOME SDK:
+
+```bash
+make flatpak-install
+```
+
+Re-generate pip requirements if they have changed:
+
+```bash
+make flatpak-requirements
+```
+
+Build the flatpak and install it locally:
+
+```bash
+make flatpak
+```
+
+Try it:
+
+```bash
+flatpak run com.tomjwatson.Emote
+```
+
+Check installed files:
+
+```bash
+pipenv run flatpak-pip-generator --runtime='org.gnome.Sdk//43' --output python3-requirements "pygobject==3.42.2" "manimpango==0.3.0" "setproctitle==1.2.2"
+
+cat ~/.local/share/flatpak/app/com.tomjwatson.Emote/
+chmod +x ~/.local/share/flatpak/app/com.tomjwatson.Emote/x86_64/master/active/files/bin/emote
+
+cat /var/lib/flatpak/app/it.mijorus.smile/x86_64/stable/
+```
+
+Put it in a repo:
+
+```bash
+flatpak-builder --repo=repo --force-clean build com.tomjwatson.Emote.yml
+```
+
+Desktop entry: https://github.com/GNOME/balsa/blob/master/org.desktop.Balsa.desktop.meson
 
 ### Attribution
 

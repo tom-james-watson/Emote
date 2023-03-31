@@ -4,13 +4,19 @@ import manimpango
 from setproctitle import setproctitle
 
 gi.require_version("Gtk", "3.0")
-gi.require_version("Keybinder", "3.0")
-from gi.repository import Gtk, Keybinder
+from gi.repository import Gtk
+try:
+    gi.require_version("Keybinder", "3.0")
+    from gi.repository import Keybinder
+except:
+    Keybinder = None
 from emote import picker, css, emojis, user_data, config
 
 # Register updated emoji font
 if config.is_snap:
     manimpango.register_font(f"{config.snap_root}/static/NotoColorEmoji.ttf")
+elif config.is_flatpak:
+    manimpango.register_font(f"{config.flatpak_root}/static/NotoColorEmoji.ttf")
 else:
     manimpango.register_font("static/NotoColorEmoji.ttf")
 
@@ -28,7 +34,8 @@ class EmoteApplication(Gtk.Application):
         setproctitle("emote")
 
         if not config.is_wayland:
-            Keybinder.init()
+            if Keybinder:
+                Keybinder.init()
             self.set_accelerator()
 
         css.load_css()
@@ -51,7 +58,7 @@ class EmoteApplication(Gtk.Application):
         """Register global shortcut for invoking the emoji picker"""
         accel_string, _ = user_data.load_accelerator()
 
-        if accel_string:
+        if accel_string and Keybinder:
             Keybinder.bind(accel_string, self.handle_accelerator)
 
     def set_theme(self):
@@ -67,7 +74,7 @@ class EmoteApplication(Gtk.Application):
     def unset_accelerator(self):
         old_accel_string, _ = user_data.load_accelerator()
 
-        if old_accel_string:
+        if old_accel_string and Keybinder:
             Keybinder.unbind(old_accel_string)
 
     def handle_accelerator(self, keystring):
@@ -90,7 +97,7 @@ class EmoteApplication(Gtk.Application):
         if self.picker_window:
             self.picker_window.destroy()
         self.picker_window = picker.EmojiPicker(
-            Keybinder.get_current_event_time(),
+            Keybinder.get_current_event_time() if Keybinder else 1,
             self.update_accelerator,
             self.update_theme,
             show_welcome,

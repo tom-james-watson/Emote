@@ -5,5 +5,10 @@ dist
 venv
 *.snap
 
+# Flatpak
+.flatpak-builder
+/requirements.txt
+flatpak-pip-generator
+
 # Editors
 .vim

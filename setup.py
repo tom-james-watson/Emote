@@ -10,5 +10,5 @@ setup(
             "emote = emote.__init__:main",
         ]
     },
-    install_requires=["pygobject==3.36.0", "manimpango==0.3.0", "setproctitle==1.2.2"],
+    install_requires=["pygobject==3.42.2", "manimpango==0.3.0", "setproctitle==1.2.2"],
 )
