@@ -164,7 +164,7 @@ class EmojiPicker(Gtk.Window):
         self.category_selectors = []
         self.selected_emoji_category = "recent"
 
-        for (category, _, category_image) in emojis.get_category_order():
+        for category, _, category_image in emojis.get_category_order():
             category_selector = Gtk.ToggleButton(
                 label=category_image, name="category_selector_button"
             )
@@ -393,7 +393,7 @@ class EmojiPicker(Gtk.Window):
     def on_cycle_category(self, backwards=False):
         index = None
 
-        for (i, category_selector) in enumerate(self.category_selectors):
+        for i, category_selector in enumerate(self.category_selectors):
             if category_selector.category == self.selected_emoji_category:
                 index = i
                 break
@@ -463,7 +463,7 @@ class EmojiPicker(Gtk.Window):
     def get_category_display_name(self, category):
         category_display_name = None
 
-        for (c, display_name, _) in emojis.get_category_order():
+        for c, display_name, _ in emojis.get_category_order():
             if c == category:
                 category_display_name = display_name
                 break

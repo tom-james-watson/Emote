@@ -29,21 +29,21 @@ sudo snap install emote
 
 An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote.
 
-## Guide
+## 📖 Guide
 
-### Launching
+### 🚀 Launching
 
 Emote runs in the background and automatically starts when you log in.
 
 The emoji picker can be opened with either the keyboard shortcut or by clicking the app icon again.
 
-### Usage
+### ℹ️ Usage
 
 Select an emoji to and have it be pasted to your currently focused app. The emoji will also be copied to your clipboard, so you can then paste the emoji wherever you need.
 
 You can select multiple emojis by selecting them with right click.
 
-### Keyboard Shortcuts
+### ⌨️ Keyboard Shortcuts
 
 Open Emoji Picker: `Ctrl+Alt+E` (configurable)
 
@@ -57,9 +57,9 @@ Next Emoji Category: `Ctrl+Tab`
 
 Previous Emoji Category: `Ctrl+Shift+Tab`
 
-## Development
+## 🧑‍💻 Development
 
-### Requirements
+### 📥️ Requirements
 
 Install development libraries:
 
@@ -81,7 +81,7 @@ Install dependencies:
 make install
 ```
 
-### Running
+### 🛩️ Running
 
 Run the development version:
 
@@ -89,7 +89,7 @@ Run the development version:
 make dev
 ```
 
-### Debugging GTK3 with GtkInspector
+### 🐞 Debugging GTK3 with GtkInspector
 
 Enable debug keybinding:
 
@@ -103,7 +103,7 @@ Launch app in debug mode with interactive inspector:
 make dev-debug
 ```
 
-### Packaging for Snap
+### 🦜 Packaging with Snap
 
 Ensure you have `snapcraft` installed:
 
@@ -117,7 +117,7 @@ Create a packaged `.snap` file:
 make package
 ```
 
-### Publishing
+**Publishing**:
 
 First, ensure a git tag for the current version has been pushed.
 
@@ -133,9 +133,11 @@ Push the packaged snap to the `edge` channel on the snap store.
 snapcraft push --release=edge <path to .snap>
 ```
 
-### Packaging for Flatpak
+### 📦️ Packaging with Flatpak
 
-Ensure you have `flatpak-builder`, the GNOME SDK, and `flatpak-pip-generator` installed:
+You will need to have [`flatpak`](https://flatpak.org/setup/) installed
+
+Install `flatpak-builder`, the GNOME SDK, and `flatpak-pip-generator`:
 
 ```bash
 make flatpak-install
@@ -150,22 +152,16 @@ make flatpak-requirements
 Build the flatpak package and install it locally:
 
 ```bash
-make flatpak
+make -B flatpak
 ```
 
-Run Emote with flatpak:
+Run Emote with flatpak (can also be done from the desktop entry):
 
 ```bash
 flatpak run com.tomjwatson.Emote
 ```
 
-The first time you want to publish you will need to add the repository:
-
-```bash
-flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/com.tomjwatson.Emote
-```
-
-Build and publish to flathub:
+**Build and publish to Flathub**:
 
 ```bash
 make flathub
@@ -177,12 +173,12 @@ In case you are facing issues with the cache not properly updating, use the `-B`
 make flatpak-clean
 ```
 
-If you want to access inside the containerized flatpak app to debug:
+Use `journalctl -f` to see the app logs, run the command below if you want to access inside the containerized flatpak app to debug.
 
 ```bash
 flatpak run --command=sh --devel com.tomjwatson.Emote
 ```
 
-### Attribution
+### 🤝 Attribution
 
 Emoji data is sourced from https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv which is compiled by the lovely people at https://openmoji.org.

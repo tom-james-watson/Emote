@@ -24,6 +24,7 @@ flatpak:
 	flatpak run com.tomjwatson.Emote
 
 flatpak-install:
+	flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 	flatpak install flathub -y org.flatpak.Builder org.gnome.Platform//43 org.gnome.Sdk//43
 	wget -N https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/pip/flatpak-pip-generator
 	chmod +x flatpak-pip-generator
