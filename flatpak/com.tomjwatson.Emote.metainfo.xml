@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>com.tomjwatson.Emote</id>
-
   <name>Emote</name>
   <summary>Modern popup emoji picker</summary>
-
+  <url type="homepage">https://github.com/tom-james-watson/Emote</url>
   <metadata_license>FSFAP</metadata_license>
   <project_license>GPL-3.0-only</project_license>
 
@@ -36,4 +35,8 @@
       </description>
     </release>
   </releases>
+  <content_rating type="oars-1.1">
+    <content_attribute id="drugs-alcohol">mild</content_attribute>
+    <content_attribute id="drugs-tobacco">mild</content_attribute>
+  </content_rating>
 </component>
