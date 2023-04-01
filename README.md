@@ -174,7 +174,7 @@ make flathub
 In case you are facing issues with the cache not properly updating, use the `-B` flag with `make`, or you can clean the cache with:
 
 ```bash
-rm -r .flatpak-builder build/
+make flatpak-clean
 ```
 
 If you want to access inside the containerized flatpak app to debug:

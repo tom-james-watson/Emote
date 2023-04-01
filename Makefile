@@ -29,8 +29,14 @@ flatpak-install:
 	chmod +x flatpak-pip-generator
 
 flatpak-requirements:
+	pipenv lock
 	pipenv requirements > requirements.txt
-	pipenv run flatpak-pip-generator --runtime='org.gnome.Sdk//43' --output flatpak/python3-requirements -r requirements.txt
+	pipenv run flatpak-pip-generator --runtime='org.gnome.Sdk//43' --output python3-requirements -r requirements.txt
+	mv python3-requirements.json flatpak/python3-requirements.json
+
+flatpak-clean:
+	rm -r .flatpak-builder build/
+	flatpak remove com.tomjwatson.Emote -y
 
 flathub:
 	flatpak-builder --repo=flathub --force-clean build flatpak/com.tomjwatson.Emote.yml
