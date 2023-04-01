@@ -135,13 +135,13 @@ snapcraft push --release=edge <path to .snap>
 
 ### Packaging for Flatpak
 
-Ensure you have `flatpak-builder` and the GNOME SDK installed:
+Ensure you have `flatpak-builder`, the GNOME SDK, and `flatpak-pip-generator` installed:
 
 ```bash
 make flatpak-install
 ```
 
-Re-generate pip requirements if they have changed:
+Re-generate the `flatpak/python3-requirements.json` if the dependencies in the `Pipfile` have changed:
 
 ```bash
 make flatpak-requirements
@@ -153,20 +153,29 @@ Build the flatpak package and install it locally:
 make flatpak
 ```
 
-Run emote with flatpak:
+Run Emote with flatpak:
 
 ```bash
 flatpak run com.tomjwatson.Emote
 ```
 
-Put it in a repo:
+The first time you want to publish you will need to add the repository:
 
 ```bash
 flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/com.tomjwatson.Emote
-flatpak-builder --repo=repo --force-clean build com.tomjwatson.Emote.yml
 ```
 
-Desktop entry: https://github.com/GNOME/balsa/blob/master/org.desktop.Balsa.desktop.meson
+Build and publish to flathub:
+
+```bash
+make flathub
+```
+
+In case you are facing issues with the cache not properly updating, use the `-B` flag with `make`, or you can clean the cache with:
+
+```bash
+rm -rf .flatpak-builder build/
+```
 
 ### Attribution
 

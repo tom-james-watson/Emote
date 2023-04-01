@@ -19,7 +19,7 @@ clean:
 	snapcraft clean
 
 flatpak:
-	flatpak-builder --user --install --force-clean build com.tomjwatson.Emote.yml
+	flatpak-builder --user --install --force-clean build flatpak/com.tomjwatson.Emote.yml
 	flatpak run com.tomjwatson.Emote
 
 flatpak-install:
@@ -29,4 +29,7 @@ flatpak-install:
 
 flatpak-requirements:
 	pipenv requirements > requirements.txt
-	pipenv run flatpak-pip-generator --runtime='org.gnome.Sdk//43' --output python3-requirements -r requirements.txt
+	pipenv run flatpak-pip-generator --runtime='org.gnome.Sdk//43' --output flatpak/python3-requirements -r requirements.txt
+
+flathub:
+	flatpak-builder --repo=flathub --force-clean build flatpak/com.tomjwatson.Emote.yml
