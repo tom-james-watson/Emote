@@ -64,7 +64,7 @@ Previous Emoji Category: `Ctrl+Shift+Tab`
 Install development libraries:
 
 ```bash
-sudo apt install xdotool libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev flatpak-builder
+sudo apt install xdotool libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev
 # or with dnf
 sudo dnf install xdotool gtk3-devel keybinder3-devel libgirepository1.0-dev
 ```
@@ -174,7 +174,13 @@ make flathub
 In case you are facing issues with the cache not properly updating, use the `-B` flag with `make`, or you can clean the cache with:
 
 ```bash
-rm -rf .flatpak-builder build/
+rm -r .flatpak-builder build/
+```
+
+If you want to access inside the containerized flatpak app to debug:
+
+```bash
+flatpak run --command=sh --devel com.tomjwatson.Emote
 ```
 
 ### Attribution

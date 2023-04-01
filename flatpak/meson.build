@@ -11,3 +11,10 @@ configure_file(
   install: true,
   install_dir: appdir
 )
+
+configure_file(
+  input: 'com.tomjwatson.Emote.metainfo.xml',
+  output: 'com.tomjwatson.Emote.metainfo.xml',
+  copy: true,
+  install_dir: join_paths(sharedir, 'metainfo')
+)

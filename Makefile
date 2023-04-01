@@ -17,6 +17,7 @@ package:
 
 clean:
 	snapcraft clean
+	rm -r .flatpak-builder build/
 
 flatpak:
 	flatpak-builder --user --install --force-clean build flatpak/com.tomjwatson.Emote.yml

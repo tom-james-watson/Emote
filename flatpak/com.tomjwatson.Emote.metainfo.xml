@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.tomjwatson.Emote</id>
+
+  <name>Emote</name>
+  <summary>A modern emoji picker</summary>
+
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+
+  <description>
+    <p>
+      Emote is a modern emoji picker for Linux 🚀.
+    </p>
+    <p>
+      Written in GTK3, Emote is lightweight and stays out of your way.
+    </p>
+    <p>
+      Launch the emoji picker with the configurable keyboard shortcut <code>Ctrl+Alt+E</code>, and select one or more emojis to paste them into the currently focused app.
+    </p>
+    <p>
+      Note - Emote under Wayland cannot automatically paste the emoji into other apps and also requires manual registering of a global keyboard shortcut - [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland). This is due to intentional restrictions in the design of Wayland itself.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">com.tomjwatson.Emote.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png</image>
+    </screenshot>
+  </screenshots>
+</component>
