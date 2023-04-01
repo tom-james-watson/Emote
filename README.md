@@ -135,9 +135,7 @@ snapcraft push --release=edge <path to .snap>
 
 ### Packaging for Flatpak
 
-https://docs.flatpak.org/en/latest/first-build.html
-
-Install `flatpak-builder` and the GNOME SDK:
+Ensure you have `flatpak-builder` and the GNOME SDK installed:
 
 ```bash
 make flatpak-install
@@ -149,7 +147,7 @@ Re-generate pip requirements if they have changed:
 make flatpak-requirements
 ```
 
-Build the flatpak and install it locally:
+Build the flatpak package and install it locally:
 
 ```bash
 make flatpak
@@ -159,17 +157,6 @@ Try it:
 
 ```bash
 flatpak run com.tomjwatson.Emote
-```
-
-Check installed files:
-
-```bash
-pipenv run flatpak-pip-generator --runtime='org.gnome.Sdk//43' --output python3-requirements "pygobject==3.42.2" "manimpango==0.3.0" "setproctitle==1.2.2"
-
-cat ~/.local/share/flatpak/app/com.tomjwatson.Emote/
-chmod +x ~/.local/share/flatpak/app/com.tomjwatson.Emote/x86_64/master/active/files/bin/emote
-
-cat /var/lib/flatpak/app/it.mijorus.smile/x86_64/stable/
 ```
 
 Put it in a repo:

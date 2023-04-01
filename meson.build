@@ -3,18 +3,17 @@ project('emote',
     meson_version: '>= 0.50.0',
     default_options: [ 'warning_level=2', ],
 )
+# Warning levels: 0, 1, 2, 3, everything
 
 i18n = import('i18n')
 
 # keybinderdeps = [
-#     dependency('libkeybinder-3.0-0'),
-#     # dependency('libgirepository1.0-dev'),
+#     dependency('keybinder-3.0'),
+#     # dependency('gio-2.0'),
 #     # dependency('gir1.2-keybinder-3.0')
 # ]
-
 # canberra_dep = dependency('libcanberra-gtk3')
 
 subdir('emote')
 subdir('static')
-
-# meson.add_install_script('build-aux/meson/postinstall.py', 'emote')
+subdir('flatpak')

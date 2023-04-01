@@ -1,13 +1,5 @@
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 moduledir = join_paths(pkgdatadir, 'emote')
-# gnome = import('gnome')
-
-# gnome.compile_resources('emote',
-#   'emote.gresource.xml',
-#   gresource_bundle: true,
-#   install: true,
-#   install_dir: pkgdatadir,
-# )
 
 python = import('python')
 
@@ -24,9 +16,5 @@ configure_file(
   install: true,
   install_dir: get_option('bindir')
 )
-
-
-message(get_option('bindir'))
-message(moduledir)
 
 install_subdir('.', install_dir: moduledir)
