@@ -143,7 +143,7 @@ Install `flatpak-builder`, the GNOME SDK, and `flatpak-pip-generator`:
 make flatpak-install
 ```
 
-Re-generate the `flatpak/python3-requirements.json` if the dependencies in the `Pipfile` have changed:
+Optionally re-generate the `flatpak/python3-requirements.json` if the dependencies in the `Pipfile` have been changed:
 
 ```bash
 make flatpak-requirements
