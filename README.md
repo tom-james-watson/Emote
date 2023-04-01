@@ -153,7 +153,7 @@ Build the flatpak package and install it locally:
 make flatpak
 ```
 
-Try it:
+Run emote with flatpak:
 
 ```bash
 flatpak run com.tomjwatson.Emote
@@ -162,6 +162,7 @@ flatpak run com.tomjwatson.Emote
 Put it in a repo:
 
 ```bash
+flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/com.tomjwatson.Emote
 flatpak-builder --repo=repo --force-clean build com.tomjwatson.Emote.yml
 ```
 

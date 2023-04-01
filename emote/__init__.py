@@ -4,12 +4,9 @@ import manimpango
 from setproctitle import setproctitle
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
-try:
-    gi.require_version("Keybinder", "3.0")
-    from gi.repository import Keybinder
-except:
-    Keybinder = None
+gi.require_version("Keybinder", "3.0")
+from gi.repository import Gtk, Keybinder
+
 from emote import picker, css, emojis, user_data, config
 
 # Register updated emoji font
@@ -34,8 +31,7 @@ class EmoteApplication(Gtk.Application):
         setproctitle("emote")
 
         if not config.is_wayland:
-            if Keybinder:
-                Keybinder.init()
+            Keybinder.init()
             self.set_accelerator()
 
         css.load_css()
@@ -58,7 +54,7 @@ class EmoteApplication(Gtk.Application):
         """Register global shortcut for invoking the emoji picker"""
         accel_string, _ = user_data.load_accelerator()
 
-        if accel_string and Keybinder:
+        if accel_string:
             Keybinder.bind(accel_string, self.handle_accelerator)
 
     def set_theme(self):
@@ -74,7 +70,7 @@ class EmoteApplication(Gtk.Application):
     def unset_accelerator(self):
         old_accel_string, _ = user_data.load_accelerator()
 
-        if old_accel_string and Keybinder:
+        if old_accel_string:
             Keybinder.unbind(old_accel_string)
 
     def handle_accelerator(self, keystring):
@@ -97,7 +93,7 @@ class EmoteApplication(Gtk.Application):
         if self.picker_window:
             self.picker_window.destroy()
         self.picker_window = picker.EmojiPicker(
-            Keybinder.get_current_event_time() if Keybinder else 1,
+            Keybinder.get_current_event_time(),
             self.update_accelerator,
             self.update_theme,
             show_welcome,
