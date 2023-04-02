@@ -24,22 +24,26 @@
     <ul style="list-style: none;">
       <li>🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window</li>
       <li>🫠 Provide a large and up-to-date list of emojis retrieved from <a href="https://openmoji.org" target="_blank">openmoji.org</a></li>
-      <li>🏛️ Shows the last used emojis by default</li>
+      <li>🧠 Shows the last used emojis by default</li>
       <li>🔎 Search text box automatically focused and ready to type when invoked</li>
-      <li>⌨️ Can use shortcuts to navigates and select the emoji(s)</li>
-      <li>✒️ Selected emoji automatically pasted to your currently focused app (X11 only)</li>
+      <li>⌨️ Can use shortcuts to navigates and select emojis</li>
+      <li>✒️ Selected emoji automatically pasted to your currently focused app (on X11 only)</li>
     </ul>
     <p>
-      ℹ️ Emote under Wayland cannot automatically paste the emoji into other apps and also requires manual registering of a global keyboard shortcut - <a href="https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland" target="_blank">Hotkey In Wayland</a>. This is due to intentional restrictions in the design of Wayland itself.
+      ℹ️ Notes:
     </p>
+    <ul style="list-style: none;">
+      <li>⚡️ Emote <a href="https://github.com/tom-james-watson/Emote/issues/54" target="_blank">shows up faster</a> when invoked using the built-in keyboard shortcut (<code>Ctrl+Alt+E</code> by default), than when using a manually registered keyboard shortcut.</li>
+      <li>🪟 Emote under Wayland cannot automatically paste the emoji into other apps, and also requires manual registering of a global keyboard shortcut - <a href="https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland" target="_blank">Hotkey In Wayland</a>. This is due to intentional restrictions in the design of Wayland itself.</li>
+    </ul>
   </description>
 
-  <launchable type="desktop-id">com.tomjwatson.Emote.desktop</launchable>
   <screenshots>
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png</image>
     </screenshot>
   </screenshots>
+
   <releases>
     <release type="stable" version="3.1.0" date="2023-04-01T00:00:00Z">
       <description>
@@ -47,6 +51,17 @@
       </description>
     </release>
   </releases>
+
+  <!-- https://freedesktop.org/software/appstream/docs/chap-Metadata.html -->
+  <launchable type="desktop-id">com.tomjwatson.Emote.desktop</launchable>
+  <supports>
+    <internet>offline-only</internet>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+    <display_length compare="ge">small</display_length>
+    <display_length compare="le">xlarge</display_length>
+  </supports>
   <!-- https://hughsie.github.io/oars/generate.html -->
   <content_rating type="oars-1.1" />
 </component>

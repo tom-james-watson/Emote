@@ -13,18 +13,21 @@ Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E`, an
 
 * 🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window
 * 🫠 Provide a large and up-to-date list of emojis retrieved from [openmoji.org](https://openmoji.org/)
-* 🏛️ Shows the last used emojis by default
+* 🧠 Shows the last used emojis by default
 * 🔎 Search text box automatically focused and ready to type when invoked
-* ⌨️ Can use shortcuts to navigates and select the emoji(s)
-* ✒️ Selected emoji automatically pasted to your currently focused app (X11 only)
+* ⌨️ Can use shortcuts to navigates and select emojis
+* ✒️ Selected emoji automatically pasted to your currently focused app (on X11 only)
 
-ℹ️ Note - Emote under Wayland cannot automatically paste the emoji into other apps and also requires manual registering of a global keyboard shortcut - [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland). This is due to intentional restrictions in the design of Wayland itself.
+ℹ️ Note:
+
+- ⚡️ Emote [shows up faster](https://github.com/tom-james-watson/Emote/issues/54) when invoked using the built-in keyboard shortcut (`Ctrl+Alt+E` by default), than when using a manually registered keyboard shortcut.
+- 🪟 Emote under Wayland cannot automatically paste the emoji into other apps, and also requires manual registering of a global keyboard shortcut - [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland). This is due to intentional restrictions in the design of Wayland itself.
 
 <p align="center">
   <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">
 </p>
 
-## Installation
+## 📥️ Installation
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/emote)
 
@@ -42,7 +45,7 @@ An unofficial build of Emote is also available in the AUR : https://aur.archlinu
 
 Emote runs in the background and automatically starts when you log in.
 
-The emoji picker can be opened with either the keyboard shortcut or by clicking the app icon again.
+The emoji picker can be opened with either the keyboard shortcut, or by clicking the app icon again.
 
 ### ℹ️ Usage
 
