@@ -26,7 +26,7 @@
       <li>🫠 Provide a large and up-to-date list of emojis retrieved from <a href="https://openmoji.org" target="_blank">openmoji.org</a></li>
       <li>🧠 Shows the last used emojis by default</li>
       <li>🔎 Search text box automatically focused and ready to type when invoked</li>
-      <li>⌨️ Can use shortcuts to navigates and select emojis</li>
+      <li>⌨️ Can use shortcuts to navigate and select emojis</li>
       <li>✒️ Selected emoji automatically pasted to your currently focused app (on X11 only)</li>
     </ul>
     <p>
