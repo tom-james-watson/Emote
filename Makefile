@@ -35,7 +35,7 @@ flatpak-install:
 flatpak-requirements:
 	pipenv lock
 	pipenv requirements > requirements.txt
-	pipenv run flatpak-pip-generator --runtime='org.gnome.Sdk//43' --output python3-requirements -r requirements.txt
+	pipenv run ./flatpak-pip-generator --runtime='org.gnome.Sdk//43' --output python3-requirements -r requirements.txt
 	mv python3-requirements.json flatpak/python3-requirements.json
 
 flatpak-validate:
