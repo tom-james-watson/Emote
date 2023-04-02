@@ -630,9 +630,8 @@ class EmojiPicker(Gtk.Window):
 
         self.destroy()
 
-        time.sleep(0.15)
-
         if not config.is_wayland:
+            time.sleep(0.15)
             os.system("xdotool key ctrl+v")
 
     def add_emoji_to_recent(self, emoji):
@@ -642,5 +641,5 @@ class EmojiPicker(Gtk.Window):
     def copy_to_clipboard(self, content):
         cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         cb.set_text(content, -1)
-        if not config.is_wayland:
+        if config.is_wayland:
             os.system(f'wl-copy "{content}"')
