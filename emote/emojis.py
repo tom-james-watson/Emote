@@ -265,7 +265,7 @@ def init():
             shortcode = row["annotation"].lower().replace("-", " ")
             shortcode = re.sub(r"[^\w\s]", "", shortcode).replace(" ", "_")
 
-            if shortcode in SEQUENCE_BLOCKLIST:
+            if not config.is_flatpak and shortcode in SEQUENCE_BLOCKLIST:
                 continue
 
             emoji = {

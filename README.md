@@ -9,9 +9,16 @@
 
 Emote is a modern emoji picker for Linux 🚀. Written in GTK3, Emote is lightweight and stays out of your way.
 
-Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E` and select one or more emojis to have them be automatically pasted into your currently focused app.
+Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E`, and select one or more emojis to have them be automatically pasted into your currently focused app.
 
-Note - Emote under Wayland cannot automatically paste the emoji into other apps and also requires manual registering of a global keyboard shortcut - [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland). This is due to intentional restrictions in the design of Wayland itself.
+* 🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window
+* 🫠 Provide a large and up-to-date list of emojis retrieved from [openmoji.org](https://openmoji.org/)
+* 🏛️ Shows the last used emojis by default
+* 🔎 Search text box automatically focused and ready to type when invoked
+* ⌨️ Can use shortcuts to navigates and select the emoji(s)
+* ✒️ Selected emoji automatically pasted to your currently focused app (X11 only)
+
+ℹ️ Note - Emote under Wayland cannot automatically paste the emoji into other apps and also requires manual registering of a global keyboard shortcut - [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland). This is due to intentional restrictions in the design of Wayland itself.
 
 <p align="center">
   <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">
@@ -87,6 +94,14 @@ Run the development version:
 
 ```bash
 make dev
+```
+
+### 🔄 Update emojis
+
+To update the list of emojis to the latest available on [openmoji.org](https://openmoji.org), run:
+
+```bash
+make update-emojis
 ```
 
 ### 🐞 Debugging GTK3 with GtkInspector
@@ -181,4 +196,4 @@ flatpak run --command=sh --devel com.tomjwatson.Emote
 
 ### 🤝 Attribution
 
-Emoji data is sourced from https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv which is compiled by the lovely people at https://openmoji.org.
+Emoji data is sourced from https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv which is compiled by the lovely people at https://openmoji.org.🫠
