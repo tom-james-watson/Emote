@@ -4,8 +4,11 @@
   <name>Emote</name>
   <summary>Modern popup emoji picker</summary>
   <url type="homepage">https://github.com/tom-james-watson/Emote</url>
+  <url type="bugtracker">https://github.com/tom-james-watson/Emote/issues</url>
+  <url type="vcs-browser">https://github.com/tom-james-watson/Emote</url>
+
   <metadata_license>FSFAP</metadata_license>
-  <project_license>GPL-3.0-only</project_license>
+  <project_license>GPL-3.0-or-later</project_license>
   <developer_name translatable="no">Tom Watson</developer_name>
 
   <description>
