@@ -642,3 +642,5 @@ class EmojiPicker(Gtk.Window):
     def copy_to_clipboard(self, content):
         cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         cb.set_text(content, -1)
+        if not config.is_wayland:
+            os.system(f'wl-copy "{content}"')
