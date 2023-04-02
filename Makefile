@@ -1,4 +1,5 @@
 OS := $(shell uname)
+.PHONY: dev dev-debug install update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub
 
 dev:
 	ENV=dev GDK_BACKEND="x11" pipenv run start
