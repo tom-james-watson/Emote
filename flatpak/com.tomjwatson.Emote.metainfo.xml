@@ -6,6 +6,7 @@
   <url type="homepage">https://github.com/tom-james-watson/Emote</url>
   <metadata_license>FSFAP</metadata_license>
   <project_license>GPL-3.0-only</project_license>
+  <developer_name translatable="no">Tom Watson</developer_name>
 
   <description>
     <p>
@@ -44,6 +45,5 @@
     </release>
   </releases>
   <!-- https://hughsie.github.io/oars/generate.html -->
-  <content_rating type="oars-1.1">
-  </content_rating>
+  <content_rating type="oars-1.1" />
 </component>
