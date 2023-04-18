@@ -1,25 +1,24 @@
 app-id: com.tomjwatson.Emote
 runtime: org.gnome.Platform
-runtime-version: '43'
+runtime-version: "43"
 sdk: org.gnome.Sdk
 command: emote
 finish-args:
-    - --share=ipc
-    - --socket=wayland
-    - --socket=fallback-x11
-    # Enabling autostart: https://github.com/flatpak/flatpak/issues/118
-    # - --filesystem=xdg-config/autostart:create
-    - --device=dri
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --filesystem=xdg-config/autostart:create
+  - --device=dri
 cleanup:
-    - /include
-    - /lib/pkgconfig
-    - /man
-    - /share/doc
-    - /share/gtk-doc
-    - /share/man
-    - /share/pkgconfig
-    - "*.la"
-    - "*.a"
+  - /include
+  - /lib/pkgconfig
+  - /man
+  - /share/doc
+  - /share/gtk-doc
+  - /share/man
+  - /share/pkgconfig
+  - "*.la"
+  - "*.a"
 modules:
   - python3-requirements.json
   - name: keybinder-3.0
