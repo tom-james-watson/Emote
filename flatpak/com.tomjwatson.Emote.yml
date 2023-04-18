@@ -7,6 +7,8 @@ finish-args:
     - --share=ipc
     - --socket=wayland
     - --socket=fallback-x11
+    # Enabling autostart: https://github.com/flatpak/flatpak/issues/118
+    # - --filesystem=xdg-config/autostart:create
     - --device=dri
 cleanup:
     - /include

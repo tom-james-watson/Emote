@@ -39,6 +39,14 @@ sudo snap install emote
 
 An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote.
 
+Enable autostart:
+
+```bash
+cp -L "/var/lib/flatpak/exports/share/applications/com.tomjwatson.Emote.desktop" ~/.config/autostart/
+# Or if it was installed locally:
+cp -L "cp ~/.local/share/flatpak/exports/share/applications/com.tomjwatson.Emote.desktop" ~/.config/autostart/
+```
+
 ## 📖 Guide
 
 ### 🚀 Launching
