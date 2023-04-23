@@ -66,23 +66,28 @@ def init():
 
 
 def strip_char_skintone(char):
-    for skintone_char in ["🏻", "🏼", "🏽", "🏾", "🏿"]:
-        char = char.replace(skintone_char, "")
+    # Define a regex pattern for skin tone modifiers
+    skintone_pattern = re.compile("[\U0001F3FB-\U0001F3FF]")
 
-    return char
+    return skintone_pattern.sub("", char)
+
+
+def strip_qualified_variant(char):
+    return char.replace("\uFE0F", "")
 
 
 def get_emoji_by_char(char):
-    char = strip_char_skintone(char)
+    char = strip_qualified_variant(strip_char_skintone(char))
 
     for emoji in all_emojis:
-        if emoji["char"] == char:
+        if strip_qualified_variant(emoji["char"]) == char:
             return emoji
 
     raise Exception(f"Couldn't find emoji by char {char}")
 
 
 def update_recent_category():
+    global emojis_by_category
     emojis_by_category["recent"] = []
 
     for char in user_data.load_recent_emojis():
