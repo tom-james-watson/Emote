@@ -1,5 +1,8 @@
 # <span><img width="24" height="24" src="https://github.com/tom-james-watson/Emote/blob/master/static/logo.svg"></span> Emote
 
+> **Warning**
+> This branch is for the legacy snap version of Emote, which has been deprecated. Please see [master](https://github.com/tom-james-watson/Emote/) for the latest up-to-date version, which is now published via Flathub.
+
 <a href="https://snapcraft.io/emote">
   <img alt="emote" src="https://snapcraft.io/emote/badge.svg" />
 </a>
