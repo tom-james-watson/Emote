@@ -4,7 +4,11 @@ import shelve
 
 from emote import emojis, config
 
-DATA_DIR = os.path.join(Path.home(), ".local/share/Emote") if not config.is_flatpak else os.path.join(Path.home(), f".var/app/{config.app_id}/data")
+DATA_DIR = (
+    os.path.join(Path.home(), ".local/share/Emote")
+    if not config.is_flatpak
+    else os.path.join(Path.home(), f".var/app/{config.app_id}/data")
+)
 SHELVE_PATH = os.path.join(DATA_DIR, "user_data")
 
 RECENT_EMOJIS = "recent_emojis"
@@ -21,8 +25,8 @@ SHOWN_WELCOME = "shown_welcome"
 DEFAULT_SHOWN_WELCOME = False
 
 SKINTONE = "skintone"
-DEFAULT_SKINTONE = "🟨"
-SKINTONES = ["🟨", "🏻", "🏼", "🏽", "🏾", "🏿"]
+DEFAULT_SKINTONE_INDEX = 0
+SKINTONES = ["✋", "✋🏻", "✋🏼", "✋🏽", "✋🏾", "✋🏿"]
 
 
 # Ensure the data dir exists
@@ -72,11 +76,11 @@ def update_shown_welcome():
         db[SHOWN_WELCOME] = True
 
 
-def load_skintone():
+def load_skintone_index():
     with shelve.open(SHELVE_PATH) as db:
-        return db.get(SKINTONE, DEFAULT_SKINTONE)
+        return db.get(SKINTONE, DEFAULT_SKINTONE_INDEX)
 
 
-def update_skintone(skintone):
+def update_skintone_index(skintone):
     with shelve.open(SHELVE_PATH) as db:
         db[SKINTONE] = skintone
