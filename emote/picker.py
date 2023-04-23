@@ -164,7 +164,7 @@ class EmojiPicker(Gtk.Window):
         self.category_selectors = []
         self.selected_emoji_category = "recent"
 
-        for (category, _, category_image) in emojis.get_category_order():
+        for category, _, category_image in emojis.get_category_order():
             category_selector = Gtk.ToggleButton(
                 label=category_image, name="category_selector_button"
             )
@@ -329,6 +329,8 @@ class EmojiPicker(Gtk.Window):
         logo_path = (
             f"{config.snap_root}/static/logo.svg"
             if config.is_snap
+            else f"{config.flatpak_root}/static/logo.svg"
+            if config.is_flatpak
             else "static/logo.svg"
         )
         logo = Pixbuf.new_from_file(logo_path)
@@ -391,7 +393,7 @@ class EmojiPicker(Gtk.Window):
     def on_cycle_category(self, backwards=False):
         index = None
 
-        for (i, category_selector) in enumerate(self.category_selectors):
+        for i, category_selector in enumerate(self.category_selectors):
             if category_selector.category == self.selected_emoji_category:
                 index = i
                 break
@@ -461,7 +463,7 @@ class EmojiPicker(Gtk.Window):
     def get_category_display_name(self, category):
         category_display_name = None
 
-        for (c, display_name, _) in emojis.get_category_order():
+        for c, display_name, _ in emojis.get_category_order():
             if c == category:
                 category_display_name = display_name
                 break
@@ -628,9 +630,8 @@ class EmojiPicker(Gtk.Window):
 
         self.destroy()
 
-        time.sleep(0.15)
-
         if not config.is_wayland:
+            time.sleep(0.15)
             os.system("xdotool key ctrl+v")
 
     def add_emoji_to_recent(self, emoji):
@@ -640,3 +641,5 @@ class EmojiPicker(Gtk.Window):
     def copy_to_clipboard(self, content):
         cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         cb.set_text(content, -1)
+        if config.is_wayland:
+            os.system(f'wl-copy "{content}"')

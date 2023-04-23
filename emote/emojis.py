@@ -239,6 +239,8 @@ def init():
     filename = (
         f"{config.snap_root}/static/emojis.csv"
         if config.is_snap
+        else f"{config.flatpak_root}/static/emojis.csv"
+        if config.is_flatpak
         else "static/emojis.csv"
     )
 
@@ -263,7 +265,7 @@ def init():
             shortcode = row["annotation"].lower().replace("-", " ")
             shortcode = re.sub(r"[^\w\s]", "", shortcode).replace(" ", "_")
 
-            if shortcode in SEQUENCE_BLOCKLIST:
+            if not config.is_flatpak and shortcode in SEQUENCE_BLOCKLIST:
                 continue
 
             emoji = {

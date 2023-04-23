@@ -6,11 +6,14 @@ from setproctitle import setproctitle
 gi.require_version("Gtk", "3.0")
 gi.require_version("Keybinder", "3.0")
 from gi.repository import Gtk, Keybinder
+
 from emote import picker, css, emojis, user_data, config
 
 # Register updated emoji font
 if config.is_snap:
     manimpango.register_font(f"{config.snap_root}/static/NotoColorEmoji.ttf")
+elif config.is_flatpak:
+    manimpango.register_font(f"{config.flatpak_root}/static/NotoColorEmoji.ttf")
 else:
     manimpango.register_font("static/NotoColorEmoji.ttf")
 

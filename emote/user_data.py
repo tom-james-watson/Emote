@@ -2,10 +2,9 @@ import os
 from pathlib import Path
 import shelve
 
-from emote import emojis
+from emote import emojis, config
 
-
-DATA_DIR = os.path.join(Path.home(), ".local/share/Emote")
+DATA_DIR = os.path.join(Path.home(), ".local/share/Emote") if not config.is_flatpak else os.path.join(Path.home(), f".var/app/{config.app_id}/data")
 SHELVE_PATH = os.path.join(DATA_DIR, "user_data")
 
 RECENT_EMOJIS = "recent_emojis"
