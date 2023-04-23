@@ -1,22 +1,15 @@
 # <span><img width="24" height="24" src="https://github.com/tom-james-watson/Emote/blob/master/static/logo.svg"></span> Emote
 
-<a href="https://snapcraft.io/emote">
-  <img alt="emote" src="https://snapcraft.io/emote/badge.svg" />
-</a>
-<a href="https://snapcraft.io/emote">
-  <img alt="emote" src="https://snapcraft.io/emote/trending.svg?name=0" />
-</a>
-
 Emote is a modern emoji picker for Linux 🚀. Written in GTK3, Emote is lightweight and stays out of your way.
 
 Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E`, and select one or more emojis to have them be automatically pasted into your currently focused app.
 
-* 🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window
-* 🫠 Provide a large and up-to-date list of emojis retrieved from [openmoji.org](https://openmoji.org/)
-* 🧠 Shows the last used emojis by default
-* 🔎 Search text box automatically focused and ready to type when invoked
-* ⌨️ Can use shortcuts to navigates and select emojis
-* ✒️ Selected emoji automatically pasted to your currently focused app (on X11 only)
+- 🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window
+- 🫠 Provide a large and up-to-date list of emojis retrieved from [openmoji.org](https://openmoji.org/)
+- 🧠 Shows the last used emojis by default
+- 🔎 Search text box automatically focused and ready to type when invoked
+- ⌨️ Can use shortcuts to navigates and select emojis
+- ✒️ Selected emoji automatically pasted to your currently focused app (on X11 only)
 
 ℹ️ Note:
 
@@ -29,13 +22,7 @@ Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E`, an
 
 ## 📥️ Installation
 
-[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/emote)
-
-or
-
-```bash
-sudo snap install emote
-```
+TODO - add flathub link
 
 An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote.
 
@@ -84,7 +71,9 @@ Install development libraries:
 ```bash
 sudo apt install xdotool libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev desktop-file-utils
 # or with dnf
-sudo dnf install xdotool gtk3-devel keybinder3-devel libgirepository1.0-dev desktop-file-utils
+sudo dnf install xdotool gtk3-devel keybinder3-devel libgirepository1.0-dev desktop-file-utils gobject-introspection-devel flatpak-builder
+
+sudo dnf install libffi-devel
 ```
 
 Install pipenv:
@@ -129,37 +118,7 @@ Launch app in debug mode with interactive inspector:
 make dev-debug
 ```
 
-### 🦜 Packaging with Snap
-
-Ensure you have `snapcraft` installed:
-
-```bash
-sudo snap install --classic snapcraft
-```
-
-Create a packaged `.snap` file:
-
-```bash
-make package
-```
-
-**Publishing**:
-
-First, ensure a git tag for the current version has been pushed.
-
-Ensure you are logged in to snapcraft:
-
-```bash
-snapcraft login
-```
-
-Push the packaged snap to the `edge` channel on the snap store.
-
-```bash
-snapcraft push --release=edge <path to .snap>
-```
-
-### 📦️ Packaging with Flatpak
+### 📦️ Packaging
 
 You will need to have [`flatpak`](https://flatpak.org/setup/) installed.
 
@@ -178,7 +137,7 @@ make flatpak-requirements
 Build the flatpak package and install it locally:
 
 ```bash
-make -B flatpak
+make flatpak
 ```
 
 Run Emote with flatpak (can also be done from the desktop entry):
@@ -193,7 +152,7 @@ flatpak run com.tomjwatson.Emote
 make flathub
 ```
 
-In case you are facing issues with the cache not properly updating, use the `-B` flag with `make`, or you can clean the cache with:
+In case you are facing issues with the cache not properly updating, you can clean the cache with:
 
 ```bash
 make flatpak-clean

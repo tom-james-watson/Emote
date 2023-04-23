@@ -13,11 +13,7 @@ format:
 install:
 	pipenv install -d
 
-package:
-	snapcraft
-
 clean:
-	snapcraft clean
 	rm -r .flatpak-builder build/
 
 update-emojis:

@@ -12,14 +12,10 @@ from gi.repository import Gtk, Keybinder
 from emote import picker, css, emojis, user_data, config
 
 # Register updated emoji font
-if config.is_snap:
-    manimpango.register_font(f"{config.snap_root}/static/NotoColorEmoji.ttf")
-elif config.is_flatpak:
+if config.is_flatpak:
     manimpango.register_font(f"{config.flatpak_root}/static/NotoColorEmoji.ttf")
 else:
     manimpango.register_font("static/NotoColorEmoji.ttf")
-
-settings = Gtk.Settings.get_default()
 
 
 class EmoteApplication(Gtk.Application):
@@ -47,8 +43,8 @@ class EmoteApplication(Gtk.Application):
             self.create_picker_window(True)
             user_data.update_shown_welcome()
 
-        self.check_autostart()
-        self.set_theme()
+        if config.is_flatpak:
+            self.check_autostart()
 
         # Run the main gtk event loop - this prevents the app from quitting
         Gtk.main()
@@ -74,16 +70,6 @@ class EmoteApplication(Gtk.Application):
         if accel_string:
             Keybinder.bind(accel_string, self.handle_accelerator)
 
-    def set_theme(self):
-        """Set the GTK theme to be used for the app windows"""
-        theme = user_data.load_theme()
-
-        if theme != user_data.DEFAULT_THEME:
-            print(f"Setting theme to {theme}")
-            settings.set_property("gtk-theme-name", theme)
-        else:
-            settings.reset_property("gtk-theme-name")
-
     def unset_accelerator(self):
         old_accel_string, _ = user_data.load_accelerator()
 
@@ -102,17 +88,12 @@ class EmoteApplication(Gtk.Application):
         user_data.update_accelerator(accel_string, accel_label)
         self.set_accelerator()
 
-    def update_theme(self, theme):
-        user_data.update_theme(theme)
-        self.set_theme()
-
     def create_picker_window(self, show_welcome=False):
         if self.picker_window:
             self.picker_window.destroy()
         self.picker_window = picker.EmojiPicker(
             Keybinder.get_current_event_time(),
             self.update_accelerator,
-            self.update_theme,
             show_welcome,
         )
         self.picker_window.connect("destroy", self.handle_picker_destroy)
