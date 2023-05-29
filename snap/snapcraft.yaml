@@ -8,56 +8,33 @@ description: |
   out of your way.
 icon: snap/gui/emote.svg
 
-base: core18
+environment:
+  # Workaround for https://forum.snapcraft.io/t/python-plugin-gnome-3-extension-error/33396.
+  PYTHONPATH: ${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
+
+
+base: core22
 grade: stable # or devel. Must be 'stable' to release into candidate/stable channels
 confinement: strict # or devmode
-
 parts:
   emote:
     plugin: python
-    python-version: python3
     source: .
-    python-packages:
-      - wheel
-      - pygobject
-      - setuptools
+    build-environment:
+      # Workaround for https://forum.snapcraft.io/t/python-plugin-gnome-3-extension-error/33396.
+      - PATH: ${CRAFT_PART_INSTALL}/bin:${PATH}
+      - PYTHONPATH: ""
     build-packages:
       - python3-setuptools
       - python3-xlib
       - pkg-config
-    build-packages:
-      - libgirepository1.0-dev
     stage-packages:
-      - libcairo-gobject2
-      - libcairo2
-      - libfontconfig1
-      - libfreetype6
-      - libgirepository-1.0-1
-      - libpixman-1-0
-      - libpng16-16
-      - libx11-6
-      - libxau6
-      - libxcb-render0
-      - libxcb-shm0
-      - libxcb1
-      - libxdmcp6
-      - libxext6
-      - libxrender1
-      - libkeybinder-3.0-0
-      - gir1.2-keybinder-3.0
-      - python3-distutils-extra
-      - sound-theme-freedesktop
-      - pulseaudio-utils
+      # Core PyGObject dependencies.
       - python3-gi
-      - gir1.2-unity-5.0
-      - gir1.2-notify-0.7
+      - python3-gi-cairo
       - gir1.2-gtk-3.0
-      - gir1.2-pango-1.0
-      - appmenu-gtk2-module
-      - appmenu-gtk3-module
-      - libcanberra-gtk-module
-      - libcanberra-gtk3-module
-      # xdotool
+      # Dependencies for keybinding functionality.
+      - gir1.2-keybinder-3.0
       - xdotool
   static:
     plugin: dump
@@ -74,20 +51,6 @@ parts:
       - usr/share/applications/emote.desktop
       - usr/share/icons/emote.svg
 
-plugs:
-  gtk-3-themes:
-    interface: content
-    target: $SNAP/share/themes
-    default-provider: gtk-common-themes
-  icon-themes:
-    interface: content
-    target: $SNAP/share/icons
-    default-provider: gtk-common-themes
-  sound-themes:
-    interface: content
-    target: $SNAP/share/sounds
-    default-provider: gtk-common-themes
-
 slots:
   dbus-daemon:
     interface: dbus
@@ -96,15 +59,11 @@ slots:
 
 apps:
   emote:
-    command: desktop-launch $SNAP/static/prepare-launch $SNAP/bin/emote
+    command: static/prepare-launch $SNAP/bin/emote
+    environment:
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu
     desktop: usr/share/applications/emote.desktop
-    extensions: [gnome-3-28]
+    extensions: [gnome]
     slots: [dbus-daemon]
     common-id: com.tomjwatson.Emote
     autostart: emote.desktop
-    plugs:
-      - desktop
-      - desktop-legacy
-      - x11
-      - gsettings
-      - wayland
