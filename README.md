@@ -143,7 +143,7 @@ sudo snap install --classic snapcraft
 Create a packaged `.snap` file:
 
 ```bash
-make package
+make snap
 ```
 
 **Publishing**
@@ -196,6 +196,7 @@ In case you are facing issues with the cache not properly updating, or need to r
 
 ```bash
 make flatpak-clean
+make snap-clean
 ```
 
 To see potential error messages of the flatpak app you can use `journalctl`: 

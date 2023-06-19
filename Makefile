@@ -1,5 +1,5 @@
 OS := $(shell uname)
-.PHONY: dev dev-debug install update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub
+.PHONY: dev dev-debug install update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub snap snap-clean
 
 dev:
 	ENV=dev GDK_BACKEND="x11" pipenv run start
@@ -45,3 +45,9 @@ flatpak-clean:
 
 flathub:
 	flatpak-builder --repo=flathub --force-clean build flatpak/com.tomjwatson.Emote.yml
+
+snap:
+	snapcraft
+
+snap-clean:
+	snapcraft clean
