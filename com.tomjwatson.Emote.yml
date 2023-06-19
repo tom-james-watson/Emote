@@ -20,7 +20,7 @@ cleanup:
   - "*.la"
   - "*.a"
 modules:
-  - python3-requirements.json
+  - flatpak/python3-requirements.json
   - name: keybinder-3.0
     sources:
       - type: archive
@@ -62,7 +62,7 @@ modules:
     buildsystem: meson
     sources:
       - type: dir
-        path: "../"
+        path: "./"
       # - type: git
       #   url: "https://github.com/tom-james-watson/Emote"
       #   commit: f71e41b92bfe8a32451f0f0d93ae47da886d2b51

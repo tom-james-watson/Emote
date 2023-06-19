@@ -20,7 +20,7 @@ update-emojis:
 	wget -O static/emojis.csv https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv
 
 flatpak:
-	flatpak-builder --user --install --force-clean build flatpak/com.tomjwatson.Emote.yml
+	flatpak-builder --user --install --force-clean build com.tomjwatson.Emote.yml
 	flatpak run com.tomjwatson.Emote
 
 flatpak-install:
