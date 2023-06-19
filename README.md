@@ -81,6 +81,8 @@ Previous Emoji Category: `Ctrl+Shift+Tab`
 
 ## 🧑‍💻 Development
 
+[![Build package](https://github.com/tom-james-watson/Emote/actions/workflows/build.yml/badge.svg)](https://github.com/tom-james-watson/Emote/actions/workflows/build.yml)
+
 ### 📥️ Requirements
 
 Install development libraries:
