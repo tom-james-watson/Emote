@@ -26,6 +26,8 @@ jobs:
         manifest-path: com.tomjwatson.Emote.yml
         cache-key: flatpak-builder-${{ github.sha }}
 
+    - run: |
+        flatpak run com.tomjwatson.Emote
 
   snap:
     name: Build Snap
