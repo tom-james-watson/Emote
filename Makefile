@@ -36,7 +36,7 @@ flatpak-requirements:
 	mv python3-requirements.json flatpak/python3-requirements.json
 
 flatpak-validate:
-	desktop-file-validate flatpak/com.tomjwatson.Emote.desktop
+	desktop-file-validate static/com.tomjwatson.Emote.desktop
 	flatpak run org.freedesktop.appstream-glib validate flatpak/com.tomjwatson.Emote.metainfo.xml
 
 flatpak-clean:
