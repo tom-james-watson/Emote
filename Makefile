@@ -41,7 +41,7 @@ flatpak-validate:
 
 flatpak-clean:
 	rm -r .flatpak-builder build/
-	flatpak remove com.tomjwatson.Emote -y
+	flatpak remove com.tomjwatson.Emote -y --delete-data
 
 flathub:
 	flatpak-builder --repo=flathub --force-clean build flatpak/com.tomjwatson.Emote.yml
