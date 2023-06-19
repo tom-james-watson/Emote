@@ -19,23 +19,25 @@
       Written in GTK3, Emote is lightweight and stays out of your way.
     </p>
     <p>
-      Launch the emoji picker with the configurable keyboard shortcut <code>Ctrl+Alt+E</code>, and select one or more emojis to paste them into the currently focused app.
+      Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E`, and select one or more emojis to paste them into the currently focused app.
     </p>
     <ul>
       <li>🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window</li>
-      <li>🫠 Provide a large and up-to-date list of emojis retrieved from <a href="https://openmoji.org" target="_blank">openmoji.org</a></li>
+      <li>🫠 Provide a large and up-to-date list of emojis retrieved from openmoji.org</li>
       <li>🧠 Shows the last used emojis by default</li>
       <li>🔎 Search text box automatically focused and ready to type when invoked</li>
       <li>⌨️ Can use shortcuts to navigate and select emojis</li>
       <li>✒️ Selected emoji automatically pasted to your currently focused app (on X11 only)</li>
     </ul>
     <p>
-      ℹ️ Additional things to note:
+      Please note that:
     </p>
-    <ul>
-      <li>⚡️ Emote <a href="https://github.com/tom-james-watson/Emote/issues/54" target="_blank">shows up faster</a> when invoked using the built-in keyboard shortcut (<code>Ctrl+Alt+E</code> by default), than when using a manually registered keyboard shortcut.</li>
-      <li>🪟 Emote under Wayland cannot automatically paste the emoji into other apps, and also requires manual registering of a global keyboard shortcut - <a href="https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland" target="_blank">Hotkey In Wayland</a>. This is due to intentional restrictions in the design of Wayland itself.</li>
-    </ul>
+    <p>
+      ⚡️ Emote shows up faster when invoked using the built-in keyboard shortcut (`Ctrl+Alt+E` by default), than when using a manually registered keyboard shortcut.
+    </p>
+    <p>
+      🪟 Emote under Wayland cannot automatically paste the emoji into other apps, and also requires manual registering of a global keyboard shortcut - <a href="https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland" target="_blank">Hotkey In Wayland</a>. This is due to intentional restrictions in the design of Wayland itself.
+    </p>
   </description>
 
   <screenshots>
