@@ -71,7 +71,10 @@ SKINTONES = ["✋", "✋🏻", "✋🏼", "✋🏽", "✋🏾", "✋🏿"]
 
 # Ensure the data dir exists
 os.makedirs(DATA_DIR, exist_ok=True)
-
+# Initialize shelve file if does not exist
+if not os.path.exists(SHELVE_PATH):
+    with shelve.open(SHELVE_PATH) as db:
+        db[RECENT_EMOJIS] = DEFAULT_RECENT_EMOJIS
 
 def load_recent_emojis():
     with shelve.open(SHELVE_PATH) as db:
