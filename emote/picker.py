@@ -140,15 +140,30 @@ class EmojiPicker(Gtk.Window):
         for skintone in user_data.SKINTONES:
             skintone_combo.append_text(skintone)
 
-        skintone_combo.set_active(user_data.SKINTONES.index(user_data.load_skintone()))
+        skintone_combo.set_active(user_data.load_skintone_index())
 
         return skintone_combo
 
     def on_skintone_combo_changed(self, combo):
-        skintone = combo.get_active_text()
+        char = combo.get_active_text()
 
-        if skintone is not None:
-            user_data.update_skintone(skintone)
+        skintone_index = None
+
+        if char == "✋":
+            skintone_index = 0
+        elif char == "✋🏻":
+            skintone_index = 1
+        elif char == "✋🏼":
+            skintone_index = 2
+        elif char == "✋🏽":
+            skintone_index = 3
+        elif char == "✋🏾":
+            skintone_index = 4
+        elif char == "✋🏿":
+            skintone_index = 5
+
+        if skintone_index is not None:
+            user_data.update_skintone_index(skintone_index)
 
             query = self.search_entry.props.text
 
@@ -164,7 +179,7 @@ class EmojiPicker(Gtk.Window):
         self.category_selectors = []
         self.selected_emoji_category = "recent"
 
-        for (category, _, category_image) in emojis.get_category_order():
+        for category, _, category_image in emojis.get_category_order():
             category_selector = Gtk.ToggleButton(
                 label=category_image, name="category_selector_button"
             )
@@ -239,15 +254,18 @@ class EmojiPicker(Gtk.Window):
     def get_skintone_char(self, emoji):
         char = emoji["char"]
 
-        if not emoji["skintone"]:
+        if emoji["skintone"] is None:
             return char
 
-        skintone = user_data.load_skintone()
+        skintone = user_data.load_skintone_index()
 
-        if skintone == user_data.DEFAULT_SKINTONE:
+        if skintone == 0:
             return char
 
-        return char + skintone
+        try:
+            return emoji["skintone"][str(skintone)]["char"]
+        except Exception:
+            return char
 
     def show_emoji_preview(self, char):
         emoji = emojis.get_emoji_by_char(char)
@@ -329,6 +347,8 @@ class EmojiPicker(Gtk.Window):
         logo_path = (
             f"{config.snap_root}/static/logo.svg"
             if config.is_snap
+            else f"{config.flatpak_root}/static/logo.svg"
+            if config.is_flatpak
             else "static/logo.svg"
         )
         logo = Pixbuf.new_from_file(logo_path)
@@ -339,8 +359,8 @@ class EmojiPicker(Gtk.Window):
             logo=logo,
             program_name="Emote",
             title="About Emote",
-            version=os.environ.get("SNAP_VERSION", "dev build"),
-            authors=["Tom Watson"],
+            version=os.environ.get("FLATPAK_APP_VERSION", "dev build"),
+            authors=["Tom Watson", "Vincent Emonet"],
             artists=["Tom Watson, Matthew Wong"],
             documenters=["Irene Auñón"],
             copyright=f"© Tom Watson {datetime.now().year}",
@@ -391,7 +411,7 @@ class EmojiPicker(Gtk.Window):
     def on_cycle_category(self, backwards=False):
         index = None
 
-        for (i, category_selector) in enumerate(self.category_selectors):
+        for i, category_selector in enumerate(self.category_selectors):
             if category_selector.category == self.selected_emoji_category:
                 index = i
                 break
@@ -461,7 +481,7 @@ class EmojiPicker(Gtk.Window):
     def get_category_display_name(self, category):
         category_display_name = None
 
-        for (c, display_name, _) in emojis.get_category_order():
+        for c, display_name, _ in emojis.get_category_order():
             if c == category:
                 category_display_name = display_name
                 break
@@ -628,9 +648,8 @@ class EmojiPicker(Gtk.Window):
 
         self.destroy()
 
-        time.sleep(0.15)
-
         if not config.is_wayland:
+            time.sleep(0.15)
             os.system("xdotool key ctrl+v")
 
     def add_emoji_to_recent(self, emoji):
@@ -640,3 +659,5 @@ class EmojiPicker(Gtk.Window):
     def copy_to_clipboard(self, content):
         cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         cb.set_text(content, -1)
+        if config.is_wayland:
+            os.system(f'wl-copy "{content}"')

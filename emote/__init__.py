@@ -1,18 +1,15 @@
+import os
 import sys
 import gi
+import shutil
 import manimpango
 from setproctitle import setproctitle
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Keybinder", "3.0")
 from gi.repository import Gtk, Keybinder
-from emote import picker, css, emojis, user_data, config
 
-# Register updated emoji font
-if config.is_snap:
-    manimpango.register_font(f"{config.snap_root}/static/NotoColorEmoji.ttf")
-else:
-    manimpango.register_font("static/NotoColorEmoji.ttf")
+from emote import picker, css, emojis, user_data, config
 
 settings = Gtk.Settings.get_default()
 
@@ -42,10 +39,26 @@ class EmoteApplication(Gtk.Application):
             self.create_picker_window(True)
             user_data.update_shown_welcome()
 
+        if config.is_flatpak:
+            self.check_autostart()
         self.set_theme()
 
         # Run the main gtk event loop - this prevents the app from quitting
         Gtk.main()
+
+    def check_autostart(self):
+        """Create autostart entry if it doesn't exist"""
+        autostart_filename = "com.tomjwatson.Emote.desktop"
+        src_autostart_file = f"{config.flatpak_root}/static/{autostart_filename}"
+        autostart_dir = "~/.config/autostart/"
+        dest_autostart_file = f"{autostart_dir}{autostart_filename}"
+
+        try:
+            if not os.path.exists(dest_autostart_file):
+                shutil.copy2(src_autostart_file, os.path.expanduser(autostart_dir))
+                print("Created autostart entry")
+        except Exception as e:
+            print("Failed to create autostart entry", e)
 
     def set_accelerator(self):
         """Register global shortcut for invoking the emoji picker"""

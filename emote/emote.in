@@ -1,0 +1,14 @@
+#!@PYTHON@
+
+import os
+import sys
+
+VERSION = '@VERSION@'
+pkgdatadir = '@pkgdatadir@'
+
+sys.path.insert(1, pkgdatadir)
+os.environ["FLATPAK"] = pkgdatadir
+
+if __name__ == '__main__':
+    from emote import main
+    sys.exit(main())
