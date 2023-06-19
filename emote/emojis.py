@@ -51,7 +51,9 @@ def process_emoji_row(row):
 
 def init():
     filename = (
-        f"{config.flatpak_root}/static/emojis.csv"
+        f"{config.snap_root}/static/emojis.csv"
+        if config.is_snap
+        else f"{config.flatpak_root}/static/emojis.csv"
         if config.is_flatpak
         else "static/emojis.csv"
     )

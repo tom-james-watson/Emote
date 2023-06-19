@@ -10,8 +10,4 @@ fi
 # clipboard management do no yet work under wayland.
 export GDK_BACKEND="x11"
 
-# Workaround for https://bugs.launchpad.net/snapcraft/+bug/1998269.
-export FONTCONFIG_PATH=$SNAP/etc/fonts/config.d
-export FONTCONFIG_FILE=$SNAP/etc/fonts/fonts.conf
-
 exec "$@"
