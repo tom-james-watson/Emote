@@ -26,6 +26,9 @@ Emote can be installed using various popular package managers:
 
 ### 📦️ Install with Flatpak (preferred)
 
+> **Warning**
+> Publishing of flatpak is currently in progress - please bear with us!
+
 <a href='https://flathub.org/apps/com.tomjwatson.Emote'><img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
 or
