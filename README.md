@@ -19,20 +19,29 @@ Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E`, an
 <p align="center">
   <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">
 </p>
-
 ## 📥️ Installation
 
-TODO - add flathub link
+Emote can be installed using various popular package managers:
 
-An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote.
+### 🦜 Install with Snap
 
-Enable autostart:
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/emote)
+
+or
 
 ```bash
-cp -L "/var/lib/flatpak/exports/share/applications/com.tomjwatson.Emote.desktop" ~/.config/autostart/
-# Or if it was installed locally:
-cp -L "cp ~/.local/share/flatpak/exports/share/applications/com.tomjwatson.Emote.desktop" ~/.config/autostart/
+sudo snap install emote
 ```
+
+### 📦️ Install with Flatpak
+
+```bash
+flatpak install com.tomjwatson.Emote
+```
+
+### 🐧 Unofficial installation methods
+
+An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote.
 
 ## 📖 Guide
 
@@ -118,7 +127,37 @@ Launch app in debug mode with interactive inspector:
 make dev-debug
 ```
 
-### 📦️ Packaging
+### 🦜 Package with Snap
+
+Ensure you have `snapcraft` installed:
+
+```bash
+sudo snap install --classic snapcraft
+```
+
+Create a packaged `.snap` file:
+
+```bash
+make package
+```
+
+**Publishing**
+
+First, ensure a git tag for the current version has been pushed.
+
+Ensure you are logged in to snapcraft:
+
+```bash
+snapcraft login
+```
+
+Push the packaged snap to the `edge` channel on the snap store.
+
+```bash
+snapcraft push --release=edge <path to .snap>
+```
+
+### 📦️ Package with Flatpak
 
 You will need to have [`flatpak`](https://flatpak.org/setup/) installed.
 
