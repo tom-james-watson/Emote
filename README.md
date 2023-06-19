@@ -35,6 +35,10 @@ sudo snap install emote
 
 ### 📦️ Install with Flatpak
 
+<a href='https://flathub.org/apps/com.tomjwatson.Emote'><img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
+
+or
+
 ```bash
 flatpak install com.tomjwatson.Emote
 ```
