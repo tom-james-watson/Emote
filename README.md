@@ -22,17 +22,31 @@ Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E`, an
 
 ## 📥️ Installation
 
-TODO - add flathub link
+Emote can be installed using various popular package managers:
 
-An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote.
+### 📦️ Install with Flatpak (preferred)
 
-Enable autostart:
+<a href='https://flathub.org/apps/com.tomjwatson.Emote'><img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
+
+or
 
 ```bash
-cp -L "/var/lib/flatpak/exports/share/applications/com.tomjwatson.Emote.desktop" ~/.config/autostart/
-# Or if it was installed locally:
-cp -L "cp ~/.local/share/flatpak/exports/share/applications/com.tomjwatson.Emote.desktop" ~/.config/autostart/
+flatpak install com.tomjwatson.Emote
 ```
+
+### 🦜 Install with Snap
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/emote)
+
+or
+
+```bash
+sudo snap install emote
+```
+
+### 🐧 Unofficial installation methods
+
+An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote.
 
 ## 📖 Guide
 
@@ -118,7 +132,37 @@ Launch app in debug mode with interactive inspector:
 make dev-debug
 ```
 
-### 📦️ Packaging
+### 🦜 Package with Snap
+
+Ensure you have `snapcraft` installed:
+
+```bash
+sudo snap install --classic snapcraft
+```
+
+Create a packaged `.snap` file:
+
+```bash
+make snap
+```
+
+**Publishing**
+
+First, ensure a git tag for the current version has been pushed.
+
+Ensure you are logged in to snapcraft:
+
+```bash
+snapcraft login
+```
+
+Push the packaged snap to the `edge` channel on the snap store.
+
+```bash
+snapcraft push --release=edge <path to .snap>
+```
+
+### 📦️ Package with Flatpak
 
 You will need to have [`flatpak`](https://flatpak.org/setup/) installed.
 
@@ -152,6 +196,7 @@ In case you are facing issues with the cache not properly updating, or need to r
 
 ```bash
 make flatpak-clean
+make snap-clean
 ```
 
 To see potential error messages of the flatpak app you can use `journalctl`: 
@@ -174,4 +219,4 @@ make flathub
 
 ### 🤝 Attribution
 
-Emoji data is sourced from https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv which is compiled by the lovely people at https://openmoji.org.🫠
+Emoji data is sourced from https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv which is compiled by the lovely people at https://openmoji.org 🫠.

@@ -1,0 +1,69 @@
+name: emote
+version: '3.1.0'
+license: GPL-3.0+
+summary: Modern emoji picker built on GTK3
+description: |
+  Emote is a simple emoji picker that is launched with a keyboard shortcut and
+  copies the selected emoji to the clipboard. Emote is lightweight and stays
+  out of your way.
+icon: snap/gui/emote.svg
+
+environment:
+  # Workaround for https://forum.snapcraft.io/t/python-plugin-gnome-3-extension-error/33396.
+  PYTHONPATH: ${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
+
+
+base: core22
+grade: stable # or devel. Must be 'stable' to release into candidate/stable channels
+confinement: strict # or devmode
+parts:
+  emote:
+    plugin: python
+    source: .
+    build-environment:
+      # Workaround for https://forum.snapcraft.io/t/python-plugin-gnome-3-extension-error/33396.
+      - PATH: ${CRAFT_PART_INSTALL}/bin:${PATH}
+      - PYTHONPATH: ""
+    build-packages:
+      - python3-setuptools
+      - python3-xlib
+      - pkg-config
+    stage-packages:
+      # Core PyGObject dependencies.
+      - python3-gi
+      - python3-gi-cairo
+      - gir1.2-gtk-3.0
+      # Dependencies for keybinding functionality.
+      - gir1.2-keybinder-3.0
+      - xdotool
+  static:
+    plugin: dump
+    source: static/
+    organize:
+      '*': static/
+  desktop-resources:
+    plugin: dump
+    source: snap/gui/
+    organize:
+      emote.desktop: usr/share/applications/emote.desktop
+      emote.svg: usr/share/icons/emote.svg
+    stage:
+      - usr/share/applications/emote.desktop
+      - usr/share/icons/emote.svg
+
+slots:
+  dbus-daemon:
+    interface: dbus
+    bus: session
+    name: com.tomjwatson.Emote
+
+apps:
+  emote:
+    command: static/prepare-launch $SNAP/bin/emote
+    environment:
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu
+    desktop: usr/share/applications/emote.desktop
+    extensions: [gnome]
+    slots: [dbus-daemon]
+    common-id: com.tomjwatson.Emote
+    autostart: emote.desktop

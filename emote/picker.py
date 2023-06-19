@@ -10,6 +10,7 @@ from gi.repository.GdkPixbuf import Pixbuf
 from emote import (
     emojis,
     user_data,
+    settings,
     keyboard_shortcuts,
     guide,
     config,
@@ -26,7 +27,7 @@ def grouper(iterable, n, fillvalue=None):
 
 
 class EmojiPicker(Gtk.Window):
-    def __init__(self, open_time, update_accelerator, show_welcome):
+    def __init__(self, open_time, update_accelerator, update_theme, show_welcome):
         Gtk.Window.__init__(
             self,
             title="Emote",
@@ -39,6 +40,7 @@ class EmojiPicker(Gtk.Window):
         self.set_keep_above(True)
         self.dialog_open = False
         self.update_accelerator = update_accelerator
+        self.update_theme = update_theme
         self.search_scrolled = None
         self.emoji_append_list = []
         self.current_emojis = []
@@ -89,6 +91,12 @@ class EmojiPicker(Gtk.Window):
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         items_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+        if config.is_snap or config.is_dev:
+            prefs_btn = Gtk.ModelButton("Preferences")
+            prefs_btn.set_alignment(0, 0.5)
+            prefs_btn.connect("clicked", lambda prefs_btn: self.open_preferences())
+            items_box.pack_start(prefs_btn, False, True, 0)
 
         keyboard_shortcuts_btn = Gtk.ModelButton("Keyboard Shortcuts")
         keyboard_shortcuts_btn.set_alignment(0, 0.5)
@@ -318,6 +326,11 @@ class EmojiPicker(Gtk.Window):
 
         return True
 
+    def open_preferences(self):
+        self.dialog_open = True
+        settings_window = settings.Settings(self.update_theme)
+        settings_window.connect("destroy", self.on_close_dialog)
+
     def open_keyboard_shortcuts(self):
         self.dialog_open = True
         keyboard_shortcuts_window = keyboard_shortcuts.KeyboardShortcuts(
@@ -332,7 +345,9 @@ class EmojiPicker(Gtk.Window):
 
     def open_about(self):
         logo_path = (
-            f"{config.flatpak_root}/static/logo.svg"
+            f"{config.snap_root}/static/logo.svg"
+            if config.is_snap
+            else f"{config.flatpak_root}/static/logo.svg"
             if config.is_flatpak
             else "static/logo.svg"
         )

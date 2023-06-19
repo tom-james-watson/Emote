@@ -1,5 +1,5 @@
 OS := $(shell uname)
-.PHONY: dev dev-debug install update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub
+.PHONY: dev dev-debug install update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub snap snap-clean
 
 dev:
 	ENV=dev GDK_BACKEND="x11" pipenv run start
@@ -20,7 +20,7 @@ update-emojis:
 	wget -O static/emojis.csv https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv
 
 flatpak:
-	flatpak-builder --user --install --force-clean build flatpak/com.tomjwatson.Emote.yml
+	flatpak-builder --user --install --force-clean build com.tomjwatson.Emote.yml
 	flatpak run com.tomjwatson.Emote
 
 flatpak-install:
@@ -36,7 +36,7 @@ flatpak-requirements:
 	mv python3-requirements.json flatpak/python3-requirements.json
 
 flatpak-validate:
-	desktop-file-validate flatpak/com.tomjwatson.Emote.desktop
+	desktop-file-validate static/com.tomjwatson.Emote.desktop
 	flatpak run org.freedesktop.appstream-glib validate flatpak/com.tomjwatson.Emote.metainfo.xml
 
 flatpak-clean:
@@ -45,3 +45,9 @@ flatpak-clean:
 
 flathub:
 	flatpak-builder --repo=flathub --force-clean build flatpak/com.tomjwatson.Emote.yml
+
+snap:
+	snapcraft
+
+snap-clean:
+	snapcraft clean
