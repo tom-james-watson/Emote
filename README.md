@@ -146,22 +146,30 @@ Run Emote with flatpak (can also be done from the desktop entry):
 flatpak run com.tomjwatson.Emote
 ```
 
-**Build and publish to Flathub**:
+**Debug**:
 
-```bash
-make flathub
-```
-
-In case you are facing issues with the cache not properly updating, you can clean the cache with:
+In case you are facing issues with the cache not properly updating, or need to reset user data, you can clean the cache with:
 
 ```bash
 make flatpak-clean
 ```
 
-Use `journalctl -f` to see the app logs, run the command below if you want to access inside the containerized flatpak app to debug.
+To see potential error messages of the flatpak app you can use `journalctl`: 
+
+```bash
+journalctl -f -n 50
+```
+
+Run the command below if you want to access inside the containerized flatpak app to debug.
 
 ```bash
 flatpak run --command=sh --devel com.tomjwatson.Emote
+```
+
+**Build and publish to Flathub**:
+
+```bash
+make flathub
 ```
 
 ### 🤝 Attribution
