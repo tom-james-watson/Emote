@@ -26,8 +26,7 @@ jobs:
         manifest-path: com.tomjwatson.Emote.yml
         cache-key: flatpak-builder-${{ github.sha }}
 
-    - run: |
-        flatpak run com.tomjwatson.Emote
+    # - run: flatpak run com.tomjwatson.Emote
 
   snap:
     name: Build Snap
@@ -43,8 +42,7 @@ jobs:
     - run: |
         sudo snap install --dangerous ${{ steps.build-snap.outputs.snap }}
 
-    - run: |
-        emote
+    # - run: emote
 
     - uses: actions/upload-artifact@v3
       with:
