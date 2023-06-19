@@ -21,7 +21,7 @@
     <p>
       Launch the emoji picker with the configurable keyboard shortcut <code>Ctrl+Alt+E</code>, and select one or more emojis to paste them into the currently focused app.
     </p>
-    <ul style="list-style: none;">
+    <ul>
       <li>🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window</li>
       <li>🫠 Provide a large and up-to-date list of emojis retrieved from <a href="https://openmoji.org" target="_blank">openmoji.org</a></li>
       <li>🧠 Shows the last used emojis by default</li>
@@ -32,7 +32,7 @@
     <p>
       ℹ️ Additional things to note:
     </p>
-    <ul style="list-style: none;">
+    <ul>
       <li>⚡️ Emote <a href="https://github.com/tom-james-watson/Emote/issues/54" target="_blank">shows up faster</a> when invoked using the built-in keyboard shortcut (<code>Ctrl+Alt+E</code> by default), than when using a manually registered keyboard shortcut.</li>
       <li>🪟 Emote under Wayland cannot automatically paste the emoji into other apps, and also requires manual registering of a global keyboard shortcut - <a href="https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland" target="_blank">Hotkey In Wayland</a>. This is due to intentional restrictions in the design of Wayland itself.</li>
     </ul>
