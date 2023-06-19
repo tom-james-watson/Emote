@@ -51,7 +51,7 @@ class EmoteApplication(Gtk.Application):
 
     def check_autostart(self):
         """Create autostart entry if it doesn't exist"""
-        autostart_filename = "emote-autostart.desktop"
+        autostart_filename = "com.tomjwatson.Emote.desktop"
         src_autostart_file = f"{config.flatpak_root}/static/{autostart_filename}"
         autostart_dir = "~/.config/autostart/"
         dest_autostart_file = f"{autostart_dir}{autostart_filename}"
