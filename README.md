@@ -19,9 +19,20 @@ Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E`, an
 <p align="center">
   <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">
 </p>
+
 ## 📥️ Installation
 
 Emote can be installed using various popular package managers:
+
+### 📦️ Install with Flatpak (preferred)
+
+<a href='https://flathub.org/apps/com.tomjwatson.Emote'><img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
+
+or
+
+```bash
+flatpak install com.tomjwatson.Emote
+```
 
 ### 🦜 Install with Snap
 
@@ -31,16 +42,6 @@ or
 
 ```bash
 sudo snap install emote
-```
-
-### 📦️ Install with Flatpak
-
-<a href='https://flathub.org/apps/com.tomjwatson.Emote'><img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
-
-or
-
-```bash
-flatpak install com.tomjwatson.Emote
 ```
 
 ### 🐧 Unofficial installation methods
@@ -142,7 +143,7 @@ sudo snap install --classic snapcraft
 Create a packaged `.snap` file:
 
 ```bash
-make package
+make snap
 ```
 
 **Publishing**
@@ -195,6 +196,7 @@ In case you are facing issues with the cache not properly updating, or need to r
 
 ```bash
 make flatpak-clean
+make snap-clean
 ```
 
 To see potential error messages of the flatpak app you can use `journalctl`: 
