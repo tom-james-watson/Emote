@@ -30,7 +30,7 @@
       <li>✒️ Selected emoji automatically pasted to your currently focused app (on X11 only)</li>
     </ul>
     <p>
-      ℹ️ Notes:
+      ℹ️ Additional things to note:
     </p>
     <ul style="list-style: none;">
       <li>⚡️ Emote <a href="https://github.com/tom-james-watson/Emote/issues/54" target="_blank">shows up faster</a> when invoked using the built-in keyboard shortcut (<code>Ctrl+Alt+E</code> by default), than when using a manually registered keyboard shortcut.</li>
