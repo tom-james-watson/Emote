@@ -26,9 +26,6 @@ Emote can be installed using various popular package managers:
 
 ### 📦️ Install with Flatpak (preferred)
 
-> **Warning**
-> Publishing of flatpak is currently in progress - please bear with us!
-
 <a href='https://flathub.org/apps/com.tomjwatson.Emote'><img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
 or
@@ -137,39 +134,11 @@ Launch app in debug mode with interactive inspector:
 make dev-debug
 ```
 
-### 🦜 Package with Snap
-
-Ensure you have `snapcraft` installed:
-
-```bash
-sudo snap install --classic snapcraft
-```
-
-Create a packaged `.snap` file:
-
-```bash
-make snap
-```
-
-**Publishing**
-
-First, ensure a git tag for the current version has been pushed.
-
-Ensure you are logged in to snapcraft:
-
-```bash
-snapcraft login
-```
-
-Push the packaged snap to the `edge` channel on the snap store.
-
-```bash
-snapcraft push --release=edge <path to .snap>
-```
-
 ### 📦️ Package with Flatpak
 
-You will need to have [`flatpak`](https://flatpak.org/setup/) installed.
+To develop locally you will need to have [`flatpak`](https://flatpak.org/setup/) installed.
+
+**Install:**
 
 Install `flatpak-builder`, the GNOME SDK, and `flatpak-pip-generator`:
 
@@ -182,6 +151,8 @@ Optionally re-generate the `flatpak/python3-requirements.json` if the dependenci
 ```bash
 make flatpak-requirements
 ```
+
+**Build:**
 
 Build the flatpak package and install it locally:
 
@@ -201,7 +172,6 @@ In case you are facing issues with the cache not properly updating, or need to r
 
 ```bash
 make flatpak-clean
-make snap-clean
 ```
 
 To see potential error messages of the flatpak app you can use `journalctl`: 
@@ -216,10 +186,53 @@ Run the command below if you want to access inside the containerized flatpak app
 flatpak run --command=sh --devel com.tomjwatson.Emote
 ```
 
-**Build and publish to Flathub**:
+**Publish to Flathub**:
+
+Emote is published to Flathub using the repository [github.com/flathub/com.tomjwatson.Emote](https://github.com/flathub/com.tomjwatson.Emote)
+
+Builds can be monitored at [buildbot.flathub.org/#/apps/com.tomjwatson.Emote](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote)
+
+To update the version published to Flathub:
+
+1. In the [`com.tomjwatson.Emote.yml` manifest](https://github.com/flathub/com.tomjwatson.Emote/blob/master/com.tomjwatson.Emote.yml#L66) in the flathub/com.tomjwatson.Emote repo: change the commit hash to the commit of the Emote repository you want to publish
+2. Flathub check the GitHub repo every few minutes, and will start a build if a change as been detected, if the build succeed the package is published automatically after 3 hours (or it can be published manually directly). You can also manually trigger a build using the [Flathub BuildBot](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote)
+
+More documentation for maintaining a Flathub package is available at [docs.flathub.org/docs/for-app-authors/maintanance](https://docs.flathub.org/docs/for-app-authors/maintanance#buildbot)
+
+### 🦜 Package with Snap
+
+Ensure you have `snapcraft` installed:
 
 ```bash
-make flathub
+sudo snap install --classic snapcraft
+```
+
+Create a packaged `.snap` file:
+
+```bash
+make snap
+```
+
+Clean the cache:
+
+```bash
+make snap-clean
+```
+
+**Publishing**
+
+First, ensure a git tag for the current version has been pushed.
+
+Ensure you are logged in to snapcraft:
+
+```bash
+snapcraft login
+```
+
+Push the packaged snap to the `edge` channel on the snap store.
+
+```bash
+snapcraft push --release=edge <path to .snap>
 ```
 
 ### 🤝 Attribution
