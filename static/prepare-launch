@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ ! -d "$SNAP_USER_DATA/.config/autostart" ];
 then
@@ -11,7 +11,14 @@ fi
 export GDK_BACKEND="x11"
 
 # Workaround for https://bugs.launchpad.net/snapcraft/+bug/1998269.
-export FONTCONFIG_PATH=$SNAP/etc/fonts/config.d
-export FONTCONFIG_FILE=$SNAP/etc/fonts/fonts.conf
+# On ubuntu-derived systems, we end up with tiny emojis without this.
+# If we apply this fix on other systems then fonts end up messed up.
+if [ -f /etc/lsb-release ]; then
+  echo "Running on an Ubuntu-derived system, trying to fix font issue."
+  export FONTCONFIG_PATH=$SNAP/etc/fonts/config.d
+  export FONTCONFIG_FILE=$SNAP/etc/fonts/fonts.conf
+else
+  echo "Not running on an Ubuntu-derived system. Nothing to do."
+fi
 
 exec "$@"
