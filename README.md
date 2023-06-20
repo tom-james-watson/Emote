@@ -134,11 +134,18 @@ Launch app in debug mode with interactive inspector:
 make dev-debug
 ```
 
+## 🚢 Publishing
+
+### Releasing a new version
+
+1. Bump the version number in `snapcraft.yaml` for snap and in `meson.build` for flatpak.
+2. Add a release entry to the `com.tomjwatson.Emote.metainfo.xml`.
+
 ### 📦️ Package with Flatpak
 
 To develop locally you will need to have [`flatpak`](https://flatpak.org/setup/) installed.
 
-**Install:**
+#### Install
 
 Install `flatpak-builder`, the GNOME SDK, and `flatpak-pip-generator`:
 
@@ -152,7 +159,7 @@ Optionally re-generate the `flatpak/python3-requirements.json` if the dependenci
 make flatpak-requirements
 ```
 
-**Build:**
+#### Build
 
 Build the flatpak package and install it locally:
 
@@ -166,7 +173,7 @@ Run Emote with flatpak (can also be done from the desktop entry):
 flatpak run com.tomjwatson.Emote
 ```
 
-**Debug**:
+#### Debug
 
 In case you are facing issues with the cache not properly updating, or need to reset user data, you can clean the cache with:
 
@@ -186,7 +193,7 @@ Run the command below if you want to access inside the containerized flatpak app
 flatpak run --command=sh --devel com.tomjwatson.Emote
 ```
 
-**Publish:**
+#### Publish to Flathub
 
 Emote is published to Flathub using the repository [github.com/flathub/com.tomjwatson.Emote](https://github.com/flathub/com.tomjwatson.Emote).
 
@@ -194,9 +201,8 @@ Flathub builds can be monitored at [buildbot.flathub.org/#/apps/com.tomjwatson.E
 
 To update the version published to Flathub:
 
-1. Change the version in the source code: `snap/snapcraft.yaml` for Snap, the `meson.build` for Flatpak, and add the corresponding release notes to the `flatpak/com.tomjwatson.Emote.metainfo.xml`
-2. In the [`com.tomjwatson.Emote.yml` manifest](https://github.com/flathub/com.tomjwatson.Emote/blob/master/com.tomjwatson.Emote.yml#L66) of the flathub/com.tomjwatson.Emote repo: change the commit hash to the commit of the Emote repository you want to publish
-3. Flathub checks the GitHub repo every few minutes, and will start a build if a change as been detected, if the build succeed it is published automatically after 3 hours. You can use the [Flathub BuildBot web UI](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote) to monitor, start or publish builds manually (click the Publish button at the top of a successful build page).
+1. In the [`com.tomjwatson.Emote.yml` manifest](https://github.com/flathub/com.tomjwatson.Emote/blob/master/com.tomjwatson.Emote.yml#L66) of the flathub/com.tomjwatson.Emote repo: change the commit hash to the commit of the Emote repository you want to publish
+2. Flathub checks the GitHub repo every few minutes, and will start a build if a change as been detected, if the build succeed it is published automatically after 3 hours. You can use the [Flathub BuildBot web UI](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote) to monitor, start or publish builds manually (click the Publish button at the top of a successful build page).
 
 More documentation for maintaining a Flathub package is available at [docs.flathub.org/docs/for-app-authors/maintanance](https://docs.flathub.org/docs/for-app-authors/maintanance#buildbot)
 
@@ -220,7 +226,7 @@ Clean the cache:
 make snap-clean
 ```
 
-**Publishing**
+#### Publishing
 
 First, ensure a git tag for the current version has been pushed.
 
@@ -236,6 +242,6 @@ Push the packaged snap to the `edge` channel on the snap store.
 snapcraft push --release=edge <path to .snap>
 ```
 
-### 🤝 Attribution
+## 🤝 Attribution
 
 Emoji data is sourced from https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv which is compiled by the lovely people at https://openmoji.org 🫠.
