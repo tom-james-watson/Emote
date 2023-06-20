@@ -202,9 +202,9 @@ Flathub builds can be monitored at [buildbot.flathub.org/#/apps/com.tomjwatson.E
 To update the version published to Flathub:
 
 1. In the [`com.tomjwatson.Emote.yml` manifest](https://github.com/flathub/com.tomjwatson.Emote/blob/master/com.tomjwatson.Emote.yml#L66) of the flathub/com.tomjwatson.Emote repo: change the commit hash to the commit of the Emote repository you want to publish
-2. Flathub checks the GitHub repo every few minutes, and will start a build if a change as been detected, if the build succeed it is published automatically after 3 hours. You can use the [Flathub BuildBot web UI](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote) to monitor, start or publish builds manually (click the Publish button at the top of a successful build page).
+2. Flathub checks the GitHub repo every few minutes, and will start a build if a change has been detected. If the build succeeds, it is published automatically after 3 hours. You can use the [Flathub BuildBot web UI](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote) to monitor, start or publish builds manually (click the Publish button at the top of a successful build page).
 
-More documentation for maintaining a Flathub package is available at [docs.flathub.org/docs/for-app-authors/maintanance](https://docs.flathub.org/docs/for-app-authors/maintanance#buildbot)
+More documentation for maintaining a Flathub package is available at [docs.flathub.org/docs/for-app-authors/maintanance](https://docs.flathub.org/docs/for-app-authors/maintanance#buildbot).
 
 ### 🦜 Package with Snap
 
