@@ -64,7 +64,7 @@ THEMES = [
     "elementary",
 ]
 
-SKINTONE = "skintone"
+SKINTONE_INDEX = "skintone_index"
 DEFAULT_SKINTONE_INDEX = 0
 SKINTONES = ["✋", "✋🏻", "✋🏼", "✋🏽", "✋🏾", "✋🏿"]
 
@@ -128,9 +128,9 @@ def update_theme(theme):
 
 def load_skintone_index():
     with shelve.open(SHELVE_PATH) as db:
-        return db.get(SKINTONE, DEFAULT_SKINTONE_INDEX)
+        return db.get(SKINTONE_INDEX, DEFAULT_SKINTONE_INDEX)
 
 
 def update_skintone_index(skintone):
     with shelve.open(SHELVE_PATH) as db:
-        db[SKINTONE] = skintone
+        db[SKINTONE_INDEX] = skintone
