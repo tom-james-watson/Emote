@@ -47,6 +47,11 @@
   </screenshots>
 
   <releases>
+    <release type="stable" version="4.0.1" date="2023-06-20T00:00:00Z">
+      <description>
+        <p>Some minor bugfixes for flatpak / snap upgrade</p>
+      </description>
+    </release>
     <release type="stable" version="4.0.0" date="2023-06-20T00:00:00Z">
       <description>
         <p>Stable flatpak release</p>
