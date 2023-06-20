@@ -69,6 +69,7 @@ class EmoteApplication(Gtk.Application):
         """Set the GTK theme to be used for the app windows"""
         theme = user_data.load_theme()
 
+        print(f'Setting theme New=[{theme}] Current=[{settings.get_property("gtk-theme-name")}]')
         if theme != user_data.DEFAULT_THEME:
             print(f"Setting theme to {theme}")
             settings.set_property("gtk-theme-name", theme)
