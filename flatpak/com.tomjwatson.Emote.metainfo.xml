@@ -47,14 +47,14 @@
   </screenshots>
 
   <releases>
-    <release type="stable" version="3.1.0" date="2023-04-01T00:00:00Z">
-      <description>
-        <p>First release on Flathub</p>
-      </description>
-    </release>
     <release type="stable" version="4.0.0" date="2023-06-20T00:00:00Z">
       <description>
         <p>Stable flatpak release</p>
+      </description>
+    </release>
+    <release type="stable" version="3.1.0" date="2023-04-01T00:00:00Z">
+      <description>
+        <p>First release on Flathub</p>
       </description>
     </release>
   </releases>
