@@ -49,14 +49,29 @@ class EmoteApplication(Gtk.Application):
 
     def flatpak_autostart(self):
         """Enable autostart in background for flatpak app"""
-        bus = dbus.SessionBus()
-        obj = bus.get_object("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
-        inter = dbus.Interface(obj, "org.freedesktop.portal.Background")
-        res = inter.RequestBackground('', {
-            'reason': 'Emote autostart',
-            'autostart': True, 'background': True,
-            'commandline': dbus.Array(['emote'])
-        })
+        try:
+            bus = dbus.SessionBus()
+            obj = bus.get_object("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
+            inter = dbus.Interface(obj, "org.freedesktop.portal.Background")
+            res = inter.RequestBackground('', {
+                'reason': 'Emote autostart',
+                'autostart': True, 'background': True,
+                'commandline': dbus.Array(['emote'])
+            })
+        except Exception as e:
+            print("Failed to enable autostart in background with xdg-desktop-portal API. Creating autostart entry in ~/.config/autostart/ instead. See following error for more information:", e)
+            """Create autostart entry if it doesn't exist"""
+            autostart_filename = "com.tomjwatson.Emote.desktop"
+            src_autostart_file = f"{config.flatpak_root}/static/{autostart_filename}"
+            autostart_dir = "~/.config/autostart/"
+            dest_autostart_file = f"{autostart_dir}{autostart_filename}"
+            
+            try:
+                if not os.path.exists(dest_autostart_file):
+                    shutil.copy2(src_autostart_file, os.path.expanduser(autostart_dir))
+                    print("Created autostart entry")
+            except Exception as e:
+                print("Failed to create autostart entry", e)
 
     def set_accelerator(self):
         """Register global shortcut for invoking the emoji picker"""
