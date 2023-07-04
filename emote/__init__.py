@@ -49,6 +49,12 @@ class EmoteApplication(Gtk.Application):
 
     def flatpak_autostart(self):
         """Enable autostart in background for flatpak app"""
+        
+        #Variables for location of autostart file, just in case
+        autostart_filename = "com.tomjwatson.Emote.desktop"
+        src_autostart_file = f"{config.flatpak_root}/static/{autostart_filename}"
+        autostart_dir = "~/.config/autostart/"
+        dest_autostart_file = f"{autostart_dir}{autostart_filename}"
         try:
             bus = dbus.SessionBus()
             obj = bus.get_object("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
@@ -58,14 +64,12 @@ class EmoteApplication(Gtk.Application):
                 'autostart': True, 'background': True,
                 'commandline': dbus.Array(['emote'])
             })
+            # If the above code does work some time in the future where it didn't previously, then we delete the .desktop in autostart so that the daemon isn't started twice
+            if(os.path.exists(dest_autostart_file)):
+                os.remove(dest_autostart_file)
         except Exception as e:
             print("Failed to enable autostart in background with xdg-desktop-portal API. Creating autostart entry in ~/.config/autostart/ instead. See following error for more information:", e)
             """Create autostart entry if it doesn't exist"""
-            autostart_filename = "com.tomjwatson.Emote.desktop"
-            src_autostart_file = f"{config.flatpak_root}/static/{autostart_filename}"
-            autostart_dir = "~/.config/autostart/"
-            dest_autostart_file = f"{autostart_dir}{autostart_filename}"
-            
             try:
                 if not os.path.exists(dest_autostart_file):
                     shutil.copy2(src_autostart_file, os.path.expanduser(autostart_dir))
