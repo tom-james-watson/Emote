@@ -49,14 +49,17 @@ class EmoteApplication(Gtk.Application):
 
     def flatpak_autostart(self):
         """Enable autostart in background for flatpak app"""
-        bus = dbus.SessionBus()
-        obj = bus.get_object("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
-        inter = dbus.Interface(obj, "org.freedesktop.portal.Background")
-        res = inter.RequestBackground('', {
-            'reason': 'Emote autostart',
-            'autostart': True, 'background': True,
-            'commandline': dbus.Array(['emote'])
-        })
+        try:
+            bus = dbus.SessionBus()
+            obj = bus.get_object("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
+            inter = dbus.Interface(obj, "org.freedesktop.portal.Background")
+            res = inter.RequestBackground('', {
+                'reason': 'Emote autostart',
+                'autostart': True, 'background': True,
+                'commandline': dbus.Array(['emote'])
+            })
+        except Exception as e:
+            print("Failed to enable autostart:", e)
 
     def set_accelerator(self):
         """Register global shortcut for invoking the emoji picker"""
