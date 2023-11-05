@@ -6,7 +6,8 @@ Standards-Version: 4.6.2.0
 Homepage: https://github.com/tom-james-watson/Emote
 Build-Depends: dh-python,
                python3,
-               debhelper-compat (= 13)
+               debhelper-compat (= 13),
+               python3-setuptools
 
 Package: emote
 Architecture: all
