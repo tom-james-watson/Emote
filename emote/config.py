@@ -1,4 +1,5 @@
 import os
+import platform
 
 app_id = "com.tomjwatson.Emote"
 is_debug = os.environ.get("GTK_DEBUG") == "interactive"
@@ -8,3 +9,4 @@ snap_root = os.environ.get("SNAP")
 is_flatpak = os.environ.get("FLATPAK") is not None
 flatpak_root = os.environ.get("FLATPAK")
 is_wayland = os.environ.get("XDG_SESSION_TYPE", "").lower() == "wayland"
+is_debian = platform.freedesktop_os_release()['ID'] == 'debian' or platform.freedesktop_os_release()['ID_LIKE'] == 'debian'

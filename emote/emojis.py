@@ -55,6 +55,8 @@ def init():
         if config.is_snap
         else f"{config.flatpak_root}/static/emojis.csv"
         if config.is_flatpak
+        else "/usr/share/emote/emojis.csv"
+        if config.is_debian
         else "static/emojis.csv"
     )
 
