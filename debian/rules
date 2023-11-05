@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=emote
+export PY3VERSION := $(shell py3versions -d)
+
+%:
+	dh $@ --buildsystem=pybuild
+
+override_dh_auto_install:
+	dh_auto_install
+
+	dh_install static/com.tomjwatson.Emote.desktop usr/share/applications/
+	dh_install static/emojis.csv usr/share/emote/
+	dh_install static/style.css usr/share/emote/
+	dh_install static/logo.svg usr/share/icons
+	mv debian/emote/usr/share/icons/logo.svg debian/emote/usr/share/icons/com.tomjwatson.Emote.svg
