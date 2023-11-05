@@ -2,6 +2,7 @@
 
 export PYBUILD_NAME=emote
 export PY3VERSION := $(shell py3versions -d)
+export PYTHONDONTWRITEBYTECODE=1
 
 %:
 	dh $@ --buildsystem=pybuild
@@ -21,5 +22,3 @@ override_dh_auto_install:
 
 	mkdir -p debian/emote/usr/lib/python3/dist-packages
 	mv debian/emote/usr/lib/python3.11/dist-packages/Emote-0.0.0.egg-info debian/emote/usr/lib/python3/dist-packages/Emote-0.0.0.egg-info
-
-	rm -rf debian/usr/lib/python3/dist-packages/emote/__pycache__
