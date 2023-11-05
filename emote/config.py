@@ -11,6 +11,6 @@ flatpak_root = os.environ.get("FLATPAK")
 is_wayland = os.environ.get("XDG_SESSION_TYPE", "").lower() == "wayland"
 
 try:
-    is_debian = platform.freedesktop_os_release()['ID'] == 'debian' or platform.freedesktop_os_release()['ID_LIKE'] == 'debian'
+    is_debian = platform.freedesktop_os_release()['ID'] == 'debian' or debian in platform.freedesktop_os_release()['ID_LIKE']
 except:
     is_debian = False
