@@ -14,4 +14,5 @@ override_dh_auto_install:
 	dh_install static/style.css usr/share/emote/
 	dh_install static/logo.svg usr/share/icons
 	mv debian/emote/usr/share/icons/logo.svg debian/emote/usr/share/icons/com.tomjwatson.Emote.svg
-	mv debian/usr/lib/python3.11/dist-packages/emote debian/usr/lib/python3/dist-packages/emote
+	mkdir -p debian/emote/usr/lib/python3/dist-packages
+	mv debian/emote/usr/lib/python3.11/dist-packages/emote debian/usr/emote/lib/python3/dist-packages/emote
