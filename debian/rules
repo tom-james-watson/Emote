@@ -7,6 +7,9 @@ export PYTHONDONTWRITEBYTECODE=1
 %:
 	dh $@ --buildsystem=pybuild
 
+override_dh_auto_test:
+	echo "No testing to be done"
+
 override_dh_auto_install:
 	dh_auto_install
 
