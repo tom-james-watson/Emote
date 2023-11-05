@@ -17,7 +17,7 @@ def load_css():
     elif config.is_flatpak:
         css_provider.load_from_path(f"{config.flatpak_root}/static/style.css")
     elif config.is_debian:
-        css_provider.load_from_path("/usr/share/emote/style.style.css")
+        css_provider.load_from_path("/usr/share/emote/style.css")
     else:
         css_provider.load_from_path("static/style.css")
 
