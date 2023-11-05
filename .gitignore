@@ -4,6 +4,13 @@ dist
 .venv
 venv
 *.snap
+.pybuild
+
+#Debian
+debian/emote*
+debian/files
+debian/debhelper-build-stamp
+debian/.debhelper
 
 # Flatpak
 .flatpak-builder
