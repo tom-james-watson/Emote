@@ -53,7 +53,7 @@ snap-clean:
 	snapcraft clean
 
 debian-build:
-	git archive --format=tgz --output=../emote_4.0.2.orig.tar.gz HEAD
+	git archive --format=tgz --output=../emote_4.1.0.orig.tar.gz HEAD
 	debuild -us -uc
 
 debian-clean:
