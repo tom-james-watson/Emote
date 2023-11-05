@@ -58,3 +58,4 @@ debian-build:
 
 debian-clean:
 	debuild -T clean
+	rm -rf Emote.egg-info
