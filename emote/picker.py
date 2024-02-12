@@ -361,7 +361,11 @@ class EmojiPicker(Gtk.Window):
             logo=logo,
             program_name="Emote",
             title="About Emote",
-            version=os.environ.get("FLATPAK_APP_VERSION", os.environ.get("SNAP_VERSION", "dev build")),
+            version= (
+                os.environ.get("FLATPAK_APP_VERSION", os.environ.get("SNAP_VERSION", "dev build"))
+                if not config.is_debian
+                else open("/usr/share/emote/version", "r").read()
+            ),
             authors=["Tom Watson", "Vincent Emonet"],
             artists=["Tom Watson, Matthew Wong"],
             documenters=["Irene Auñón"],
