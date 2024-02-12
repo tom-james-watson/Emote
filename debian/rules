@@ -13,7 +13,7 @@ override_dh_auto_test:
 override_dh_auto_install:
 	dh_auto_install
 
-	dh_install debian_emote.desktop usr/share/applications/emote.desktop
+	dh_install static/debian_emote.desktop usr/share/applications/emote.desktop
 	dh_install static/emojis.csv usr/share/emote/
 	dh_install static/style.css usr/share/emote/
 	dh_install static/logo.svg usr/share/icons
