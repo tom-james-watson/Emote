@@ -349,6 +349,8 @@ class EmojiPicker(Gtk.Window):
             if config.is_snap
             else f"{config.flatpak_root}/static/logo.svg"
             if config.is_flatpak
+            else "/usr/share/icons/com.tomjwatson.Emote.svg"
+            if config.is_debian
             else "static/logo.svg"
         )
         logo = Pixbuf.new_from_file(logo_path)
