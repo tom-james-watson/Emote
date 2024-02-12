@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Emote
+Type=Application
+GenericName=Emoji picker
+Comment=Modern popup emoji picker
+Exec=emote
+Categories=Utility;GTK;
+Keywords=emoji,smiley,emoticon,icon
+Icon=emote
+Terminal=false
+StartupNotify=false
+X-GNOME-Autostart-enabled=true

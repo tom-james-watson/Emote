@@ -349,7 +349,7 @@ class EmojiPicker(Gtk.Window):
             if config.is_snap
             else f"{config.flatpak_root}/static/logo.svg"
             if config.is_flatpak
-            else "/usr/share/icons/com.tomjwatson.Emote.svg"
+            else "/usr/share/icons/emote.svg"
             if config.is_debian
             else "static/logo.svg"
         )
