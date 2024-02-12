@@ -18,7 +18,7 @@ override_dh_auto_install:
 	dh_install static/style.css usr/share/emote/
 	dh_install static/logo.svg usr/share/icons
 
-	echo $(dpkg-parsechangelog -l debian/changelog --show-field Version) | tee debian/emote/usr/share/emote/version
+	dpkg-parsechangelog --show-field Version | tee debian/emote/usr/share/emote/version
 
 	mv debian/emote/usr/share/icons/logo.svg debian/emote/usr/share/icons/emote.svg
 	
