@@ -5,6 +5,7 @@ dist
 venv
 *.snap
 .pybuild
+*/__pycache__
 
 #Debian
 debian/emote*
