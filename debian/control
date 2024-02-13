@@ -7,8 +7,7 @@ Homepage: https://github.com/tom-james-watson/Emote
 Build-Depends: dh-python,
                python3,
                debhelper-compat (= 13),
-               python3-setuptools,
-               dpkg-dev
+               python3-setuptools
 
 Package: emote
 Architecture: all
@@ -22,4 +21,5 @@ Depends: python3,
          ${misc-python3}
 Recommends: fonts-noto-color-emoji
 Description: Emoji Picker written in GTK3
- Emote is a modern emoji picker for Linux 🚀. Written in GTK3, Emote is lightweight and stays out of your way.
+ Emote is a modern emoji picker for Linux 🚀. Written in GTK3, Emote is
+ lightweight and stays out of your way.
