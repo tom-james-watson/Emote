@@ -28,6 +28,6 @@ override_dh_auto_install:
 	mkdir -p debian/emote/usr/lib/python3/dist-packages
 	mv debian/emote/usr/lib/${PY3VERSION}/dist-packages/Emote-0.0.0.egg-info debian/emote/usr/lib/python3/dist-packages/Emote-0.0.0.egg-info
 
-	dh_install static/emote.1 debian/emote/usr/share/man/man1/
+	dh_install static/emote.1 usr/share/man/man1/
 
 	gzip debian/emote/usr/share/man/man1/emote.1
