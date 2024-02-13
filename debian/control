@@ -7,7 +7,8 @@ Homepage: https://github.com/tom-james-watson/Emote
 Build-Depends: dh-python,
                python3,
                debhelper-compat (= 13),
-               python3-setuptools
+               python3-setuptools,
+               gzip
 
 Package: emote
 Architecture: all
