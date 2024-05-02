@@ -3,7 +3,6 @@ import os
 import sys
 import gi
 import shutil
-import manimpango
 from setproctitle import setproctitle
 
 gi.require_version("Gtk", "3.0")
