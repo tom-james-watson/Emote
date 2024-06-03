@@ -25,14 +25,14 @@ flatpak:
 
 flatpak-install:
 	flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-	flatpak install flathub -y org.flatpak.Builder org.gnome.Platform//44 org.gnome.Sdk//44 org.freedesktop.appstream-glib
+	flatpak install flathub -y org.flatpak.Builder org.gnome.Platform//46 org.gnome.Sdk//46 org.freedesktop.appstream-glib
 	wget -N https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/pip/flatpak-pip-generator
 	chmod +x flatpak-pip-generator
 
 flatpak-requirements:
 	pipenv lock
 	pipenv requirements > requirements.txt
-	pipenv run ./flatpak-pip-generator --runtime='org.gnome.Sdk//44' --output python3-requirements -r requirements.txt
+	pipenv run ./flatpak-pip-generator --runtime='org.gnome.Sdk//46' --output python3-requirements -r requirements.txt
 	mv python3-requirements.json flatpak/python3-requirements.json
 
 flatpak-validate:
