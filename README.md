@@ -85,17 +85,27 @@ Previous Emoji Category: `Ctrl+Shift+Tab`
 Install development libraries:
 
 ```bash
-sudo apt install xdotool libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev desktop-file-utils
+# Debian/Ubuntu
+sudo apt install xdotool libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev desktop-file-utils pipenv flatpak-builder libcairo2-dev libxt-dev
+
 # or with dnf
 sudo dnf install xdotool gtk3-devel keybinder3-devel libgirepository1.0-dev desktop-file-utils gobject-introspection-devel flatpak-builder
 
 sudo dnf install libffi-devel
 ```
 
-Install pipenv:
+You may get this error:
+
+> Neither 'pyenv' nor 'asdf' could be found to install Python.
+> You can specify specific versions of Python with:
+
+If so, run the following command:
 
 ```bash
-sudo pip3 install pipenv
+whereis python
+# Use the output from the above command:
+pipenv --python /usr/bin/python
+
 ```
 
 Install dependencies:
@@ -181,7 +191,7 @@ In case you are facing issues with the cache not properly updating, or need to r
 make flatpak-clean
 ```
 
-To see potential error messages of the flatpak app you can use `journalctl`: 
+To see potential error messages of the flatpak app you can use `journalctl`:
 
 ```bash
 journalctl -f -n 50
