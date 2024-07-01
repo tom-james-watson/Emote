@@ -9,7 +9,10 @@
 
   <metadata_license>FSFAP</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
-  <developer_name translatable="no">Tom Watson</developer_name>
+  <developer_name translate="no">Tom Watson</developer_name>
+  <developer id="io.github.tom-james-watson">
+    <name translate="no">Tom Watson<name>
+  </developer>
 
   <description>
     <p>
@@ -36,7 +39,7 @@
       ⚡️ Emote shows up faster when invoked using the built-in keyboard shortcut (`Ctrl+Alt+E` by default), than when using a manually registered keyboard shortcut.
     </p>
     <p>
-      🪟 Emote under Wayland cannot automatically paste the emoji into other apps, and also requires manual registering of a global keyboard shortcut - <a href="https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland" target="_blank">Hotkey In Wayland</a>. This is due to intentional restrictions in the design of Wayland itself.
+      🪟 Emote under Wayland cannot automatically paste the emoji into other apps, and also requires manual registering of a global keyboard shortcut - (Hotkey In Wayland - github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland). This is due to intentional restrictions in the design of Wayland itself.
     </p>
   </description>
 
@@ -76,8 +79,7 @@
     <control>pointing</control>
     <control>keyboard</control>
     <control>touch</control>
-    <display_length compare="ge">small</display_length>
-    <display_length compare="le">xlarge</display_length>
+    <display_length compare="ge">512</display_length>
   </supports>
   <!-- https://hughsie.github.io/oars/generate.html -->
   <content_rating type="oars-1.1" />
