@@ -44,9 +44,9 @@ or
 sudo snap install emote
 ```
 
-### 🐧 Unofficial installation methods
+### 🐧 Unofficial 3rd party installation methods
 
-An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote.
+An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote. This is not maintained by me, so install at your own risk.
 
 ## 📖 Guide
 
