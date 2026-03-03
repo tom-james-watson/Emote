@@ -15,6 +15,7 @@ Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E`, an
 
 - ⚡️ Emote [shows up faster](https://github.com/tom-james-watson/Emote/issues/54) when invoked using the built-in keyboard shortcut (`Ctrl+Alt+E` by default), than when using a manually registered keyboard shortcut.
 - 🪟 Emote under Wayland cannot automatically paste the emoji into other apps, and also requires manual registering of a global keyboard shortcut - [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland). This is due to intentional restrictions in the design of Wayland itself.
+- Pasting on X11 requires [`xdotool`](https://github.com/jordansissel/xdotool), and on Wayland requires [`ydotool`](https://github.com/ReimuNotMoe/ydotool).
 
 <p align="center">
   <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">

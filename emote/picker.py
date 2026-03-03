@@ -648,7 +648,11 @@ class EmojiPicker(Gtk.Window):
 
         self.destroy()
 
-        if not config.is_wayland:
+        if config.is_wayland:
+            # Paste using Ctrl+Shift+V so it also works in a terminal
+            # Sleeping in the system process and backgrounding it avoids the sleep happening synchronously before the Emote window closes
+            os.system("bash -c 'sleep 0.15; ydotool key 29:1 42:1 47:1 47:0 42:0 29:0' &")
+        else:
             time.sleep(0.15)
             os.system("xdotool key ctrl+v")
 
