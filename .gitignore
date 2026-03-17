@@ -12,3 +12,6 @@ flatpak-pip-generator
 
 # Editors
 .vim
+
+# Python
+__pycache__
