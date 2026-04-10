@@ -68,6 +68,10 @@ SKINTONE_INDEX = "skintone_index"
 DEFAULT_SKINTONE_INDEX = 0
 SKINTONES = ["✋", "✋🏻", "✋🏼", "✋🏽", "✋🏾", "✋🏿"]
 
+WINDOW_POSITION = "window_position"
+DEFAULT_WINDOW_POSITION = "Center"
+WINDOW_POSITIONS = ["Center", "Mouse Cursor"]
+
 
 # Ensure the data dir exists
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -134,3 +138,13 @@ def load_skintone_index():
 def update_skintone_index(skintone):
     with shelve.open(SHELVE_PATH) as db:
         db[SKINTONE_INDEX] = skintone
+
+
+def load_window_position():
+    with shelve.open(SHELVE_PATH) as db:
+        return db.get(WINDOW_POSITION, DEFAULT_WINDOW_POSITION)
+
+
+def update_window_position(window_position):
+    with shelve.open(SHELVE_PATH) as db:
+        db[WINDOW_POSITION] = window_position
