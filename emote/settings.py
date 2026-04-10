@@ -47,6 +47,21 @@ class Settings(Gtk.Dialog):
         settings_grid.attach(theme_combo, 2, row, 1, 1)
         row += 1
 
+        window_position_label = Gtk.Label("Window Position")
+        window_position_label.set_alignment(0, 0.5)
+        settings_grid.attach(window_position_label, 1, row, 1, 1)
+
+        window_position_combo = Gtk.ComboBoxText()
+        window_position_combo.set_entry_text_column(0)
+        window_position_combo.connect("changed", self.on_window_position_combo_changed)
+        for position in user_data.WINDOW_POSITIONS:
+            window_position_combo.append_text(position)
+        window_position_combo.set_active(
+            user_data.WINDOW_POSITIONS.index(user_data.load_window_position())
+        )
+        settings_grid.attach(window_position_combo, 2, row, 1, 1)
+        row += 1
+
         box.pack_start(settings_grid, True, True, GRID_SIZE)
 
         self.show_all()
@@ -57,3 +72,9 @@ class Settings(Gtk.Dialog):
 
         if theme is not None:
             self.update_theme(theme)
+
+    def on_window_position_combo_changed(self, combo):
+        window_position = combo.get_active_text()
+
+        if window_position is not None:
+            user_data.update_window_position(window_position)

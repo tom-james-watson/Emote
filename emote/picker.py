@@ -26,12 +26,21 @@ def grouper(iterable, n, fillvalue=None):
     return zip_longest(*args, fillvalue=fillvalue)
 
 
+WINDOW_POSITION_MAP = {
+    "Center": Gtk.WindowPosition.CENTER,
+    "Mouse Cursor": Gtk.WindowPosition.MOUSE,
+}
+
+
 class EmojiPicker(Gtk.Window):
     def __init__(self, open_time, update_accelerator, update_theme, show_welcome):
+        window_position = WINDOW_POSITION_MAP.get(
+            user_data.load_window_position(), Gtk.WindowPosition.CENTER
+        )
         Gtk.Window.__init__(
             self,
             title="Emote",
-            window_position=Gtk.WindowPosition.CENTER,
+            window_position=window_position,
             resizable=False,
             deletable=False,
             name="emote_window",
