@@ -1,21 +1,28 @@
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk
+gi.require_version("Adw", "1")
+from gi.repository import Adw, Gtk
 
 from emote import config
 
 
-class Guide(Gtk.Window):
+class Guide(Adw.Dialog):
     def __init__(self, picker):
-        super().__init__(title="Emote Guide", transient_for=picker, modal=True)
-        self.set_default_size(430, 280)
+        super().__init__(title="Emote Guide")
+        self.set_content_width(430)
+        self.set_content_height(280)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         box.set_margin_top(24)
         box.set_margin_bottom(24)
         box.set_margin_start(24)
         box.set_margin_end(24)
-        self.set_child(box)
+        toolbar = Adw.ToolbarView()
+        toolbar.add_top_bar(Adw.HeaderBar())
+        scroller = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER)
+        scroller.set_child(box)
+        toolbar.set_content(scroller)
+        self.set_child(toolbar)
 
         self.add_section(box, "Find an emoji", "Search, or scroll through all categories. Select a category above the list to jump to it.")
         self.add_section(box, "Select", "Click an emoji or press Enter to copy it. Right-click or press Shift+Enter to collect multiple emojis.")

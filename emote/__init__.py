@@ -4,13 +4,14 @@ import gi
 from setproctitle import setproctitle
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gio, GLib, Gtk
+gi.require_version("Adw", "1")
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from emote import config, css, emojis, picker, user_data
 from emote.x11_hotkey import X11Hotkey
 
 
-class EmoteApplication(Gtk.Application):
+class EmoteApplication(Adw.Application):
     def __init__(self):
         super().__init__(application_id=config.app_id)
         self.started = False
@@ -26,6 +27,8 @@ class EmoteApplication(Gtk.Application):
             return
 
         if self.picker_window:
+            if not self.picker_window.get_visible():
+                self.picker_window.prepare_for_open()
             self.picker_window.present()
         else:
             self.create_picker_window()
@@ -34,7 +37,6 @@ class EmoteApplication(Gtk.Application):
         setproctitle("emote")
         css.load_css()
         emojis.init()
-        self.apply_saved_theme()
         self.hold()  # Keep the shortcut service alive when the picker is closed.
         self.started = True
 
@@ -45,18 +47,13 @@ class EmoteApplication(Gtk.Application):
         if config.is_flatpak:
             self.flatpak_autostart()
 
-    def apply_saved_theme(self):
-        theme = user_data.load_theme()
-        gtk_settings = Gtk.Settings.get_default()
-        if theme == user_data.DEFAULT_THEME:
-            gtk_settings.reset_property("gtk-theme-name")
-        else:
-            gtk_settings.set_property("gtk-theme-name", theme)
-
     def flatpak_autostart(self):
+        Gio.bus_get(Gio.BusType.SESSION, None, self.on_autostart_bus_ready)
+
+    def on_autostart_bus_ready(self, _source, result):
         try:
-            bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
-            bus.call_sync(
+            bus = Gio.bus_get_finish(result)
+            bus.call(
                 "org.freedesktop.portal.Desktop",
                 "/org/freedesktop/portal/desktop",
                 "org.freedesktop.portal.Background",
@@ -77,7 +74,14 @@ class EmoteApplication(Gtk.Application):
                 Gio.DBusCallFlags.NONE,
                 -1,
                 None,
+                self.on_autostart_request_finished,
             )
+        except Exception as exc:
+            print("Failed to enable autostart:", exc)
+
+    def on_autostart_request_finished(self, bus, result):
+        try:
+            bus.call_finish(result)
         except Exception as exc:
             print("Failed to enable autostart:", exc)
 
@@ -87,7 +91,7 @@ class EmoteApplication(Gtk.Application):
             self.hotkey.bind(accel)
 
     def on_hotkey(self):
-        if self.picker_window:
+        if self.picker_window and self.picker_window.get_visible():
             self.close_picker_window()
         else:
             self.activate()
@@ -102,23 +106,23 @@ class EmoteApplication(Gtk.Application):
             update_accelerator=self.update_accelerator,
             show_welcome=show_welcome,
         )
-        self.picker_window.connect("notify::visible", self.on_picker_visibility)
         self.picker_window.present()
 
-    def on_picker_visibility(self, window, _property):
-        if not window.get_visible() and self.picker_window is window:
-            self.picker_window = None
-
     def close_picker_window(self):
-        if self.picker_window:
+        if self.picker_window and self.picker_window.get_visible():
             window = self.picker_window
-            user_data.update_picker_size(*window.get_default_size())
-            self.picker_window = None
-            window.destroy()
+            width, height = window.get_width(), window.get_height()
+            if width > 0 and height > 0:
+                user_data.update_picker_size(width, height)
+            window.prepare_for_close()
+            window.hide()
 
     def do_shutdown(self):
         if self.hotkey:
             self.hotkey.close()
+        if self.picker_window:
+            self.picker_window.destroy()
+            self.picker_window = None
         Gtk.Application.do_shutdown(self)
 
 

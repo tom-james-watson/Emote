@@ -24,46 +24,6 @@ DEFAULT_ACCELERATOR_LABEL = "Ctrl+Alt+E"
 SHOWN_WELCOME = "shown_welcome"
 DEFAULT_SHOWN_WELCOME = False
 
-THEME = "theme"
-DEFAULT_THEME = "System Default"
-THEMES = [
-    DEFAULT_THEME,
-    "Adwaita",
-    "Adwaita-dark",
-    "Ambiance",
-    "Ambiant-MATE",
-    "Ambiant-MATE-Dark",
-    "Arc",
-    "Arc-Dark",
-    "Arc-Darker",
-    "Breeze",
-    "Breeze-Dark",
-    "Communitheme",
-    "Communitheme-dark",
-    "Communitheme-light",
-    "Greybird",
-    "Greybird-dark",
-    "HighContrast",
-    "Matcha-aliz",
-    "Matcha-azul",
-    "Matcha-dark-aliz",
-    "Matcha-dark-azul",
-    "Matcha-dark-sea",
-    "Matcha-sea",
-    "Materia",
-    "Materia-compact",
-    "Materia-dark",
-    "Materia-dark-compact",
-    "Materia-light",
-    "Materia-light-compact",
-    "Radiance",
-    "Radiant-MATE",
-    "Yaru",
-    "Yaru-dark",
-    "Yaru-light",
-    "elementary",
-]
-
 SKINTONE_INDEX = "skintone_index"
 DEFAULT_SKINTONE_INDEX = 0
 SKINTONES = ["✋", "✋🏻", "✋🏼", "✋🏽", "✋🏾", "✋🏿"]
@@ -128,16 +88,6 @@ def load_shown_welcome():
 def update_shown_welcome():
     with shelve.open(SHELVE_PATH) as db:
         db[SHOWN_WELCOME] = True
-
-
-def load_theme():
-    with shelve.open(SHELVE_PATH) as db:
-        return db.get(THEME, DEFAULT_THEME)
-
-
-def update_theme(theme):
-    with shelve.open(SHELVE_PATH) as db:
-        db[THEME] = theme
 
 
 def normalize_picker_size(size):

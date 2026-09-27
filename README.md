@@ -1,6 +1,6 @@
 # <span><img width="24" height="24" src="https://github.com/tom-james-watson/Emote/blob/master/static/logo.svg"></span> Emote
 
-Emote is a popup emoji picker for Linux. It uses GTK4 and keeps the full emoji catalogue in one continuous, scrollable view.
+Emote is a popup emoji picker for Linux. It uses GTK4 and libadwaita and keeps the full emoji catalogue in one continuous, scrollable view.
 
 On X11, launch the picker with the configurable keyboard shortcut `Ctrl+Alt+E`. Selected emojis are copied to the clipboard and pasted into the previously focused app. On Wayland, create a desktop shortcut to launch Emote and paste from the clipboard yourself.
 
@@ -77,18 +77,20 @@ Previous Emoji Category: `Ctrl+Shift+Tab`
 
 [![Build package](https://github.com/tom-james-watson/Emote/actions/workflows/build.yml/badge.svg)](https://github.com/tom-james-watson/Emote/actions/workflows/build.yml)
 
+Emote follows the system light/dark appearance and supported accent preferences through libadwaita, including on KDE with its desktop portal. It uses Adwaita widgets rather than adopting arbitrary GTK or Qt themes. Previously saved theme selections are ignored.
+
 ### Test this checkout on Linux
 
-Install GTK 4, PyGObject, Pipenv, and the X11 paste helper. On Ubuntu or Debian:
+Install GTK 4, libadwaita 1.5 or newer, PyGObject, Pipenv, and the X11 paste helper. On Ubuntu or Debian:
 
 ```bash
-sudo apt install gir1.2-gtk-4.0 python3-gi python3-venv pipenv xdotool librsvg2-common
+sudo apt install gir1.2-adw-1 gir1.2-gtk-4.0 python3-gi python3-venv pipenv xdotool librsvg2-common
 ```
 
 On Fedora:
 
 ```bash
-sudo dnf install gtk4 python3-gobject pipenv xdotool rsvg-pixbuf-loader
+sudo dnf install libadwaita gtk4 python3-gobject pipenv xdotool rsvg-pixbuf-loader
 ```
 
 From a checkout of the branch you want to test:

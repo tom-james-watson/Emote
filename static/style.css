@@ -28,9 +28,10 @@
 .emoji-cell {
   min-width: 0;
   min-height: 38px;
-  padding: 0;
+  padding: 4px 0 0;
   margin: 0;
   font-size: 24px;
+  transition: none;
 }
 
 .picker.emoji-size-20 .emoji-cell {
@@ -59,7 +60,7 @@
 }
 
 .emoji-cell.keyboard-selected {
-  background-color: alpha(currentColor, 0.09);
+  background-color: alpha(@accent_bg_color, 0.18);
 }
 
 .preview-footer {
