@@ -9,9 +9,20 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gdk, Gio, GLib, GObject, Gtk, Pango
 
-from emote import config, debouncer, emojis, guide, keyboard_shortcuts, settings, user_data
+from emote import config, css, debouncer, emojis, guide, keyboard_shortcuts, settings, user_data
 
 CATEGORY_ICONS = {
+    "recent": "emote-category-recent-symbolic",
+    "smileys-people": "emote-category-smileys-people-symbolic",
+    "animals-nature": "emote-category-animals-nature-symbolic",
+    "food-drink": "emote-category-food-drink-symbolic",
+    "activities": "emote-category-activities-symbolic",
+    "travel-places": "emote-category-travel-places-symbolic",
+    "objects": "emote-category-objects-symbolic",
+    "symbols": "emote-category-symbols-symbolic",
+    "flags": "emote-category-flags-symbolic",
+}
+FALLBACK_CATEGORY_ICONS = {
     "recent": "emoji-recent-symbolic",
     "smileys-people": "emoji-people-symbolic",
     "animals-nature": "emoji-nature-symbolic",
@@ -22,6 +33,7 @@ CATEGORY_ICONS = {
     "symbols": "emoji-symbols-symbolic",
     "flags": "emoji-flags-symbolic",
 }
+
 
 
 class PickerRow(GObject.Object):
@@ -172,8 +184,9 @@ class EmojiPicker(Gtk.ApplicationWindow):
                 first_button = button
             else:
                 button.set_group(first_button)
-            image = Gtk.Image.new_from_icon_name(CATEGORY_ICONS[category])
-            image.set_pixel_size(22)
+            icon_names = CATEGORY_ICONS if css.category_icons_ready else FALLBACK_CATEGORY_ICONS
+            image = Gtk.Image.new_from_icon_name(icon_names[category])
+            image.set_pixel_size(20)
             image.add_css_class("dim-label")
             button.set_child(image)
             button.set_tooltip_text(label)

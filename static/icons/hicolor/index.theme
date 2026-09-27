@@ -1,0 +1,11 @@
+[Icon Theme]
+Name=Emote category icons
+Comment=App specific category icons
+Directories=scalable/actions
+
+[scalable/actions]
+Size=24
+MinSize=16
+MaxSize=48
+Type=Scalable
+Context=Actions

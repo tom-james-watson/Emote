@@ -82,13 +82,13 @@ Previous Emoji Category: `Ctrl+Shift+Tab`
 Install GTK 4, PyGObject, Pipenv, and the X11 paste helper. On Ubuntu or Debian:
 
 ```bash
-sudo apt install gir1.2-gtk-4.0 python3-gi python3-venv pipenv xdotool
+sudo apt install gir1.2-gtk-4.0 python3-gi python3-venv pipenv xdotool librsvg2-common
 ```
 
 On Fedora:
 
 ```bash
-sudo dnf install gtk4 python3-gobject pipenv xdotool
+sudo dnf install gtk4 python3-gobject pipenv xdotool rsvg-pixbuf-loader
 ```
 
 From a checkout of the branch you want to test:
@@ -241,3 +241,5 @@ snapcraft push --release=edge <path to .snap>
 ## 🤝 Attribution
 
 Emoji data is sourced from https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv which is compiled by the lovely people at https://openmoji.org 🫠.
+
+Category icons include artwork from [Lucide](https://lucide.dev/). The bundled icon license is in `static/icons/LICENSE`.
