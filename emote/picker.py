@@ -73,7 +73,8 @@ class EmojiPicker(Adw.ApplicationWindow):
         self.update_accelerator = update_accelerator
         self.set_default_size(*user_data.load_picker_size())
         self.set_size_request(-1, 300)
-        self.set_resizable(True)
+        self.set_resizable(False)
+        self.set_decorated(False)
         self.set_hide_on_close(False)
 
         self.appended = []
@@ -98,6 +99,7 @@ class EmojiPicker(Adw.ApplicationWindow):
         self.search_scroll_restore_target = None
         self.searching = False
         self.was_active = False
+        self.pointer_in_picker = False
         self.pending_inactive_close = None
         self.recent_dirty = False
         self.search_debouncer = debouncer.SearchDebouncer(self.apply_search)
@@ -125,6 +127,10 @@ class EmojiPicker(Adw.ApplicationWindow):
         keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
         keys.connect("key-pressed", self.on_key_pressed)
         self.add_controller(keys)
+        pointer = Gtk.EventControllerMotion.new()
+        pointer.connect("enter", self.on_pointer_enter)
+        pointer.connect("leave", self.on_pointer_leave)
+        self.add_controller(pointer)
         self.connect("notify::is-active", self.on_active_changed)
         self.connect("close-request", self.on_close_request)
 
@@ -303,6 +309,7 @@ class EmojiPicker(Adw.ApplicationWindow):
         GLib.idle_add(self.search_entry.grab_focus)
 
     def prepare_for_close(self):
+        self.pointer_in_picker = False
         self.search_debouncer.cancel()
         self.cancel_search_scroll_restore()
         self.category_jump = None
@@ -733,10 +740,23 @@ class EmojiPicker(Adw.ApplicationWindow):
         self.get_application().close_picker_window()
         return True
 
+    def on_pointer_enter(self, _controller, _x, _y):
+        self.pointer_in_picker = True
+
+    def on_pointer_leave(self, controller):
+        event = controller.get_current_event()
+        # A window-manager grab can synthesize a leave without the pointer
+        # actually moving out of the picker.
+        if (
+            isinstance(event, Gdk.CrossingEvent)
+            and event.get_mode() == Gdk.CrossingMode.NORMAL
+        ):
+            self.pointer_in_picker = False
+
     def on_active_changed(self, _window, _property):
         if self.is_active():
             self.was_active = True
-        elif self.was_active:
+        elif self.was_active and not self.pointer_in_picker:
             self.schedule_inactive_close()
 
     def on_menu_active_changed(self, button, _property):
