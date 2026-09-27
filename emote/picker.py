@@ -120,17 +120,9 @@ class EmojiPicker(Gtk.ApplicationWindow):
         self.search_entry.connect("search-changed", self.on_search_changed)
         bar.append(self.search_entry)
 
-        tone_options = (
-            "Default",
-            "Light",
-            "Medium-light",
-            "Medium",
-            "Medium-dark",
-            "Dark",
-        )
         tone_menu = Gio.Menu()
-        for index, (hand, label) in enumerate(zip(user_data.SKINTONES, tone_options)):
-            item = Gio.MenuItem.new(f"{hand}  {label}", None)
+        for index, hand in enumerate(user_data.SKINTONES):
+            item = Gio.MenuItem.new(hand, None)
             item.set_action_and_target_value("win.skin-tone", GLib.Variant("i", index))
             tone_menu.append_item(item)
 
