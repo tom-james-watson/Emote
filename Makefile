@@ -1,17 +1,16 @@
-OS := $(shell uname)
-.PHONY: dev dev-debug install update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub snap snap-clean
+.PHONY: dev dev-debug format install clean update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub snap snap-clean
 
 dev:
-	ENV=dev GDK_BACKEND="x11" pipenv run start
+	ENV=dev pipenv run start
 
 dev-debug:
-	GTK_DEBUG=interactive GDK_BACKEND="x11" ENV=dev pipenv run start
+	GTK_DEBUG=interactive ENV=dev pipenv run start
 
 format:
 	pipenv run black emote
 
 install:
-	pipenv install -d
+	pipenv install --site-packages -d
 
 clean:
 	rm -r .flatpak-builder build/
@@ -21,18 +20,17 @@ update-emojis:
 
 flatpak:
 	flatpak-builder --user --install --force-clean build com.tomjwatson.Emote.yml
-	flatpak run com.tomjwatson.Emote
 
 flatpak-install:
 	flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-	flatpak install flathub -y org.flatpak.Builder org.gnome.Platform//44 org.gnome.Sdk//44 org.freedesktop.appstream-glib
+	flatpak install flathub -y org.flatpak.Builder org.gnome.Platform//50 org.gnome.Sdk//50 org.freedesktop.appstream-glib
 	wget -N https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/pip/flatpak-pip-generator
 	chmod +x flatpak-pip-generator
 
 flatpak-requirements:
 	pipenv lock
 	pipenv requirements > requirements.txt
-	pipenv run ./flatpak-pip-generator --runtime='org.gnome.Sdk//44' --output python3-requirements -r requirements.txt
+	pipenv run ./flatpak-pip-generator --runtime='org.gnome.Sdk//50' --output python3-requirements -r requirements.txt
 	mv python3-requirements.json flatpak/python3-requirements.json
 
 flatpak-validate:

@@ -15,10 +15,10 @@ jobs:
     name: Build Flatpak
     runs-on: ubuntu-latest
     container:
-      image: bilelmoussaoui/flatpak-github-actions:gnome-44
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
       options: --privileged
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.1
       with:
@@ -34,7 +34,7 @@ jobs:
     outputs:
       snap-file: ${{ steps.build-snap.outputs.snap }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: snapcore/action-build@v1
       id: build-snap
@@ -44,7 +44,7 @@ jobs:
 
     # - run: emote
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: emote-pkg
         path: ${{ steps.build-snap.outputs.snap }}

@@ -1,28 +1,27 @@
 # <span><img width="24" height="24" src="https://github.com/tom-james-watson/Emote/blob/master/static/logo.svg"></span> Emote
 
-Emote is a modern emoji picker for Linux 🚀. Written in GTK3, Emote is lightweight and stays out of your way.
+Emote is a popup emoji picker for Linux. It uses GTK4 and keeps the full emoji catalogue in one continuous, scrollable view.
 
-Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E`, and select one or more emojis to have them be automatically pasted into your currently focused app.
+On X11, launch the picker with the configurable keyboard shortcut `Ctrl+Alt+E`. Selected emojis are copied to the clipboard and pasted into the previously focused app. On Wayland, create a desktop shortcut to launch Emote and paste from the clipboard yourself.
 
 - 🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window
-- 🫠 Provide a large and up-to-date list of emojis retrieved from [openmoji.org](https://openmoji.org/)
-- 🧠 Shows the last used emojis by default
+- 🫠 Includes a large list of emojis retrieved from [openmoji.org](https://openmoji.org/)
+- 📜 Scroll continuously between categories, or select a category to jump to it
+- 🧠 Shows up to two rows of recently used emojis
+- 🔧 Adjust emoji size in Preferences; the grid reflows to fit
 - 🔎 Search text box automatically focused and ready to type when invoked
-- ⌨️ Can use shortcuts to navigates and select emojis
+- ⌨️ Use keyboard shortcuts to navigate and select emojis
 - ✒️ Selected emoji automatically pasted to your currently focused app (on X11 only)
 
-ℹ️ Note:
-
-- ⚡️ Emote [shows up faster](https://github.com/tom-james-watson/Emote/issues/54) when invoked using the built-in keyboard shortcut (`Ctrl+Alt+E` by default), than when using a manually registered keyboard shortcut.
-- 🪟 Emote under Wayland cannot automatically paste the emoji into other apps, and also requires manual registering of a global keyboard shortcut - [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland). This is due to intentional restrictions in the design of Wayland itself.
+ℹ️ On Wayland, Emote copies the selected emoji to the clipboard. Automatic pasting and an app-owned global shortcut are not available yet. Set a desktop shortcut to launch Emote; see [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland).
 
 <p align="center">
-  <img width="500" src="https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png">
+  <img width="500" src="images/gtk4-preview.png" alt="GTK4 Emote picker with continuous emoji categories">
 </p>
 
 ## 📥️ Installation
 
-Emote can be installed using various popular package managers:
+The Flatpak and Snap store releases may not include the changes shown on this branch yet. To test this checkout, follow [Development](#-development). Released versions are available through these package managers:
 
 ### 📦️ Install with Flatpak (preferred)
 
@@ -52,19 +51,17 @@ An unofficial build of Emote is also available in the AUR : https://aur.archlinu
 
 ### 🚀 Launching
 
-Emote runs in the background and automatically starts when you log in.
-
-The emoji picker can be opened with either the keyboard shortcut, or by clicking the app icon again.
+The Flatpak requests background permission for login startup, and the Snap has an autostart entry. You can also launch Emote from the app menu. On X11, use the configurable `Ctrl+Alt+E` shortcut to open the picker. On Wayland, assign a desktop keyboard shortcut to launch Emote.
 
 ### ℹ️ Usage
 
-Select an emoji to and have it be pasted to your currently focused app. The emoji will also be copied to your clipboard, so you can then paste the emoji wherever you need.
+Select an emoji to copy it to the clipboard. On X11, Emote also pastes it into the previously focused app. On Wayland, paste it yourself with your desktop’s usual shortcut.
 
-You can select multiple emojis by selecting them with right click.
+Right-click an emoji to add it to a selection of multiple emojis.
 
 ### ⌨️ Keyboard Shortcuts
 
-Open Emoji Picker: `Ctrl+Alt+E` (configurable)
+Open Emoji Picker: `Ctrl+Alt+E` (configurable on X11; use a desktop shortcut on Wayland)
 
 Select Emoji: `Enter`
 
@@ -80,37 +77,30 @@ Previous Emoji Category: `Ctrl+Shift+Tab`
 
 [![Build package](https://github.com/tom-james-watson/Emote/actions/workflows/build.yml/badge.svg)](https://github.com/tom-james-watson/Emote/actions/workflows/build.yml)
 
-### 📥️ Requirements
+### Test this checkout on Linux
 
-Install development libraries:
-
-```bash
-sudo apt install xdotool libgtk-3-dev libgirepository1.0-dev python3-venv gir1.2-keybinder-3.0 libkeybinder-dev desktop-file-utils
-# or with dnf
-sudo dnf install xdotool gtk3-devel keybinder3-devel libgirepository1.0-dev desktop-file-utils gobject-introspection-devel flatpak-builder
-
-sudo dnf install libffi-devel
-```
-
-Install pipenv:
+Install GTK 4, PyGObject, Pipenv, and the X11 paste helper. On Ubuntu or Debian:
 
 ```bash
-sudo pip3 install pipenv
+sudo apt install gir1.2-gtk-4.0 python3-gi python3-venv pipenv xdotool
 ```
 
-Install dependencies:
+On Fedora:
+
+```bash
+sudo dnf install gtk4 python3-gobject pipenv xdotool
+```
+
+From a checkout of the branch you want to test:
 
 ```bash
 make install
-```
-
-### 🛩️ Running
-
-Run the development version:
-
-```bash
 make dev
 ```
+
+`make dev` runs the application in the foreground. Leave that terminal open, then launch Emote again from a second terminal with `make dev` to show the picker. On X11, you can also use `Ctrl+Alt+E` after the application starts. On Wayland, use a desktop shortcut to launch it and paste selected emojis from the clipboard.
+
+`make dev-debug` launches with GtkInspector. The source checkout uses `~/.local/share/Emote` for settings and recently used emojis.
 
 ### 🔄 Update emojis
 
@@ -120,7 +110,7 @@ To update the list of emojis to the latest available on [openmoji.org](https://o
 make update-emojis
 ```
 
-### 🐞 Debugging GTK3 with GtkInspector
+### 🐞 Debugging GTK4 with GtkInspector
 
 Enable debug keybinding:
 
@@ -138,12 +128,12 @@ make dev-debug
 
 ### Releasing a new version
 
-1. Bump the version number in `snapcraft.yaml` for snap and in `meson.build` for flatpak.
-2. Add a release entry to the `com.tomjwatson.Emote.metainfo.xml`.
+1. Bump the version in `snap/snapcraft.yaml` for Snap and `meson.build` for Flatpak.
+2. Add a release entry to `flatpak/com.tomjwatson.Emote.metainfo.xml`.
 
 ### 📦️ Package with Flatpak
 
-To develop locally you will need to have [`flatpak`](https://flatpak.org/setup/) installed.
+To build the Flatpak locally, install [`flatpak`](https://flatpak.org/setup/). The manifest currently targets the GNOME 50 runtime.
 
 #### Install
 
@@ -161,13 +151,13 @@ make flatpak-requirements
 
 #### Build
 
-Build the flatpak package and install it locally:
+Build the Flatpak and install it locally:
 
 ```bash
 make flatpak
 ```
 
-Run Emote with flatpak (can also be done from the desktop entry):
+Launch the installed Flatpak (or use its desktop entry):
 
 ```bash
 flatpak run com.tomjwatson.Emote
@@ -214,10 +204,16 @@ Ensure you have `snapcraft` installed:
 sudo snap install --classic snapcraft
 ```
 
-Create a packaged `.snap` file:
+Create a packaged `.snap` file (Snapcraft can build in an LXD or Multipass environment):
 
 ```bash
 make snap
+```
+
+Install the resulting package locally to test it:
+
+```bash
+sudo snap install --dangerous ./emote_*.snap
 ```
 
 Clean the cache:

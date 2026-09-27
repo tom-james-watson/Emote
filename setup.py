@@ -10,5 +10,5 @@ setup(
             "emote = emote.__init__:main",
         ]
     },
-    install_requires=["setproctitle==1.3.2", "dbus-python==1.2.18"],
+    install_requires=["setproctitle==1.3.7", "python-xlib==0.33"],
 )

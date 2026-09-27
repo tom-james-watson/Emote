@@ -6,10 +6,6 @@ then
   ln -sfnt $SNAP_USER_DATA/.config/autostart/ $SNAP/meta/gui/emote.desktop
 fi
 
-# Force Wayland sessions to use XWayland. Some parts of GTK such as the
-# clipboard management do no yet work under wayland.
-export GDK_BACKEND="x11"
-
 # Workaround for https://bugs.launchpad.net/snapcraft/+bug/1998269.
 # On ubuntu-derived systems, we end up with tiny emojis without this.
 # If we apply this fix on other systems then fonts end up messed up.

@@ -68,6 +68,20 @@ SKINTONE_INDEX = "skintone_index"
 DEFAULT_SKINTONE_INDEX = 0
 SKINTONES = ["✋", "✋🏻", "✋🏼", "✋🏽", "✋🏾", "✋🏿"]
 
+PICKER_SIZE = "picker_size"
+DEFAULT_PICKER_SIZE = (515, 500)
+
+EMOJI_SIZE = "emoji_size"
+DEFAULT_EMOJI_SIZE = 28
+EMOJI_SIZES = (20, 24, 28, 32, 36)
+EMOJI_SIZE_LABELS = (
+    "Small (20 px)",
+    "Compact (24 px)",
+    "Default (28 px)",
+    "Large (32 px)",
+    "Extra large (36 px)",
+)
+
 
 # Ensure the data dir exists
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -124,6 +138,41 @@ def load_theme():
 def update_theme(theme):
     with shelve.open(SHELVE_PATH) as db:
         db[THEME] = theme
+
+
+def normalize_picker_size(size):
+    try:
+        width, height = size
+        return max(460, int(width)), max(300, int(height))
+    except (TypeError, ValueError):
+        return DEFAULT_PICKER_SIZE
+
+
+def load_picker_size():
+    with shelve.open(SHELVE_PATH) as db:
+        return normalize_picker_size(db.get(PICKER_SIZE, DEFAULT_PICKER_SIZE))
+
+
+def update_picker_size(width, height):
+    with shelve.open(SHELVE_PATH) as db:
+        db[PICKER_SIZE] = normalize_picker_size((width, height))
+
+
+def normalize_emoji_size(size):
+    try:
+        return min(EMOJI_SIZES, key=lambda option: abs(option - float(size)))
+    except (TypeError, ValueError, OverflowError):
+        return DEFAULT_EMOJI_SIZE
+
+
+def load_emoji_size():
+    with shelve.open(SHELVE_PATH) as db:
+        return normalize_emoji_size(db.get(EMOJI_SIZE, DEFAULT_EMOJI_SIZE))
+
+
+def update_emoji_size(size):
+    with shelve.open(SHELVE_PATH) as db:
+        db[EMOJI_SIZE] = normalize_emoji_size(size)
 
 
 def load_skintone_index():

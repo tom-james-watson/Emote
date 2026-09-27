@@ -1,128 +1,126 @@
-import dbus
-import os
 import sys
+
 import gi
-import shutil
 from setproctitle import setproctitle
 
-gi.require_version("Gtk", "3.0")
-gi.require_version("Keybinder", "3.0")
-from gi.repository import Gtk, Keybinder
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gio, GLib, Gtk
 
-from emote import picker, css, emojis, user_data, config
-
-settings = Gtk.Settings.get_default()
+from emote import config, css, emojis, picker, user_data
+from emote.x11_hotkey import X11Hotkey
 
 
 class EmoteApplication(Gtk.Application):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, application_id="com.tomjwatson.Emote", **kwargs)
-
-        self.activated = False
+    def __init__(self):
+        super().__init__(application_id=config.app_id)
+        self.started = False
         self.picker_window = None
+        self.hotkey = None
+
+    def do_activate(self):
+        if not self.started:
+            self.start_daemon()
+            if not user_data.load_shown_welcome():
+                self.create_picker_window(show_welcome=True)
+                user_data.update_shown_welcome()
+            return
+
+        if self.picker_window:
+            self.picker_window.present()
+        else:
+            self.create_picker_window()
 
     def start_daemon(self):
         setproctitle("emote")
-
-        if not config.is_wayland:
-            Keybinder.init()
-            self.set_accelerator()
-
         css.load_css()
         emojis.init()
+        self.apply_saved_theme()
+        self.hold()  # Keep the shortcut service alive when the picker is closed.
+        self.started = True
 
-        self.activated = True
-
-        # The first time the app launches, open the picker and show the
-        # guide
-        if not user_data.load_shown_welcome():
-            self.create_picker_window(True)
-            user_data.update_shown_welcome()
+        if not config.is_wayland:
+            self.hotkey = X11Hotkey(self.on_hotkey)
+            self.set_accelerator()
 
         if config.is_flatpak:
             self.flatpak_autostart()
-        self.set_theme()
 
-        # Run the main gtk event loop - this prevents the app from quitting
-        Gtk.main()
+    def apply_saved_theme(self):
+        theme = user_data.load_theme()
+        gtk_settings = Gtk.Settings.get_default()
+        if theme == user_data.DEFAULT_THEME:
+            gtk_settings.reset_property("gtk-theme-name")
+        else:
+            gtk_settings.set_property("gtk-theme-name", theme)
 
     def flatpak_autostart(self):
-        """Enable autostart in background for flatpak app"""
         try:
-            bus = dbus.SessionBus()
-            obj = bus.get_object("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
-            inter = dbus.Interface(obj, "org.freedesktop.portal.Background")
-            res = inter.RequestBackground('', {
-                'reason': 'Emote autostart',
-                'autostart': True, 'background': True,
-                'commandline': dbus.Array(['emote'])
-            })
-        except Exception as e:
-            print("Failed to enable autostart:", e)
+            bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+            bus.call_sync(
+                "org.freedesktop.portal.Desktop",
+                "/org/freedesktop/portal/desktop",
+                "org.freedesktop.portal.Background",
+                "RequestBackground",
+                GLib.Variant(
+                    "(sa{sv})",
+                    (
+                        "",
+                        {
+                            "reason": GLib.Variant("s", "Emote autostart"),
+                            "autostart": GLib.Variant("b", True),
+                            "background": GLib.Variant("b", True),
+                            "commandline": GLib.Variant("as", ["emote"]),
+                        },
+                    ),
+                ),
+                GLib.VariantType.new("(o)"),
+                Gio.DBusCallFlags.NONE,
+                -1,
+                None,
+            )
+        except Exception as exc:
+            print("Failed to enable autostart:", exc)
 
     def set_accelerator(self):
-        """Register global shortcut for invoking the emoji picker"""
-        accel_string, _ = user_data.load_accelerator()
+        if self.hotkey:
+            accel, _ = user_data.load_accelerator()
+            self.hotkey.bind(accel)
 
-        if accel_string:
-            Keybinder.bind(accel_string, self.handle_accelerator)
-
-    def set_theme(self):
-        """Set the GTK theme to be used for the app windows"""
-        theme = user_data.load_theme()
-
-        print(f'Setting theme New=[{theme}] Current=[{settings.get_property("gtk-theme-name")}]')
-        if theme != user_data.DEFAULT_THEME:
-            print(f"Setting theme to {theme}")
-            settings.set_property("gtk-theme-name", theme)
-        else:
-            settings.reset_property("gtk-theme-name")
-
-    def unset_accelerator(self):
-        old_accel_string, _ = user_data.load_accelerator()
-
-        if old_accel_string:
-            Keybinder.unbind(old_accel_string)
-
-    def handle_accelerator(self, keystring):
+    def on_hotkey(self):
         if self.picker_window:
-            self.picker_window.destroy()
+            self.close_picker_window()
         else:
-            self.create_picker_window()
+            self.activate()
 
-    def update_accelerator(self, accel_string, accel_label):
-        print(f"Updating global shortcut to {accel_label}")
-        self.unset_accelerator()
-        user_data.update_accelerator(accel_string, accel_label)
+    def update_accelerator(self, accel, label):
+        user_data.update_accelerator(accel, label)
         self.set_accelerator()
 
-    def update_theme(self, theme):
-        user_data.update_theme(theme)
-        self.set_theme()
-
     def create_picker_window(self, show_welcome=False):
-        if self.picker_window:
-            self.picker_window.destroy()
         self.picker_window = picker.EmojiPicker(
-            Keybinder.get_current_event_time(),
-            self.update_accelerator,
-            self.update_theme,
-            show_welcome,
+            application=self,
+            update_accelerator=self.update_accelerator,
+            show_welcome=show_welcome,
         )
-        self.picker_window.connect("destroy", self.handle_picker_destroy)
+        self.picker_window.connect("notify::visible", self.on_picker_visibility)
+        self.picker_window.present()
 
-    def handle_picker_destroy(self, *args):
-        self.picker_window = None
+    def on_picker_visibility(self, window, _property):
+        if not window.get_visible() and self.picker_window is window:
+            self.picker_window = None
 
-    def do_activate(self):
-        if not self.activated:
-            print("Launching emote daemon")
-            self.start_daemon()
-        else:
-            print("Second instance launched")
-            self.create_picker_window()
+    def close_picker_window(self):
+        if self.picker_window:
+            window = self.picker_window
+            user_data.update_picker_size(*window.get_default_size())
+            self.picker_window = None
+            window.destroy()
+
+    def do_shutdown(self):
+        if self.hotkey:
+            self.hotkey.close()
+        Gtk.Application.do_shutdown(self)
 
 
 def main():
-    app = EmoteApplication()
-    app.run(sys.argv)
+    return EmoteApplication().run(sys.argv)

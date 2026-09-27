@@ -1,92 +1,75 @@
 import gi
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gdk, Gtk
+
 from emote import config, user_data
-from emote.keybinding import ButtonKeybinding
 
 
-GRID_SIZE = 10
-
-
-class KeyboardShortcuts(Gtk.Dialog):
-    def __init__(self, update_accelerator):
-        Gtk.Dialog.__init__(
-            self,
-            title="Emote Keyboard Shortcuts",
-            window_position=Gtk.WindowPosition.CENTER,
-            resizable=False,
-        )
-
+class KeyboardShortcuts(Gtk.Window):
+    def __init__(self, picker, update_accelerator):
+        super().__init__(title="Keyboard Shortcuts", transient_for=picker, modal=True)
         self.update_accelerator = update_accelerator
-
-        header = Gtk.HeaderBar(title="Keyboard Shortcuts", show_close_button=True)
-        self.set_titlebar(header)
-
-        box = self.get_content_area()
-
-        shortcuts_grid = Gtk.Grid(
-            orientation=Gtk.Orientation.VERTICAL,
-            margin=GRID_SIZE,
-            row_spacing=GRID_SIZE,
-        )
-        shortcuts_grid.set_row_homogeneous(False)
-        shortcuts_grid.set_column_homogeneous(True)
-
-        row = 1
+        self.recording = False
+        self.set_default_size(400, 260)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        box.set_margin_top(24)
+        box.set_margin_bottom(24)
+        box.set_margin_start(24)
+        box.set_margin_end(24)
+        self.set_child(box)
 
         if not config.is_wayland:
-            open_label = Gtk.Label("Open Emoji Picker")
-            open_label.set_alignment(0, 0.5)
-            shortcuts_grid.attach(open_label, 1, row, 1, 1)
-            open_keybinding = ButtonKeybinding()
-            open_keybinding.set_size_request(150, -1)
-            open_keybinding.connect("accel-edited", self.on_kb_changed)
-            open_keybinding.connect("accel-cleared", self.on_kb_changed)
-            accel_string, _ = user_data.load_accelerator()
-            open_keybinding.set_accel_string(accel_string)
-            shortcuts_grid.attach(open_keybinding, 2, row, 1, 1)
-            row += 1
+            row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+            row.append(Gtk.Label(label="Open Emoji Picker", xalign=0, hexpand=True))
+            self.record_button = Gtk.Button(label=user_data.load_accelerator()[1])
+            self.record_button.connect("clicked", self.start_recording)
+            row.append(self.record_button)
+            box.append(row)
 
-        select_label = Gtk.Label("Select Emoji")
-        select_label.set_alignment(0, 0.5)
-        shortcuts_grid.attach(select_label, 1, row, 1, 1)
-        select_shortcut = Gtk.ShortcutsShortcut(accelerator="Return")
-        shortcuts_grid.attach(select_shortcut, 2, row, 1, 1)
-        row += 1
+        for label, binding in (
+            ("Select Emoji", "Enter"),
+            ("Add to Selection", "Shift+Enter"),
+            ("Focus Search", "Ctrl+F"),
+            ("Next Category", "Ctrl+Tab"),
+            ("Previous Category", "Ctrl+Shift+Tab"),
+        ):
+            row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+            row.append(Gtk.Label(label=label, xalign=0, hexpand=True))
+            shortcut = Gtk.Label(label=binding)
+            shortcut.add_css_class("dim-label")
+            row.append(shortcut)
+            box.append(row)
 
-        select_multi_label = Gtk.Label("Add Emoji to Selection")
-        select_multi_label.set_alignment(0, 0.5)
-        shortcuts_grid.attach(select_multi_label, 1, row, 1, 1)
-        select_multi_shortcut = Gtk.ShortcutsShortcut(accelerator="<Shift>+Return")
-        shortcuts_grid.attach(select_multi_shortcut, 2, row, 1, 1)
-        row += 1
+        keys = Gtk.EventControllerKey.new()
+        keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        keys.connect("key-pressed", self.on_key_pressed)
+        self.add_controller(keys)
 
-        search_label = Gtk.Label("Focus Search")
-        search_label.set_alignment(0, 0.5)
-        shortcuts_grid.attach(search_label, 1, row, 1, 1)
-        search_shortcut = Gtk.ShortcutsShortcut(accelerator="<Ctrl>+F")
-        shortcuts_grid.attach(search_shortcut, 2, row, 1, 1)
-        row += 1
+    def start_recording(self, _button):
+        self.recording = True
+        self.record_button.set_label("Press a shortcut…")
 
-        next_cat_label = Gtk.Label("Next Emoji Category")
-        next_cat_label.set_alignment(0, 0.5)
-        shortcuts_grid.attach(next_cat_label, 1, row, 1, 1)
-        next_cat_shortcut = Gtk.ShortcutsShortcut(accelerator="<Ctrl>+Tab")
-        shortcuts_grid.attach(next_cat_shortcut, 2, row, 1, 1)
-        row += 1
+    def on_key_pressed(self, _controller, keyval, _keycode, state):
+        if not self.recording:
+            return False
+        if keyval == Gdk.KEY_Escape:
+            self.record_button.set_label(user_data.load_accelerator()[1])
+            self.recording = False
+            return True
+        if keyval == Gdk.KEY_BackSpace:
+            self.update_accelerator("", "Unassigned")
+            self.record_button.set_label("Unassigned")
+            self.recording = False
+            return True
 
-        prev_cat_label = Gtk.Label("Previous Emoji Category")
-        prev_cat_label.set_alignment(0, 0.5)
-        shortcuts_grid.attach(prev_cat_label, 1, row, 1, 1)
-        prev_cat_label = Gtk.ShortcutsShortcut(accelerator="<Ctrl>+<Shift>+Tab")
-        shortcuts_grid.attach(prev_cat_label, 2, row, 1, 1)
-        row += 1
-
-        box.pack_start(shortcuts_grid, True, True, GRID_SIZE)
-
-        self.show_all()
-        self.present()
-
-    def on_kb_changed(self, button_keybinding, accel_string=None, accel_label=None):
-        self.update_accelerator(accel_string, accel_label)
+        modifiers = state & Gtk.accelerator_get_default_mod_mask()
+        if not modifiers:
+            self.record_button.set_label("Include Ctrl, Alt, or Super")
+            return True
+        accelerator = Gtk.accelerator_name(keyval, modifiers)
+        label = Gtk.accelerator_get_label(keyval, modifiers)
+        self.update_accelerator(accelerator, label)
+        self.record_button.set_label(label)
+        self.recording = False
+        return True
