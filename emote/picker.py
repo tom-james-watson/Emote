@@ -226,12 +226,7 @@ class EmojiPicker(Adw.ApplicationWindow):
         self.preview_name.add_css_class("preview-name")
         self.preview_name.add_css_class("heading")
         self.preview_name.set_ellipsize(Pango.EllipsizeMode.END)
-        self.preview_shortcode = Gtk.Label(xalign=0)
-        self.preview_shortcode.add_css_class("preview-shortcode")
-        self.preview_shortcode.add_css_class("dim-label")
-        self.preview_shortcode.set_ellipsize(Pango.EllipsizeMode.END)
         labels.append(self.preview_name)
-        labels.append(self.preview_shortcode)
         self.footer.append(labels)
 
         self.selection_label = Gtk.Label()
@@ -884,12 +879,10 @@ class EmojiPicker(Adw.ApplicationWindow):
         if not self.display_emojis:
             self.preview_emoji.set_text("")
             self.preview_name.set_text("No emoji")
-            self.preview_shortcode.set_text("")
             return
         emoji = self.display_emojis[self.selected_index if index is None else index]
         self.preview_emoji.set_text(self.get_skintone_char(emoji))
         self.preview_name.set_text(emoji["name"])
-        self.preview_shortcode.set_text(f':{emoji["shortcode"]}:')
 
     def append_emoji(self, index):
         emoji = self.get_skintone_char(self.display_emojis[index])
