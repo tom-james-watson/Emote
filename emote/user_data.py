@@ -24,6 +24,8 @@ DEFAULT_ACCELERATOR_LABEL = "Ctrl+Alt+E"
 SHOWN_WELCOME = "shown_welcome"
 DEFAULT_SHOWN_WELCOME = False
 
+WAYLAND_AUTO_PASTE = "wayland_auto_paste"
+
 SKINTONE_INDEX = "skintone_index"
 DEFAULT_SKINTONE_INDEX = 0
 SKINTONES = ["✋", "✋🏻", "✋🏼", "✋🏽", "✋🏾", "✋🏿"]
@@ -88,6 +90,17 @@ def load_shown_welcome():
 def update_shown_welcome():
     with shelve.open(SHELVE_PATH) as db:
         db[SHOWN_WELCOME] = True
+
+
+def load_wayland_auto_paste_choice():
+    """Return None until the user has chosen a Wayland paste mode."""
+    with shelve.open(SHELVE_PATH) as db:
+        return db.get(WAYLAND_AUTO_PASTE)
+
+
+def update_wayland_auto_paste_choice(enabled):
+    with shelve.open(SHELVE_PATH) as db:
+        db[WAYLAND_AUTO_PASTE] = bool(enabled)
 
 
 def normalize_picker_size(size):

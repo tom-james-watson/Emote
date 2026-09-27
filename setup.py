@@ -10,5 +10,9 @@ setup(
             "emote = emote.__init__:main",
         ]
     },
-    install_requires=["setproctitle==1.3.7", "python-xlib==0.33"],
+    install_requires=[
+        "setproctitle==1.3.7",
+        "python-xlib==0.33",
+        "python-libei==0.5.2",
+    ],
 )

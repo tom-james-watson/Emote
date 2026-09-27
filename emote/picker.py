@@ -99,8 +99,9 @@ class EmojiPicker(Adw.ApplicationWindow):
         self.search_scroll_restore_target = None
         self.searching = False
         self.was_active = False
-        self.pointer_in_picker = False
         self.pending_inactive_close = None
+        self.active_dialog = None
+        self.waiting_for_wayland_permission = False
         self.recent_dirty = False
         self.search_debouncer = debouncer.SearchDebouncer(self.apply_search)
 
@@ -127,15 +128,13 @@ class EmojiPicker(Adw.ApplicationWindow):
         keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
         keys.connect("key-pressed", self.on_key_pressed)
         self.add_controller(keys)
-        pointer = Gtk.EventControllerMotion.new()
-        pointer.connect("enter", self.on_pointer_enter)
-        pointer.connect("leave", self.on_pointer_leave)
-        self.add_controller(pointer)
         self.connect("notify::is-active", self.on_active_changed)
         self.connect("close-request", self.on_close_request)
 
         GLib.idle_add(self.search_entry.grab_focus)
-        if show_welcome:
+        if show_welcome and not (
+            config.is_wayland and user_data.load_wayland_auto_paste_choice() is None
+        ):
             GLib.idle_add(self.open_guide)
 
     def build_header(self):
@@ -283,6 +282,7 @@ class EmojiPicker(Adw.ApplicationWindow):
                 )
 
     def prepare_for_open(self):
+        self.was_active = False
         self.cancel_search_scroll_restore()
         self.search_scroll_position = None
         self.search_scroll_category = None
@@ -309,7 +309,8 @@ class EmojiPicker(Adw.ApplicationWindow):
         GLib.idle_add(self.search_entry.grab_focus)
 
     def prepare_for_close(self):
-        self.pointer_in_picker = False
+        self.was_active = False
+        self.waiting_for_wayland_permission = False
         self.search_debouncer.cancel()
         self.cancel_search_scroll_restore()
         self.category_jump = None
@@ -740,27 +741,23 @@ class EmojiPicker(Adw.ApplicationWindow):
         self.get_application().close_picker_window()
         return True
 
-    def on_pointer_enter(self, _controller, _x, _y):
-        self.pointer_in_picker = True
-
-    def on_pointer_leave(self, controller):
-        event = controller.get_current_event()
-        # A window-manager grab can synthesize a leave without the pointer
-        # actually moving out of the picker.
-        if (
-            isinstance(event, Gdk.CrossingEvent)
-            and event.get_mode() == Gdk.CrossingMode.NORMAL
-        ):
-            self.pointer_in_picker = False
-
     def on_active_changed(self, _window, _property):
         if self.is_active():
             self.was_active = True
-        elif self.was_active and not self.pointer_in_picker:
+        else:
+            self.maybe_schedule_inactive_close()
+
+    def maybe_schedule_inactive_close(self):
+        if (
+            self.was_active
+            and not self.is_active()
+            and self.active_dialog is None
+            and not self.waiting_for_wayland_permission
+        ):
             self.schedule_inactive_close()
 
     def on_menu_active_changed(self, button, _property):
-        if not button.get_active():
+        if not button.get_active() and self.active_dialog is None:
             self.schedule_inactive_close()
 
     def schedule_inactive_close(self):
@@ -769,7 +766,12 @@ class EmojiPicker(Adw.ApplicationWindow):
 
     def close_if_inactive(self):
         self.pending_inactive_close = None
-        if self.is_active() or self.menu_button.get_active():
+        if (
+            self.is_active()
+            or self.menu_button.get_active()
+            or self.active_dialog is not None
+            or self.waiting_for_wayland_permission
+        ):
             return GLib.SOURCE_REMOVE
         if self.get_visible_dialog() is None:
             self.get_application().close_picker_window()
@@ -920,7 +922,9 @@ class EmojiPicker(Adw.ApplicationWindow):
         user_data.update_recent_emojis(emoji)
         self.recent_dirty = True
         self.get_application().close_picker_window()
-        if not config.is_wayland:
+        if config.is_wayland:
+            GLib.timeout_add(150, self.get_application().paste_wayland)
+        else:
             GLib.timeout_add(150, self.paste_x11)
 
     def copy_to_clipboard(self, content):
@@ -933,6 +937,77 @@ class EmojiPicker(Adw.ApplicationWindow):
     def open_preferences(self):
         self.show_dialog(settings.Settings(self))
 
+    def show_wayland_paste_choice(self):
+        if (
+            not self.get_visible()
+            or user_data.load_wayland_auto_paste_choice() is not None
+            or self.get_visible_dialog() is not None
+        ):
+            return GLib.SOURCE_REMOVE
+
+        dialog = Adw.AlertDialog.new("Enable automatic paste", None)
+        body = Gtk.Label(
+            label="To automatically paste the selected emoji into your current app, "
+            "you must grant the “Remote Interaction” permission.",
+            xalign=0,
+            wrap=True,
+            max_width_chars=42,
+        )
+        body.add_css_class("dim-label")
+        dialog.set_extra_child(body)
+        dialog.add_response("skip", "Skip")
+        dialog.add_response("enable", "Enable")
+        dialog.set_default_response("skip")
+        dialog.set_close_response("skip")
+        dialog.set_response_appearance("enable", Adw.ResponseAppearance.SUGGESTED)
+        dialog.connect("response", self.on_wayland_paste_choice)
+        self.show_dialog(dialog)
+        return GLib.SOURCE_REMOVE
+
+    def on_wayland_paste_choice(self, _dialog, response):
+        GLib.idle_add(self.apply_wayland_paste_choice, response == "enable")
+
+    def apply_wayland_paste_choice(self, enabled):
+        self.get_application().set_wayland_auto_paste(enabled)
+        if not enabled and self.get_visible():
+            self.present()
+        return GLib.SOURCE_REMOVE
+
+    def begin_wayland_permission(self):
+        # The desktop's permission dialog takes focus; keep the picker open
+        # until the user has answered it.
+        self.waiting_for_wayland_permission = True
+        if self.pending_inactive_close is not None:
+            GLib.source_remove(self.pending_inactive_close)
+            self.pending_inactive_close = None
+
+    def end_wayland_permission(self, present):
+        was_waiting = self.waiting_for_wayland_permission
+        self.waiting_for_wayland_permission = False
+        self.was_active = False
+        if self.pending_inactive_close is not None:
+            GLib.source_remove(self.pending_inactive_close)
+            self.pending_inactive_close = None
+        if (
+            was_waiting
+            and present
+            and self.get_visible()
+            and self.get_visible_dialog() is None
+        ):
+            self.present()
+
+    def show_wayland_paste_unavailable(self):
+        current_dialog = self.get_visible_dialog()
+        if isinstance(current_dialog, settings.Settings):
+            current_dialog.refresh_wayland_auto_paste()
+        dialog = Adw.AlertDialog.new(
+            "Automatic paste is off",
+            "Emote could not get keyboard control from your desktop. Your emojis "
+            "will still be copied to the clipboard. You can try again in Preferences.",
+        )
+        dialog.add_response("ok", "OK")
+        dialog.present(current_dialog or self)
+
     def open_shortcuts(self):
         self.show_dialog(
             keyboard_shortcuts.KeyboardShortcuts(self, self.update_accelerator)
@@ -943,7 +1018,18 @@ class EmojiPicker(Adw.ApplicationWindow):
         return GLib.SOURCE_REMOVE
 
     def show_dialog(self, dialog):
+        if self.pending_inactive_close is not None:
+            GLib.source_remove(self.pending_inactive_close)
+            self.pending_inactive_close = None
+        self.active_dialog = dialog
+        dialog.connect("closed", self.on_dialog_closed)
         dialog.present(self)
+
+    def on_dialog_closed(self, dialog):
+        if self.active_dialog is dialog:
+            self.active_dialog = None
+            if self.is_active():
+                self.was_active = True
 
     def open_about(self):
         dialog = Adw.AboutDialog(

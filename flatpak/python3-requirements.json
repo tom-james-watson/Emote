@@ -18,6 +18,20 @@
       ]
     },
     {
+      "name": "python3-python-libei",
+      "buildsystem": "simple",
+      "build-commands": [
+        "pip3 install --no-index --no-build-isolation --no-deps --find-links=file://${PWD} --prefix=${FLATPAK_DEST} python-libei==0.5.2"
+      ],
+      "sources": [
+        {
+          "type": "file",
+          "url": "https://files.pythonhosted.org/packages/c8/e5/fb5d12efaf7657edf235da6fdf37829869cd52b889ba0cd2dd2b5e2c5e48/python_libei-0.5.2-py3-none-any.whl",
+          "sha256": "2f892355af86ebc52e49fc618880f68a433d7717609a5062447bec276cfc976d"
+        }
+      ]
+    },
+    {
       "name": "python3-python-xlib",
       "buildsystem": "simple",
       "build-commands": [

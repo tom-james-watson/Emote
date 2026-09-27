@@ -27,7 +27,8 @@ class Guide(Adw.Dialog):
         self.add_section(box, "Find an emoji", "Search, or scroll through all categories. Select a category above the list to jump to it.")
         self.add_section(box, "Select", "Click an emoji or press Enter to copy it. Right-click or press Shift+Enter to collect multiple emojis.")
         if config.is_wayland:
-            self.add_section(box, "Shortcut on Wayland", "Create a custom desktop shortcut that runs Emote. The selected emoji is copied to your clipboard.")
+            self.add_section(box, "Shortcut on Wayland", "Create a custom desktop shortcut that runs Emote.")
+            self.add_section(box, "Automatic paste", "Choose automatic paste or copy only when you first open Emote. If you enable it, the desktop asks for keyboard control. On GNOME, turn on ‘Allow Remote Interaction’ and click ‘Share’. Emote does not request screen access. Change your choice in Preferences.")
         else:
             self.add_section(box, "Shortcut", "Press Ctrl+Alt+E to open Emote. On X11, the selected emoji is also pasted into the previous application.")
 

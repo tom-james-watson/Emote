@@ -25,6 +25,7 @@ parts:
       - gir1.2-gtk-4.0
       - librsvg2-common
       - xdotool
+      - libei1
   static:
     plugin: dump
     source: static/

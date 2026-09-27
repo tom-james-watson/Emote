@@ -19,7 +19,7 @@
       Written in GTK4, Emote offers a continuous emoji catalogue with category navigation.
     </p>
     <p>
-      On X11, launch the picker with the configurable keyboard shortcut Ctrl+Alt+E. Selected emojis are copied to the clipboard and pasted into the previously focused app. On Wayland, selected emojis are copied to the clipboard.
+      On X11, launch the picker with the configurable keyboard shortcut Ctrl+Alt+E. On Wayland, use a desktop shortcut to launch Emote and choose whether to enable automatic paste. Selected emojis are copied to the clipboard and, when automatic paste is enabled, pasted into the previously focused app.
     </p>
     <ul>
       <li>🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window</li>
@@ -28,7 +28,7 @@
       <li>📜 Scroll continuously through categories or select one to jump to it</li>
       <li>🔎 Search text box automatically focused and ready to type when invoked</li>
       <li>⌨️ Can use shortcuts to navigate and select emojis</li>
-      <li>✒️ Selected emoji automatically pasted to your currently focused app (on X11 only)</li>
+      <li>✒️ Selected emoji automatically pasted into the previous app on X11 and supported Wayland desktops</li>
     </ul>
     <p>
       Please note that:
@@ -37,7 +37,7 @@
       On X11, Emote includes a configurable shortcut to open the picker.
     </p>
     <p>
-      🪟 On Wayland, Emote copies emojis to the clipboard. Automatic pasting and a global shortcut require additional integration. See <a href="https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland" target="_blank">Hotkey In Wayland</a>.
+      🪟 On Wayland, Emote explains its optional automatic paste feature before requesting keyboard control through the RemoteDesktop portal. Copy-only mode needs no such permission, and the choice can be changed in Preferences. A global shortcut still needs to be set in your desktop. See <a href="https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland" target="_blank">Hotkey In Wayland</a>.
     </p>
   </description>
 

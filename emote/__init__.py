@@ -9,6 +9,7 @@ from gi.repository import Adw, Gio, GLib, Gtk
 
 from emote import config, css, emojis, picker, user_data
 from emote.x11_hotkey import X11Hotkey
+from emote.wayland_paste import WaylandPaste, clear_restore_token
 
 
 class EmoteApplication(Adw.Application):
@@ -17,6 +18,7 @@ class EmoteApplication(Adw.Application):
         self.started = False
         self.picker_window = None
         self.hotkey = None
+        self.wayland_paste = None
 
     def do_activate(self):
         if not self.started:
@@ -29,7 +31,9 @@ class EmoteApplication(Adw.Application):
         if self.picker_window:
             if not self.picker_window.get_visible():
                 self.picker_window.prepare_for_open()
+            self.prepare_wayland_picker_focus()
             self.picker_window.present()
+            self.on_picker_presented()
         else:
             self.create_picker_window()
 
@@ -106,7 +110,87 @@ class EmoteApplication(Adw.Application):
             update_accelerator=self.update_accelerator,
             show_welcome=show_welcome,
         )
+        self.prepare_wayland_picker_focus()
         self.picker_window.present()
+        self.on_picker_presented()
+
+    def prepare_wayland_picker_focus(self):
+        if not config.is_wayland:
+            return
+        choice = user_data.load_wayland_auto_paste_choice()
+        if choice is None or (
+            choice is True
+            and (self.wayland_paste is None or not self.wayland_paste.is_ready)
+        ):
+            self.picker_window.begin_wayland_permission()
+
+    def on_picker_presented(self):
+        if not config.is_wayland:
+            return
+        if user_data.load_wayland_auto_paste_choice() is None:
+            GLib.idle_add(self.picker_window.show_wayland_paste_choice)
+        else:
+            self.maybe_start_wayland_paste()
+
+    def maybe_start_wayland_paste(self):
+        if not config.is_wayland or user_data.load_wayland_auto_paste_choice() is not True:
+            return
+        if self.wayland_paste is None:
+            self.wayland_paste = WaylandPaste(
+                on_ready=self.on_wayland_paste_ready,
+                on_unavailable=self.on_wayland_paste_unavailable,
+            )
+        if (
+            self.picker_window
+            and self.picker_window.get_visible()
+            and not self.wayland_paste.is_ready
+        ):
+            self.picker_window.begin_wayland_permission()
+        self.wayland_paste.ensure_started()
+
+    def set_wayland_auto_paste(self, enabled):
+        if not config.is_wayland:
+            return
+        user_data.update_wayland_auto_paste_choice(enabled)
+        if enabled:
+            if self.picker_window and self.picker_window.get_visible():
+                self.maybe_start_wayland_paste()
+        else:
+            if self.picker_window:
+                self.picker_window.end_wayland_permission(present=False)
+            if self.wayland_paste:
+                self.wayland_paste.close(discard_token=True)
+                self.wayland_paste = None
+            else:
+                try:
+                    clear_restore_token()
+                except OSError as exc:
+                    print("Failed to remove Wayland auto-paste permission:", exc)
+
+    def on_wayland_paste_ready(self, backend):
+        GLib.idle_add(self.handle_wayland_paste_ready, backend)
+
+    def handle_wayland_paste_ready(self, backend):
+        if self.wayland_paste is backend and self.picker_window:
+            self.picker_window.end_wayland_permission(present=True)
+        return GLib.SOURCE_REMOVE
+
+    def on_wayland_paste_unavailable(self, backend, _error):
+        GLib.idle_add(self.handle_wayland_paste_unavailable, backend)
+
+    def handle_wayland_paste_unavailable(self, backend):
+        if self.wayland_paste is backend:
+            self.set_wayland_auto_paste(False)
+            if self.picker_window and self.picker_window.get_visible():
+                if self.picker_window.get_visible_dialog() is None:
+                    self.picker_window.present()
+                self.picker_window.show_wayland_paste_unavailable()
+        return GLib.SOURCE_REMOVE
+
+    def paste_wayland(self):
+        if self.wayland_paste and user_data.load_wayland_auto_paste_choice() is True:
+            self.wayland_paste.paste()
+        return GLib.SOURCE_REMOVE
 
     def close_picker_window(self):
         if self.picker_window and self.picker_window.get_visible():
@@ -118,6 +202,8 @@ class EmoteApplication(Adw.Application):
             window.hide()
 
     def do_shutdown(self):
+        if self.wayland_paste:
+            self.wayland_paste.close()
         if self.hotkey:
             self.hotkey.close()
         if self.picker_window:

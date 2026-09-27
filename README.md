@@ -2,7 +2,7 @@
 
 Emote is a popup emoji picker for Linux. It uses GTK4 and libadwaita and keeps the full emoji catalogue in one continuous, scrollable view.
 
-On X11, launch the picker with the configurable keyboard shortcut `Ctrl+Alt+E`. Selected emojis are copied to the clipboard and pasted into the previously focused app. On Wayland, create a desktop shortcut to launch Emote and paste from the clipboard yourself.
+On X11, launch the picker with the configurable keyboard shortcut `Ctrl+Alt+E`. On Wayland, create a desktop shortcut to launch Emote. Selected emojis are copied to the clipboard and, when automatic paste is enabled and keyboard control is granted, pasted into the previously focused app.
 
 - 🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window
 - 🫠 Includes a large list of emojis retrieved from [openmoji.org](https://openmoji.org/)
@@ -11,9 +11,9 @@ On X11, launch the picker with the configurable keyboard shortcut `Ctrl+Alt+E`. 
 - 🔧 Adjust emoji size in Preferences; the grid reflows to fit
 - 🔎 Search text box automatically focused and ready to type when invoked
 - ⌨️ Use keyboard shortcuts to navigate and select emojis
-- ✒️ Selected emoji automatically pasted to your currently focused app (on X11 only)
+- ✒️ Selected emoji automatically pasted into the previous app on X11 and supported Wayland desktops
 
-ℹ️ On Wayland, Emote copies the selected emoji to the clipboard. Automatic pasting and an app-owned global shortcut are not available yet. Set a desktop shortcut to launch Emote; see [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland).
+ℹ️ On Wayland, Emote asks you to choose automatic paste or copy-only mode the first time you open the picker. Automatic paste asks your desktop for keyboard control. On GNOME, the permission dialog is called “Remote Desktop”: turn on “Allow Remote Interaction” and click “Share”. Emote does not request screen access. The desktop can remember your permission, and you can change Emote’s mode later in Preferences. If permission is declined or unavailable, emojis stay on the clipboard. Set a desktop shortcut to launch Emote; see [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland).
 
 <p align="center">
   <img width="500" src="images/gtk4-preview.png" alt="GTK4 Emote picker with continuous emoji categories">
@@ -55,7 +55,7 @@ The Flatpak requests background permission for login startup, and the Snap has a
 
 ### ℹ️ Usage
 
-Select an emoji to copy it to the clipboard. On X11, Emote also pastes it into the previously focused app. On Wayland, paste it yourself with your desktop’s usual shortcut.
+Select an emoji to copy it to the clipboard. Emote also pastes it into the previously focused app on X11, or on Wayland when automatic paste is enabled and the desktop has granted keyboard control. In copy-only mode, or if permission is unavailable, paste it yourself with your desktop’s usual shortcut.
 
 Right-click an emoji to add it to a selection of multiple emojis.
 
@@ -81,16 +81,16 @@ Emote follows the system light/dark appearance and supported accent preferences 
 
 ### Test this checkout on Linux
 
-Install GTK 4, libadwaita 1.5 or newer, PyGObject, Pipenv, and the X11 paste helper. On Ubuntu or Debian:
+Install GTK 4, libadwaita 1.5 or newer, PyGObject, Pipenv, libei, and the X11 paste helper. On Ubuntu or Debian:
 
 ```bash
-sudo apt install gir1.2-adw-1 gir1.2-gtk-4.0 python3-gi python3-venv pipenv xdotool librsvg2-common
+sudo apt install gir1.2-adw-1 gir1.2-gtk-4.0 python3-gi python3-venv pipenv xdotool librsvg2-common libei1
 ```
 
 On Fedora:
 
 ```bash
-sudo dnf install libadwaita gtk4 python3-gobject pipenv xdotool rsvg-pixbuf-loader
+sudo dnf install libadwaita gtk4 python3-gobject pipenv xdotool rsvg-pixbuf-loader libei
 ```
 
 From a checkout of the branch you want to test:
@@ -100,7 +100,7 @@ make install
 make dev
 ```
 
-`make dev` runs the application in the foreground. Leave that terminal open, then launch Emote again from a second terminal with `make dev` to show the picker. On X11, you can also use `Ctrl+Alt+E` after the application starts. On Wayland, use a desktop shortcut to launch it and paste selected emojis from the clipboard.
+`make dev` runs the application in the foreground. Leave that terminal open, then launch Emote again from a second terminal with `make dev` to show the picker. On X11, you can also use `Ctrl+Alt+E` after the application starts. On Wayland, use a desktop shortcut to launch it; the first picker opening explains the optional keyboard control permission.
 
 `make dev-debug` launches with GtkInspector. The source checkout uses `~/.local/share/Emote` for settings and recently used emojis.
 
