@@ -26,6 +26,7 @@ DEFAULT_ACCELERATOR_LABEL = "Ctrl+Alt+E"
 LEGACY_SHOWN_WELCOME = "shown_welcome"
 
 WAYLAND_AUTO_PASTE = "wayland_auto_paste"
+X11_AUTO_PASTE = "x11_auto_paste"
 WAYLAND_GLOBAL_SHORTCUT = "wayland_global_shortcut"
 WAYLAND_GLOBAL_SHORTCUT_LABEL = "wayland_global_shortcut_label"
 
@@ -99,6 +100,16 @@ def load_wayland_auto_paste_choice():
 def update_wayland_auto_paste_choice(enabled):
     with shelve.open(SHELVE_PATH) as db:
         db[WAYLAND_AUTO_PASTE] = bool(enabled)
+
+
+def load_x11_auto_paste_enabled():
+    with shelve.open(SHELVE_PATH) as db:
+        return db.get(X11_AUTO_PASTE, True)
+
+
+def update_x11_auto_paste_enabled(enabled):
+    with shelve.open(SHELVE_PATH) as db:
+        db[X11_AUTO_PASTE] = bool(enabled)
 
 
 def load_wayland_global_shortcut_choice():

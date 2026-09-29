@@ -31,7 +31,7 @@
       <li>📜 Scroll continuously through categories or select one to jump to it</li>
       <li>🔎 Search text box automatically focused and ready to type when invoked</li>
       <li>⌨️ Can use shortcuts to navigate and select emojis</li>
-      <li>✒️ Selected emoji automatically pasted into the previous app on X11 and supported Wayland desktops</li>
+      <li>✒️ Optional automatic paste into the previous app on X11 and supported Wayland desktops</li>
     </ul>
     <p>
       Please note that:

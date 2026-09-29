@@ -989,7 +989,7 @@ class EmojiPicker(Adw.ApplicationWindow):
         self.get_application().close_picker_window()
         if config.is_wayland:
             GLib.timeout_add(150, self.get_application().paste_wayland)
-        else:
+        elif user_data.load_x11_auto_paste_enabled():
             GLib.timeout_add(150, self.paste_x11)
 
     def copy_to_clipboard(self, content):

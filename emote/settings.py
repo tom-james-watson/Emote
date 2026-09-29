@@ -13,7 +13,7 @@ class Settings(Adw.PreferencesDialog):
         self.picker = picker
         self._refreshing_auto_paste = False
         self.set_content_width(390)
-        self.set_content_height(390 if config.is_wayland else 260)
+        self.set_content_height(390 if config.is_wayland else 340)
         page = Adw.PreferencesPage()
         group = Adw.PreferencesGroup()
         page.add(group)
@@ -33,18 +33,20 @@ class Settings(Adw.PreferencesDialog):
         size.connect("notify::selected", self.on_size_changed)
         group.add(size)
 
-        if config.is_wayland:
-            paste_group = Adw.PreferencesGroup()
-            page.add(paste_group)
-            self.auto_paste = Adw.SwitchRow(
-                title="Automatic paste",
-                subtitle="Paste emojis into the app you were using",
-            )
-            self.auto_paste.set_active(
-                user_data.load_wayland_auto_paste_choice() is True
-            )
-            self.auto_paste.connect("notify::active", self.on_auto_paste_changed)
-            paste_group.add(self.auto_paste)
+        paste_group = Adw.PreferencesGroup()
+        page.add(paste_group)
+        self.auto_paste = Adw.SwitchRow(
+            title="Automatic paste",
+            subtitle="Paste emojis into the app you were using",
+        )
+        enabled = (
+            user_data.load_wayland_auto_paste_choice() is True
+            if config.is_wayland
+            else user_data.load_x11_auto_paste_enabled()
+        )
+        self.auto_paste.set_active(enabled)
+        self.auto_paste.connect("notify::active", self.on_auto_paste_changed)
+        paste_group.add(self.auto_paste)
 
     def on_size_changed(self, row, _property):
         self.picker.set_emoji_size(user_data.EMOJI_SIZES[row.get_selected()])
@@ -54,7 +56,10 @@ class Settings(Adw.PreferencesDialog):
 
     def on_auto_paste_changed(self, row, _property):
         if not self._refreshing_auto_paste:
-            self.picker.get_application().set_wayland_auto_paste(row.get_active())
+            if config.is_wayland:
+                self.picker.get_application().set_wayland_auto_paste(row.get_active())
+            else:
+                user_data.update_x11_auto_paste_enabled(row.get_active())
 
     def refresh_wayland_auto_paste(self):
         enabled = user_data.load_wayland_auto_paste_choice() is True
