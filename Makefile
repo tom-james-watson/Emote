@@ -44,7 +44,7 @@ clean:
 	rm -r .flatpak-builder build/
 
 update-emojis:
-	wget -O static/emojis.csv https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv
+	python3 tools/update_emojis.py
 
 flatpak:
 	flatpak-builder --user --install --force-clean build com.tomjwatson.Emote.yml
