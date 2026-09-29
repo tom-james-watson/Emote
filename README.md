@@ -1,260 +1,94 @@
-# <span><img width="24" height="24" src="https://github.com/tom-james-watson/Emote/blob/master/static/logo.svg"></span> Emote
+# <img width="24" height="24" src="static/logo.svg" alt=""> Emote
 
-Emote is a popup emoji picker for Linux. It uses GTK4 and libadwaita and keeps the full emoji catalogue in one continuous, scrollable view.
-
-On X11, launch the picker with the configurable keyboard shortcut `Ctrl+Alt+E`. On supported Wayland desktops, Emote can register `Ctrl+Alt+E` as a global shortcut through the desktop. Selected emojis are copied to the clipboard and, when automatic paste is enabled and keyboard control is granted, pasted into the previously focused app.
-
-- 🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window
-- 🫠 Includes a large list of emojis retrieved from [openmoji.org](https://openmoji.org/)
-- 📜 Scroll continuously between categories, or select a category to jump to it
-- 🧠 Shows up to two rows of recently used emojis
-- 🔧 Adjust emoji size in Preferences; the grid reflows to fit
-- 🔎 Search text box automatically focused and ready to type when invoked
-- ⌨️ Use keyboard shortcuts to navigate and select emojis
-- ✒️ Selected emoji automatically pasted into the previous app on X11 and supported Wayland desktops
-
-ℹ️ On Wayland, Emote offers `Ctrl+Alt+E` through your desktop once. You can skip setup and keep using an existing shortcut. To set up later, open Keyboard Shortcuts. Saved shortcuts can be edited or enabled in your desktop’s shortcut settings. Automatic paste separately requires keyboard-control permission. On GNOME, enable “Allow Remote Interaction” when prompted. Emote never requests screen access, and without keyboard permission emojis remain on the clipboard. See [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland) for manual setup.
+Emote is a popup emoji picker for Linux, built with GTK4 and libadwaita.
 
 <p align="center">
-  <img width="500" src="images/gtk4-preview.png" alt="GTK4 Emote picker with continuous emoji categories">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="images/screenshot-dark.png">
+    <img width="500" src="images/screenshot-light.png" alt="Emote emoji picker in light or dark mode">
+  </picture>
 </p>
 
-## 📥️ Installation
+- Start typing to search, or scroll through the emoji categories.
+- Quickly find recently used emojis.
+- Navigate with your keyboard or mouse, and select one emoji or several.
+- Copy emojis to the clipboard and optionally paste them into your previous app.
+- Choose your preferred skin tone.
+- Emote follows your desktop's theme.
 
-The Flatpak and Snap store releases may not include the changes shown on this branch yet. To test this checkout, follow [Development](#-development). Released versions are available through these package managers:
+## Installation
 
-### 📦️ Install with Flatpak (preferred)
+### Flatpak (recommended)
 
-<a href='https://flathub.org/apps/com.tomjwatson.Emote'><img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
-
-or
+<a href="https://flathub.org/apps/com.tomjwatson.Emote"><img width="240" alt="Download on Flathub" src="https://dl.flathub.org/assets/badges/flathub-badge-en.png"></a>
 
 ```bash
-flatpak install com.tomjwatson.Emote
+flatpak install flathub com.tomjwatson.Emote
 ```
 
-### 🦜 Install with Snap
+### Snap
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/emote)
-
-or
 
 ```bash
 sudo snap install emote
 ```
 
-### 🐧 Unofficial 3rd party installation methods
+### Arch Linux
 
-An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote. This is not maintained by me, so install at your own risk.
+The community maintains an unofficial [AUR package](https://aur.archlinux.org/packages/emote). This is not maintained by me, so install at your own risk.
 
-## 📖 Using Emote
+## Using Emote
 
-### 🚀 Launching
+Launch Emote from your app menu. The default shortcut to open the picker is `Ctrl+Alt+E`. See [Desktop integration](#desktop-integration) for shortcut setup and login startup.
 
-The Flatpak requests background permission for login startup, and the Snap has an autostart entry. You can also launch Emote from the app menu. On X11, use the configurable `Ctrl+Alt+E` shortcut. On Wayland, configure the global shortcut during setup or from Keyboard Shortcuts.
+Start typing to search, or browse the categories. Click an emoji or press `Enter` to copy it and close the picker. If automatic paste is enabled, Emote pastes it into the app you were using. Otherwise, paste it yourself.
 
-### ℹ️ Usage
+To select several emojis, right-click each one or press `Shift+Enter`. Click the final emoji or press `Enter` to finish the selection and close the picker.
 
-Select an emoji to copy it to the clipboard. Emote also pastes it into the previously focused app on X11, or on Wayland when automatic paste is enabled and the desktop has granted keyboard control. In copy-only mode, or if permission is unavailable, paste it yourself with your desktop’s usual shortcut.
+Open **Preferences** to change the emoji size or skin tone.
 
-Right-click an emoji to add it to a selection of multiple emojis.
+### Keyboard shortcuts
 
-### ⌨️ Keyboard Shortcuts
+| Action | Shortcut |
+| --- | --- |
+| Open or close the picker | `Ctrl+Alt+E` (default global shortcut) |
+| Select emoji | `Enter` |
+| Add emoji to selection | `Shift+Enter` |
+| Focus search | `Ctrl+F` |
+| Next category | `Ctrl+Tab` |
+| Previous category | `Ctrl+Shift+Tab` |
 
-Open Emote: `Ctrl+Alt+E` (configurable on X11; registered through the desktop portal on supported Wayland desktops)
+## Desktop integration
 
-Select Emoji: `Enter`
+### Global shortcut
 
-Add Emoji to Selection: `Shift+Enter`
+On **X11**, Emote handles the global shortcut itself. Change it from **Keyboard Shortcuts** in Emote.
 
-Focus Search: `Ctrl+F`
+On **Wayland**, your desktop manages the shortcut through its Global Shortcuts portal. Emote offers to set this up the first time you open the picker. You can skip setup and keep an existing manual shortcut, or set it up later from **Keyboard Shortcuts**. To change or enable a registered shortcut, use your desktop's shortcut settings.
 
-Next Emoji Category: `Ctrl+Tab`
+If your desktop does not support the portal, configure a shortcut manually using the [Wayland shortcut guide](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland).
 
-Previous Emoji Category: `Ctrl+Shift+Tab`
+### Automatic paste
 
-## 🧑‍💻 Development
+Automatic paste is optional on both X11 and Wayland. Turn it on or off in **Preferences**. It is on by default on X11.
+
+On **Wayland**, it also needs your desktop's permission to control the keyboard. Emote offers to enable it during setup. On GNOME, allow “Remote Interaction” when prompted. Emote requests keyboard control, not screen access.
+
+If automatic paste is disabled or unavailable, your selection is still copied to the clipboard.
+
+### Login startup
+
+Emote starts automatically when you log in. Launch it once from your app menu after installing.
+
+## Development
 
 [![Build package](https://github.com/tom-james-watson/Emote/actions/workflows/build.yml/badge.svg)](https://github.com/tom-james-watson/Emote/actions/workflows/build.yml)
 
-Emote follows the system light/dark appearance and supported accent preferences through libadwaita, including on KDE with its desktop portal. It uses Adwaita widgets rather than adopting arbitrary GTK or Qt themes. Previously saved theme selections are ignored.
+See the [development guide](docs/development.md) for running from source, debugging, and testing desktop integration. The [release guide](docs/releasing.md) covers building and publishing Flatpak and Snap packages.
 
-### Test this checkout on Linux
+## Credits and license
 
-Install GTK 4, libadwaita 1.5 or newer, PyGObject, Pipenv, libei, and the X11 paste helper. On Ubuntu or Debian:
+Emote is licensed under the [GNU GPL v3 or later](LICENSE.md).
 
-```bash
-sudo apt install gir1.2-adw-1 gir1.2-gtk-4.0 python3-gi python3-venv pipenv xdotool librsvg2-common libei1
-```
-
-On Fedora:
-
-```bash
-sudo dnf install libadwaita gtk4 python3-gobject pipenv xdotool rsvg-pixbuf-loader libei
-```
-
-From a checkout of the branch you want to test:
-
-```bash
-make install
-make dev
-```
-
-`make dev` installs Emote's desktop metadata in your user data directory, then runs the application in the foreground. The metadata lets recent desktop portals identify the unsandboxed development process when it requests a global shortcut. Leave that terminal open, then launch Emote again from a second terminal with `make dev` to show the picker. On X11, you can also use `Ctrl+Alt+E` after the application starts. On Wayland, the first picker opening offers global-shortcut setup and explains the optional keyboard-control permission for automatic paste.
-
-`make dev-debug` launches with GtkInspector. The source checkout uses `~/.local/share/Emote` for settings and recently used emojis.
-
-Run `make dev-reset` to stop Emote and clear its local settings, automatic-paste restore token, and portal shortcut registration. The next `make dev` behaves like a clean install. Because development and packaged builds share the same application ID, this also resets portal permissions for an installed Emote build.
-
-Run `make dev-reset-upgrade` instead to simulate an upgrade from an older Emote release. It leaves any manually configured desktop shortcut in place. The setup flow is the same as for a clean install. Check that your existing shortcut still opens Emote after accepting or skipping native setup; there is no verification or migration dialog. Skipping setup should not prompt again on subsequent launches, and setup remains available in Keyboard Shortcuts.
-
-For isolated UI testing, GTK's Broadway backend displays the actual GTK windows
-in a browser. Start `gtk4-broadwayd --address=127.0.0.1 --port=8085 :5`, then run
-`GDK_BACKEND=broadway BROADWAY_DISPLAY=:5 pipenv run python tools/shortcut_ui.py`
-and open `http://127.0.0.1:8085`. Use `--scenario=disabled` or `--scenario=cancel`
-to exercise those setup outcomes. The controls window simulates native shortcut
-signals and legacy app launches. This uses temporary Emote data and does not
-change desktop shortcuts or portal permissions. It tests real GTK dialogs, but
-does not test GNOME's portal dialogs, key conflicts, or compositor focus behavior.
-
-### 🔄 Update emojis
-
-To update the list of emojis to the latest available on [openmoji.org](https://openmoji.org), run:
-
-```bash
-make update-emojis
-```
-
-### 🐞 Debugging GTK4 with GtkInspector
-
-Enable debug keybinding:
-
-```bash
-gsettings set org.gtk.Settings.Debug enable-inspector-keybinding true
-```
-
-Launch app in debug mode with interactive inspector:
-
-```bash
-make dev-debug
-```
-
-## 🚢 Publishing
-
-### Releasing a new version
-
-1. Bump the version in `snap/snapcraft.yaml` for Snap and `meson.build` for Flatpak.
-2. Add a release entry to `flatpak/com.tomjwatson.Emote.metainfo.xml`.
-
-### 📦️ Package with Flatpak
-
-To build the Flatpak locally, install [`flatpak`](https://flatpak.org/setup/). The manifest currently targets the GNOME 50 runtime.
-
-#### Install
-
-Install `flatpak-builder`, the GNOME SDK, and `flatpak-pip-generator`:
-
-```bash
-make flatpak-install
-```
-
-Optionally re-generate the `flatpak/python3-requirements.json` if the dependencies in the `Pipfile` have been changed:
-
-```bash
-make flatpak-requirements
-```
-
-#### Build
-
-Build the Flatpak and install it locally:
-
-```bash
-make flatpak
-```
-
-Launch the installed Flatpak (or use its desktop entry):
-
-```bash
-flatpak run com.tomjwatson.Emote
-```
-
-#### Debug
-
-In case you are facing issues with the cache not properly updating, or need to reset user data, you can clean the cache with:
-
-```bash
-make flatpak-clean
-```
-
-To see potential error messages of the flatpak app you can use `journalctl`: 
-
-```bash
-journalctl -f -n 50
-```
-
-Run the command below if you want to access inside the containerized flatpak app to debug.
-
-```bash
-flatpak run --command=sh --devel com.tomjwatson.Emote
-```
-
-#### Publish to Flathub
-
-Emote is published to Flathub using the repository [github.com/flathub/com.tomjwatson.Emote](https://github.com/flathub/com.tomjwatson.Emote).
-
-Flathub builds can be monitored at [buildbot.flathub.org/#/apps/com.tomjwatson.Emote](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote)
-
-To update the version published to Flathub:
-
-1. In the [`com.tomjwatson.Emote.yml` manifest](https://github.com/flathub/com.tomjwatson.Emote/blob/master/com.tomjwatson.Emote.yml#L66) of the flathub/com.tomjwatson.Emote repo: change the commit hash to the commit of the Emote repository you want to publish
-2. Flathub checks the GitHub repo every few minutes, and will start a build if a change has been detected. If the build succeeds, it is published automatically after 3 hours. You can use the [Flathub BuildBot web UI](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote) to monitor, start or publish builds manually (click the Publish button at the top of a successful build page).
-
-More documentation for maintaining a Flathub package is available at [docs.flathub.org/docs/for-app-authors/maintanance](https://docs.flathub.org/docs/for-app-authors/maintanance#buildbot).
-
-### 🦜 Package with Snap
-
-Ensure you have `snapcraft` installed:
-
-```bash
-sudo snap install --classic snapcraft
-```
-
-Create a packaged `.snap` file (Snapcraft can build in an LXD or Multipass environment):
-
-```bash
-make snap
-```
-
-Install the resulting package locally to test it:
-
-```bash
-sudo snap install --dangerous ./emote_*.snap
-```
-
-Clean the cache:
-
-```bash
-make snap-clean
-```
-
-#### Publishing
-
-First, ensure a git tag for the current version has been pushed.
-
-Ensure you are logged in to snapcraft:
-
-```bash
-snapcraft login
-```
-
-Push the packaged snap to the `edge` channel on the snap store.
-
-```bash
-snapcraft push --release=edge <path to .snap>
-```
-
-## 🤝 Attribution
-
-Emoji data is sourced from https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv which is compiled by the lovely people at https://openmoji.org 🫠.
-
-Category icons include artwork from [Lucide](https://lucide.dev/). The bundled icon license is in `static/icons/LICENSE`.
+Emoji data comes from [OpenMoji](https://openmoji.org/). Category icons include artwork from [Lucide](https://lucide.dev/); see the [bundled icon license](static/icons/LICENSE).
