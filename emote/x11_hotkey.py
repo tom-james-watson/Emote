@@ -49,7 +49,9 @@ class X11Hotkey:
             root = connection.screen().root
             lock_masks = (0, X.LockMask, X.Mod2Mask, X.LockMask | X.Mod2Mask)
             for lock_mask in lock_masks:
-                root.grab_key(keycode, mask | lock_mask, True, X.GrabModeAsync, X.GrabModeAsync)
+                root.grab_key(
+                    keycode, mask | lock_mask, True, X.GrabModeAsync, X.GrabModeAsync
+                )
             connection.sync()
         except Exception as exc:
             print("Could not register X11 shortcut:", exc)

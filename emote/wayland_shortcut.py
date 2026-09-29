@@ -8,7 +8,6 @@ import gi
 gi.require_version("Gio", "2.0")
 from gi.repository import Gio, GLib
 
-
 PORTAL_NAME = "org.freedesktop.portal.Desktop"
 PORTAL_PATH = "/org/freedesktop/portal/desktop"
 PORTAL_INTERFACE = "org.freedesktop.portal.GlobalShortcuts"

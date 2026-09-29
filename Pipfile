@@ -9,7 +9,7 @@ python-xlib = "==0.33"
 python-libei = "==0.5.2"
 
 [dev-packages]
-black = "==25.1.0"
+black = "==26.3.1"
 requirements-parser = "==0.5.0"
 
 [scripts]

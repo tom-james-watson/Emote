@@ -10,7 +10,6 @@ import time
 
 from emote import user_data
 
-
 KEY_LEFTCTRL = 29
 KEY_V = 47
 TOKEN_PATH = Path(user_data.DATA_DIR) / "remote-desktop-token"
@@ -109,14 +108,18 @@ class WaylandPaste:
                 try:
                     self._serve(sender, ei)
                     if not self._stop.is_set():
-                        raise RuntimeError("the desktop ended the keyboard control session")
+                        raise RuntimeError(
+                            "the desktop ended the keyboard control session"
+                        )
                 finally:
                     self._ready.clear()
                     sender.release()
         except Exception as exc:
             self._ready.clear()
             if not self._stop.is_set():
-                print("Wayland auto-paste unavailable; emoji remains on clipboard:", exc)
+                print(
+                    "Wayland auto-paste unavailable; emoji remains on clipboard:", exc
+                )
                 if self._on_unavailable:
                     self._on_unavailable(self, exc)
         finally:

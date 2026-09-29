@@ -63,13 +63,13 @@ def init():
 
 def strip_char_skintone(char):
     # Define a regex pattern for skin tone modifiers
-    skintone_pattern = re.compile("[\U0001F3FB-\U0001F3FF]")
+    skintone_pattern = re.compile("[\U0001f3fb-\U0001f3ff]")
 
     return skintone_pattern.sub("", char)
 
 
 def strip_qualified_variant(char):
-    return char.replace("\uFE0F", "")
+    return char.replace("\ufe0f", "")
 
 
 def get_emoji_by_char(char):
