@@ -1,4 +1,3 @@
-import os
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -12,12 +11,7 @@ def load_css():
     """
     css_provider = Gtk.CssProvider()
 
-    if config.is_snap:
-        css_provider.load_from_path(f"{config.snap_root}/static/style.css")
-    elif config.is_flatpak:
-        css_provider.load_from_path(f"{config.flatpak_root}/static/style.css")
-    else:
-        css_provider.load_from_path("static/style.css")
+    css_provider.load_from_path(f"{config.static_dir}/style.css")
 
     screen = Gdk.Screen.get_default()
     styleContext = Gtk.StyleContext()

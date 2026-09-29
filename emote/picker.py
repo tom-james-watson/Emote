@@ -344,13 +344,7 @@ class EmojiPicker(Gtk.Window):
         guide_window.connect("destroy", self.on_close_dialog)
 
     def open_about(self):
-        logo_path = (
-            f"{config.snap_root}/static/logo.svg"
-            if config.is_snap
-            else f"{config.flatpak_root}/static/logo.svg"
-            if config.is_flatpak
-            else "static/logo.svg"
-        )
+        logo_path = f"{config.static_dir}/logo.svg"
         logo = Pixbuf.new_from_file(logo_path)
 
         about_dialog = Gtk.AboutDialog(
@@ -359,7 +353,9 @@ class EmojiPicker(Gtk.Window):
             logo=logo,
             program_name="Emote",
             title="About Emote",
-            version=os.environ.get("FLATPAK_APP_VERSION", os.environ.get("SNAP_VERSION", "dev build")),
+            version=os.environ.get(
+                "FLATPAK_APP_VERSION", os.environ.get("SNAP_VERSION", "dev build")
+            ),
             authors=["Tom Watson", "Vincent Emonet"],
             artists=["Tom Watson, Matthew Wong"],
             documenters=["Irene Auñón"],
