@@ -2,7 +2,7 @@
 
 Emote is a popup emoji picker for Linux. It uses GTK4 and libadwaita and keeps the full emoji catalogue in one continuous, scrollable view.
 
-On X11, launch the picker with the configurable keyboard shortcut `Ctrl+Alt+E`. On Wayland, create a desktop shortcut to launch Emote. Selected emojis are copied to the clipboard and, when automatic paste is enabled and keyboard control is granted, pasted into the previously focused app.
+On X11, launch the picker with the configurable keyboard shortcut `Ctrl+Alt+E`. On supported Wayland desktops, Emote can register `Ctrl+Alt+E` as a global shortcut through the desktop. Selected emojis are copied to the clipboard and, when automatic paste is enabled and keyboard control is granted, pasted into the previously focused app.
 
 - 🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window
 - 🫠 Includes a large list of emojis retrieved from [openmoji.org](https://openmoji.org/)
@@ -13,7 +13,7 @@ On X11, launch the picker with the configurable keyboard shortcut `Ctrl+Alt+E`. 
 - ⌨️ Use keyboard shortcuts to navigate and select emojis
 - ✒️ Selected emoji automatically pasted into the previous app on X11 and supported Wayland desktops
 
-ℹ️ On Wayland, Emote asks you to choose automatic paste or copy-only mode the first time you open the picker. Automatic paste asks your desktop for keyboard control. On GNOME, the permission dialog is called “Remote Desktop”: turn on “Allow Remote Interaction” and click “Share”. Emote does not request screen access. The desktop can remember your permission, and you can change Emote’s mode later in Preferences. If permission is declined or unavailable, emojis stay on the clipboard. Set a desktop shortcut to launch Emote; see [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland).
+ℹ️ On Wayland, Emote offers `Ctrl+Alt+E` through your desktop once. You can skip setup and keep using an existing shortcut. To set up later, open Keyboard Shortcuts. Saved shortcuts can be edited or enabled in your desktop’s shortcut settings. Automatic paste separately requires keyboard-control permission. On GNOME, enable “Allow Remote Interaction” when prompted. Emote never requests screen access, and without keyboard permission emojis remain on the clipboard. See [Hotkey In Wayland](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland) for manual setup.
 
 <p align="center">
   <img width="500" src="images/gtk4-preview.png" alt="GTK4 Emote picker with continuous emoji categories">
@@ -47,11 +47,11 @@ sudo snap install emote
 
 An unofficial build of Emote is also available in the AUR : https://aur.archlinux.org/packages/emote. This is not maintained by me, so install at your own risk.
 
-## 📖 Guide
+## 📖 Using Emote
 
 ### 🚀 Launching
 
-The Flatpak requests background permission for login startup, and the Snap has an autostart entry. You can also launch Emote from the app menu. On X11, use the configurable `Ctrl+Alt+E` shortcut to open the picker. On Wayland, assign a desktop keyboard shortcut to launch Emote.
+The Flatpak requests background permission for login startup, and the Snap has an autostart entry. You can also launch Emote from the app menu. On X11, use the configurable `Ctrl+Alt+E` shortcut. On Wayland, configure the global shortcut during setup or from Keyboard Shortcuts.
 
 ### ℹ️ Usage
 
@@ -61,7 +61,7 @@ Right-click an emoji to add it to a selection of multiple emojis.
 
 ### ⌨️ Keyboard Shortcuts
 
-Open Emoji Picker: `Ctrl+Alt+E` (configurable on X11; use a desktop shortcut on Wayland)
+Open Emote: `Ctrl+Alt+E` (configurable on X11; registered through the desktop portal on supported Wayland desktops)
 
 Select Emoji: `Enter`
 
@@ -100,9 +100,22 @@ make install
 make dev
 ```
 
-`make dev` runs the application in the foreground. Leave that terminal open, then launch Emote again from a second terminal with `make dev` to show the picker. On X11, you can also use `Ctrl+Alt+E` after the application starts. On Wayland, use a desktop shortcut to launch it; the first picker opening explains the optional keyboard control permission.
+`make dev` installs Emote's desktop metadata in your user data directory, then runs the application in the foreground. The metadata lets recent desktop portals identify the unsandboxed development process when it requests a global shortcut. Leave that terminal open, then launch Emote again from a second terminal with `make dev` to show the picker. On X11, you can also use `Ctrl+Alt+E` after the application starts. On Wayland, the first picker opening offers global-shortcut setup and explains the optional keyboard-control permission for automatic paste.
 
 `make dev-debug` launches with GtkInspector. The source checkout uses `~/.local/share/Emote` for settings and recently used emojis.
+
+Run `make dev-reset` to stop Emote and clear its local settings, automatic-paste restore token, and portal shortcut registration. The next `make dev` behaves like a clean install. Because development and packaged builds share the same application ID, this also resets portal permissions for an installed Emote build.
+
+Run `make dev-reset-upgrade` instead to simulate an upgrade from an older Emote release. It leaves any manually configured desktop shortcut in place. The setup flow is the same as for a clean install. Check that your existing shortcut still opens Emote after accepting or skipping native setup; there is no verification or migration dialog. Skipping setup should not prompt again on subsequent launches, and setup remains available in Keyboard Shortcuts.
+
+For isolated UI testing, GTK's Broadway backend displays the actual GTK windows
+in a browser. Start `gtk4-broadwayd --address=127.0.0.1 --port=8085 :5`, then run
+`GDK_BACKEND=broadway BROADWAY_DISPLAY=:5 pipenv run python tools/shortcut_ui.py`
+and open `http://127.0.0.1:8085`. Use `--scenario=disabled` or `--scenario=cancel`
+to exercise those setup outcomes. The controls window simulates native shortcut
+signals and legacy app launches. This uses temporary Emote data and does not
+change desktop shortcuts or portal permissions. It tests real GTK dialogs, but
+does not test GNOME's portal dialogs, key conflicts, or compositor focus behavior.
 
 ### 🔄 Update emojis
 

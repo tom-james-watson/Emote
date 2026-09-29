@@ -19,12 +19,16 @@ class Settings(Adw.PreferencesDialog):
         page.add(group)
         self.add(page)
 
-        tone = Adw.ComboRow(title="Skin tone", model=Gtk.StringList.new(user_data.SKINTONES))
+        tone = Adw.ComboRow(
+            title="Skin tone", model=Gtk.StringList.new(user_data.SKINTONES)
+        )
         tone.set_selected(user_data.load_skintone_index())
         tone.connect("notify::selected", self.on_tone_changed)
         group.add(tone)
 
-        size = Adw.ComboRow(title="Emoji size", model=Gtk.StringList.new(user_data.EMOJI_SIZE_LABELS))
+        size = Adw.ComboRow(
+            title="Emoji size", model=Gtk.StringList.new(user_data.EMOJI_SIZE_LABELS)
+        )
         size.set_selected(user_data.EMOJI_SIZES.index(picker.emoji_size))
         size.connect("notify::selected", self.on_size_changed)
         group.add(size)
@@ -33,8 +37,8 @@ class Settings(Adw.PreferencesDialog):
             paste_group = Adw.PreferencesGroup()
             page.add(paste_group)
             self.auto_paste = Adw.SwitchRow(
-                title="Automatic insertion",
-                subtitle="Automatically paste emojis into focused app",
+                title="Automatic paste",
+                subtitle="Paste emojis into the app you were using",
             )
             self.auto_paste.set_active(
                 user_data.load_wayland_auto_paste_choice() is True

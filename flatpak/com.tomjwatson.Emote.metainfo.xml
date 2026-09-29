@@ -6,20 +6,23 @@
   <url type="homepage">https://github.com/tom-james-watson/Emote</url>
   <url type="bugtracker">https://github.com/tom-james-watson/Emote/issues</url>
   <url type="vcs-browser">https://github.com/tom-james-watson/Emote</url>
+  <url type="help">https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland</url>
 
   <metadata_license>FSFAP</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
-  <developer_name translatable="no">Tom Watson</developer_name>
+  <developer id="com.tomjwatson">
+    <name translatable="no">Tom Watson</name>
+  </developer>
 
   <description>
     <p>
-      Emote is a modern emoji picker for Linux 🚀
+      Modern popup emoji picker for Linux with fast search, category navigation, and keyboard control.
     </p>
     <p>
       Written in GTK4, Emote offers a continuous emoji catalogue with category navigation.
     </p>
     <p>
-      On X11, launch the picker with the configurable keyboard shortcut Ctrl+Alt+E. On Wayland, use a desktop shortcut to launch Emote and choose whether to enable automatic paste. Selected emojis are copied to the clipboard and, when automatic paste is enabled, pasted into the previously focused app.
+      On X11, launch the picker with the configurable keyboard shortcut Ctrl+Alt+E. On supported Wayland desktops, Emote can register Ctrl+Alt+E through the Global Shortcuts portal. Selected emojis are copied to the clipboard and, when automatic paste is enabled, pasted into the previously focused app.
     </p>
     <ul>
       <li>🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window</li>
@@ -37,7 +40,7 @@
       On X11, Emote includes a configurable shortcut to open the picker.
     </p>
     <p>
-      🪟 On Wayland, Emote explains its optional automatic paste feature before requesting keyboard control through the RemoteDesktop portal. Copy-only mode needs no such permission, and the choice can be changed in Preferences. A global shortcut still needs to be set in your desktop. See <a href="https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland" target="_blank">Hotkey In Wayland</a>.
+      🪟 On Wayland, Emote offers global shortcut setup the first time it opens. If skipped, setup remains available in Keyboard Shortcuts. Saved shortcuts can be changed in the desktop’s shortcut settings. Automatic paste separately requires keyboard-control permission, while copy-only mode needs no permission.
     </p>
   </description>
 
@@ -77,8 +80,6 @@
     <control>pointing</control>
     <control>keyboard</control>
     <control>touch</control>
-    <display_length compare="ge">small</display_length>
-    <display_length compare="le">xlarge</display_length>
   </supports>
   <!-- https://hughsie.github.io/oars/generate.html -->
   <content_rating type="oars-1.1" />

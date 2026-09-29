@@ -7,13 +7,22 @@ from gi.repository import Adw, Gdk, Gtk
 from emote import config, user_data
 
 
+def format_accelerator_label(label):
+    label = label.removeprefix("Press ")
+    valid, keyval, modifiers = Gtk.accelerator_parse(label)
+    if valid:
+        return Gtk.accelerator_get_label(keyval, modifiers)
+    return label
+
+
 class KeyboardShortcuts(Adw.Dialog):
     def __init__(self, picker, update_accelerator):
         super().__init__(title="Keyboard Shortcuts")
+        self.picker = picker
         self.update_accelerator = update_accelerator
         self.recording = False
         self.set_content_width(400)
-        self.set_content_height(260)
+        self.set_content_height(420)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         box.set_margin_top(24)
         box.set_margin_bottom(24)
@@ -26,13 +35,28 @@ class KeyboardShortcuts(Adw.Dialog):
         toolbar.set_content(scroller)
         self.set_child(toolbar)
 
-        if not config.is_wayland:
+        if config.is_wayland:
             row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
-            row.append(Gtk.Label(label="Open Emoji Picker", xalign=0, hexpand=True))
+            row.append(Gtk.Label(label="Open Emote", xalign=0, hexpand=True))
+            self.global_shortcut_button = Gtk.Button(valign=Gtk.Align.CENTER)
+            self.global_shortcut_button.connect(
+                "clicked", self.setup_wayland_global_shortcut
+            )
+            self.global_shortcut_value = Gtk.Label(valign=Gtk.Align.CENTER)
+            self.global_shortcut_value.add_css_class("dim-label")
+            row.append(self.global_shortcut_button)
+            row.append(self.global_shortcut_value)
+            box.append(row)
+            self.refresh_wayland_global_shortcut()
+        else:
+            row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+            row.append(Gtk.Label(label="Open Emote", xalign=0, hexpand=True))
             self.record_button = Gtk.Button(label=user_data.load_accelerator()[1])
             self.record_button.connect("clicked", self.start_recording)
             row.append(self.record_button)
             box.append(row)
+
+        box.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL))
 
         for label, binding in (
             ("Select Emoji", "Enter"),
@@ -52,6 +76,39 @@ class KeyboardShortcuts(Adw.Dialog):
         keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
         keys.connect("key-pressed", self.on_key_pressed)
         self.add_controller(keys)
+
+    def setup_wayland_global_shortcut(self, _button):
+        application = self.picker.get_application()
+        if user_data.load_wayland_global_shortcut_choice() is True:
+            return
+        started = application.set_wayland_global_shortcut()
+        if started:
+            self.global_shortcut_button.set_label("Opening…")
+            self.global_shortcut_button.set_sensitive(False)
+        else:
+            self.refresh_wayland_global_shortcut()
+
+    def refresh_wayland_global_shortcut(self):
+        is_set = user_data.load_wayland_global_shortcut_choice() is True
+        if is_set:
+            shortcut_label = format_accelerator_label(
+                user_data.load_wayland_global_shortcut_label()
+            )
+            self.global_shortcut_value.set_label(shortcut_label)
+            self.global_shortcut_value.set_visible(True)
+            self.global_shortcut_button.set_visible(False)
+        else:
+            registered = self.picker.get_application().is_wayland_shortcut_registered()
+            self.global_shortcut_button.set_label(
+                "Details…" if registered else "Set up…"
+            )
+            self.global_shortcut_button.set_tooltip_text(
+                "About the disabled shortcut" if registered else "Set up shortcut"
+            )
+            self.global_shortcut_button.set_sensitive(True)
+            self.global_shortcut_button.set_visible(True)
+            self.global_shortcut_value.set_label("Disabled" if registered else "")
+            self.global_shortcut_value.set_visible(registered)
 
     def start_recording(self, _button):
         self.recording = True

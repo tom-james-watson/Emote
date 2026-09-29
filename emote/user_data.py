@@ -21,10 +21,13 @@ DEFAULT_ACCELERATOR_STRING = "<Primary><Alt>e"
 ACCELERATOR_LABEL = "accelerator_label"
 DEFAULT_ACCELERATOR_LABEL = "Ctrl+Alt+E"
 
-SHOWN_WELCOME = "shown_welcome"
-DEFAULT_SHOWN_WELCOME = False
+# Historical first-launch marker, retained for upgrade test fixtures. It does
+# not change the native shortcut setup flow.
+LEGACY_SHOWN_WELCOME = "shown_welcome"
 
 WAYLAND_AUTO_PASTE = "wayland_auto_paste"
+WAYLAND_GLOBAL_SHORTCUT = "wayland_global_shortcut"
+WAYLAND_GLOBAL_SHORTCUT_LABEL = "wayland_global_shortcut_label"
 
 SKINTONE_INDEX = "skintone_index"
 DEFAULT_SKINTONE_INDEX = 0
@@ -82,14 +85,9 @@ def update_accelerator(accel_string, accel_label):
         db[ACCELERATOR_LABEL] = accel_label
 
 
-def load_shown_welcome():
+def is_pre_native_shortcut_install():
     with shelve.open(SHELVE_PATH) as db:
-        return db.get(SHOWN_WELCOME, DEFAULT_SHOWN_WELCOME)
-
-
-def update_shown_welcome():
-    with shelve.open(SHELVE_PATH) as db:
-        db[SHOWN_WELCOME] = True
+        return bool(db.get(LEGACY_SHOWN_WELCOME, False))
 
 
 def load_wayland_auto_paste_choice():
@@ -101,6 +99,27 @@ def load_wayland_auto_paste_choice():
 def update_wayland_auto_paste_choice(enabled):
     with shelve.open(SHELVE_PATH) as db:
         db[WAYLAND_AUTO_PASTE] = bool(enabled)
+
+
+def load_wayland_global_shortcut_choice():
+    """Return whether the portal most recently reported Emote's shortcut."""
+    with shelve.open(SHELVE_PATH) as db:
+        return db.get(WAYLAND_GLOBAL_SHORTCUT)
+
+
+def update_wayland_global_shortcut_choice(enabled):
+    with shelve.open(SHELVE_PATH) as db:
+        db[WAYLAND_GLOBAL_SHORTCUT] = bool(enabled)
+
+
+def load_wayland_global_shortcut_label():
+    with shelve.open(SHELVE_PATH) as db:
+        return db.get(WAYLAND_GLOBAL_SHORTCUT_LABEL, "Ctrl+Alt+E")
+
+
+def update_wayland_global_shortcut_label(label):
+    with shelve.open(SHELVE_PATH) as db:
+        db[WAYLAND_GLOBAL_SHORTCUT_LABEL] = str(label)
 
 
 def normalize_picker_size(size):
