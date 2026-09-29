@@ -1,9 +1,12 @@
-.PHONY: dev dev-debug dev-reset dev-reset-upgrade dev-portal-identity format install clean update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub snap snap-clean
+.PHONY: dev dev-debug dev-reset dev-reset-upgrade prod-reset dev-portal-identity format install clean update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub snap snap-clean
 
 USER_DATA_HOME := $(if $(XDG_DATA_HOME),$(XDG_DATA_HOME),$(HOME)/.local/share)
+APP_ID := com.tomjwatson.Emote
 DEV_DESKTOP_FILE := $(USER_DATA_HOME)/applications/com.tomjwatson.Emote.desktop
 DEV_DATA_DIR := $(USER_DATA_HOME)/Emote
-APP_ID := com.tomjwatson.Emote
+PROD_DATA_DIR := $(HOME)/.local/share/Emote
+FLATPAK_DATA_DIR := $(HOME)/.var/app/$(APP_ID)/data
+SNAP_DATA_DIR := $(HOME)/snap/emote/current/.local/share/Emote
 
 dev: dev-portal-identity
 	ENV=dev pipenv run start
@@ -29,6 +32,19 @@ dev-reset-upgrade: dev-reset
 	@pipenv run python -c "import shelve; from emote import user_data; db = shelve.open(user_data.SHELVE_PATH); db[user_data.LEGACY_SHOWN_WELCOME] = True; db.close()"
 	@echo "Emote upgrade state prepared. Run 'make dev' to test with an existing shortcut."
 
+# Clear settings and portal state for installed Emote builds without uninstalling them.
+prod-reset:
+	@pkill -x emote 2>/dev/null || true
+	@flatpak kill "$(APP_ID)" >/dev/null 2>&1 || true
+	@rm -f "$(PROD_DATA_DIR)"/user_data* "$(PROD_DATA_DIR)/remote-desktop-token"
+	@rm -f "$(FLATPAK_DATA_DIR)"/user_data* "$(FLATPAK_DATA_DIR)/remote-desktop-token"
+	@rm -f "$(SNAP_DATA_DIR)"/user_data* "$(SNAP_DATA_DIR)/remote-desktop-token"
+	@flatpak permission-reset "$(APP_ID)" >/dev/null 2>&1 || true
+	@gsettings reset "org.gnome.settings-daemon.global-shortcuts.application:/org/gnome/settings-daemon/global-shortcuts/$(APP_ID)/" shortcuts >/dev/null 2>&1 || true
+	@gdbus call --session --dest org.kde.kglobalaccel --object-path /kglobalaccel --method org.kde.KGlobalAccel.unregister "$(APP_ID)" open-picker >/dev/null 2>&1 || true
+	@gdbus call --session --dest org.kde.kglobalaccel --object-path /kglobalaccel --method org.kde.KGlobalAccel.unregister "$(APP_ID)" open-emote >/dev/null 2>&1 || true
+	@echo "Installed Emote data reset. Launch Emote to run the first-start setup again."
+
 # Recent xdg-desktop-portal versions require host applications to register an
 # app ID backed by an installed desktop file before using GlobalShortcuts.
 dev-portal-identity:
@@ -51,7 +67,7 @@ flatpak:
 
 flatpak-install:
 	flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-	flatpak install flathub -y org.flatpak.Builder org.gnome.Platform//50 org.gnome.Sdk//50 org.freedesktop.appstream-glib
+	flatpak install flathub -y org.flatpak.Builder org.gnome.Platform//51 org.gnome.Sdk//51 org.freedesktop.appstream-glib
 	wget -N https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/pip/flatpak-pip-generator
 	chmod +x flatpak-pip-generator
 
@@ -77,7 +93,7 @@ flathub:
 	flatpak-builder --repo=flathub --force-clean build flatpak/com.tomjwatson.Emote.yml
 
 snap:
-	snapcraft
+	snapcraft pack
 
 snap-clean:
 	snapcraft clean

@@ -10,9 +10,13 @@ Run the commands below from the repository root.
 2. Add a release entry to [`flatpak/com.tomjwatson.Emote.metainfo.xml`](../flatpak/com.tomjwatson.Emote.metainfo.xml).
 3. Build and test the packages using the instructions below.
 
+For a beta, use a version such as `5.0.0-beta.1`. Use the AppStream form
+`5.0.0~beta1` with `type="development"` so it sorts before the final release.
+Publishing remains a manual step for both stores.
+
 ## Building a Flatpak
 
-Install Flatpak and flatpak-builder using your distribution's package manager. The [manifest](../com.tomjwatson.Emote.yml) targets the GNOME 50 runtime.
+Install Flatpak and flatpak-builder using your distribution's package manager. The [manifest](../com.tomjwatson.Emote.yml) targets the GNOME 51 runtime.
 
 This command installs the Flatpak builder app, runtime, SDK, and validation tool. It also downloads `flatpak-pip-generator`:
 
@@ -25,6 +29,8 @@ If Python dependencies have changed, regenerate [`flatpak/python3-requirements.j
 ```bash
 make flatpak-requirements
 ```
+
+The Python-Xlib module is installed from its pure-Python wheel because its source archive expects `pkg_resources`, which is no longer included in the GNOME 51 SDK's setuptools.
 
 Build and install the package locally:
 
@@ -68,7 +74,24 @@ make flatpak-clean
 
 Emote's Flathub package is maintained in [flathub/com.tomjwatson.Emote](https://github.com/flathub/com.tomjwatson.Emote).
 
-Update the Emote source commit in that repository's [`com.tomjwatson.Emote.yml`](https://github.com/flathub/com.tomjwatson.Emote/blob/master/com.tomjwatson.Emote.yml) to the commit you want to release. Monitor the resulting build and publication in [Flathub Buildbot](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote).
+Update that repository's [`com.tomjwatson.Emote.yml`](https://github.com/flathub/com.tomjwatson.Emote/blob/master/com.tomjwatson.Emote.yml) to match the locally tested manifest, replacing the local `dir` source with the release tag archive and its SHA-256 checksum. Open a pull request and install the temporary test build posted by the Flathub bot before publishing it.
+
+The Flathub repository's `master` branch publishes to the stable repository. Its
+`beta` branch publishes to the separate Flathub Beta repository. Prepare beta
+changes on a branch based on `master`; after its pull-request test build passes,
+create or update the `beta` branch with those changes. Do not merge beta-only
+changes into `master`.
+
+Pushing or merging the publishing branch triggers the official build. Monitor it
+in [Flathub Buildbot](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote).
+
+Testers can install and run the beta with:
+
+```bash
+flatpak remote-add --if-not-exists --user flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+flatpak install --user flathub-beta com.tomjwatson.Emote//beta
+flatpak run --branch=beta com.tomjwatson.Emote
+```
 
 ## Building a Snap
 
@@ -104,8 +127,11 @@ Ensure the Git tag for the release has been pushed, then log in:
 snapcraft login
 ```
 
-Upload the package to the `edge` channel, replacing the placeholder with the built `.snap` file:
+Upload a beta package to the `beta` channel, replacing the placeholder with the built `.snap` file:
 
 ```bash
-snapcraft push --release=edge <path-to-snap>
+snapcraft upload <path-to-snap> --release=beta
 ```
+
+Testers can install it with `sudo snap install emote --beta`, or switch an
+existing installation with `sudo snap refresh emote --beta`.

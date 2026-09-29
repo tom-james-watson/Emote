@@ -51,6 +51,21 @@
   </screenshots>
 
   <releases>
+    <release type="development" version="5.0.0~beta1" date="2026-09-29T00:00:00Z">
+      <description>
+        <ul>
+          <li>Port Emote to GTK4 and libadwaita with a continuous emoji picker</li>
+          <li>Add native Wayland global shortcut setup and optional automatic paste</li>
+          <li>Add consistent category icons and emoji through Unicode 17</li>
+          <li>Improve picker interactions, appearance, and configuration</li>
+        </ul>
+      </description>
+    </release>
+    <release type="stable" version="4.1.0" date="2023-10-22T00:00:00Z">
+      <description>
+        <p>Fix font configuration in the Snap package</p>
+      </description>
+    </release>
     <release type="stable" version="4.0.2" date="2023-07-20T00:00:00Z">
       <description>
         <p>Add error handling to autostart logic to ensure app can run even if that logic fails</p>

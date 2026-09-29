@@ -3,10 +3,7 @@
 Emote is a popup emoji picker for Linux, built with GTK4 and libadwaita.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="images/screenshot-dark.png">
-    <img width="500" src="images/screenshot-light.png" alt="Emote emoji picker in light or dark mode">
-  </picture>
+  <img width="500" src="images/screenshot-dark.png" alt="Emote emoji picker in dark mode">
 </p>
 
 - Start typing to search, or scroll through the emoji categories.

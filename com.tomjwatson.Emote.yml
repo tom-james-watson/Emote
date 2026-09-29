@@ -1,6 +1,6 @@
 app-id: com.tomjwatson.Emote
 runtime: org.gnome.Platform
-runtime-version: "50"
+runtime-version: "51"
 sdk: org.gnome.Sdk
 command: emote
 finish-args:

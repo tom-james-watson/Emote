@@ -58,6 +58,14 @@ make dev
 
 **This also resets portal permissions for an installed Emote build**, because development and packaged builds share the same application ID. The next launch behaves like a clean install.
 
+To clear saved data for installed Emote builds without uninstalling them, run:
+
+```bash
+make prod-reset
+```
+
+This removes settings, recent emojis, and the automatic-paste restore token for native/Snap and Flatpak installs, and resets Emote's portal shortcut permissions. The next launch runs the first-start setup again.
+
 To simulate an upgrade from an older release instead:
 
 ```bash

@@ -1,5 +1,5 @@
 name: emote
-version: '4.2.0-dev'
+version: '5.0.0-beta.1'
 license: GPL-3.0+
 summary: Emoji picker built on GTK4
 description: |
@@ -19,11 +19,9 @@ parts:
       - python3-setuptools
       - pkg-config
     stage-packages:
-      # Core PyGObject dependencies.
+      # GTK, libadwaita, and librsvg are provided by the GNOME extension.
       - python3-gi
       - python3-gi-cairo
-      - gir1.2-gtk-4.0
-      - librsvg2-common
       - xdotool
       - libei1
   static:
