@@ -1,63 +1,68 @@
 {
-  "name": "python3-requirements",
-  "buildsystem": "simple",
-  "build-commands": [],
-  "modules": [
-    {
-      "name": "python3-six",
-      "buildsystem": "simple",
-      "build-commands": [
-        "pip3 install --no-index --no-build-isolation --find-links=file://${PWD} --prefix=${FLATPAK_DEST} six==1.17.0"
-      ],
-      "sources": [
+    "name": "python3-requirements",
+    "buildsystem": "simple",
+    "build-commands": [],
+    "modules": [
         {
-          "type": "file",
-          "url": "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz",
-          "sha256": "ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"
-        }
-      ]
-    },
-    {
-      "name": "python3-python-libei",
-      "buildsystem": "simple",
-      "build-commands": [
-        "pip3 install --no-index --no-build-isolation --no-deps --find-links=file://${PWD} --prefix=${FLATPAK_DEST} python-libei==0.5.2"
-      ],
-      "sources": [
+            "name": "python3-python-libei",
+            "buildsystem": "simple",
+            "build-commands": [
+                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"python-libei==0.5.2\" --no-build-isolation"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "url": "https://files.pythonhosted.org/packages/c8/e5/fb5d12efaf7657edf235da6fdf37829869cd52b889ba0cd2dd2b5e2c5e48/python_libei-0.5.2-py3-none-any.whl",
+                    "sha256": "2f892355af86ebc52e49fc618880f68a433d7717609a5062447bec276cfc976d"
+                }
+            ]
+        },
         {
-          "type": "file",
-          "url": "https://files.pythonhosted.org/packages/c8/e5/fb5d12efaf7657edf235da6fdf37829869cd52b889ba0cd2dd2b5e2c5e48/python_libei-0.5.2-py3-none-any.whl",
-          "sha256": "2f892355af86ebc52e49fc618880f68a433d7717609a5062447bec276cfc976d"
-        }
-      ]
-    },
-    {
-      "name": "python3-python-xlib",
-      "buildsystem": "simple",
-      "build-commands": [
-        "pip3 install --no-index --no-deps --prefix=${FLATPAK_DEST} ./python_xlib-0.33-py2.py3-none-any.whl"
-      ],
-      "sources": [
+            "name": "python3-python-xlib",
+            "buildsystem": "simple",
+            "build-commands": [
+                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"python-xlib==0.33\" --no-build-isolation"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "url": "https://files.pythonhosted.org/packages/fc/b8/ff33610932e0ee81ae7f1269c890f697d56ff74b9f5b2ee5d9b7fa2c5355/python_xlib-0.33-py2.py3-none-any.whl",
+                    "sha256": "c3534038d42e0df2f1392a1b30a15a4ff5fdc2b86cfa94f072bf11b10a164398"
+                },
+                {
+                    "type": "file",
+                    "url": "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl",
+                    "sha256": "4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"
+                }
+            ]
+        },
         {
-          "type": "file",
-          "url": "https://files.pythonhosted.org/packages/fc/b8/ff33610932e0ee81ae7f1269c890f697d56ff74b9f5b2ee5d9b7fa2c5355/python_xlib-0.33-py2.py3-none-any.whl",
-          "sha256": "c3534038d42e0df2f1392a1b30a15a4ff5fdc2b86cfa94f072bf11b10a164398"
-        }
-      ]
-    },
-    {
-      "name": "python3-setproctitle",
-      "buildsystem": "simple",
-      "build-commands": [
-        "pip3 install --no-index --no-build-isolation --find-links=file://${PWD} --prefix=${FLATPAK_DEST} setproctitle==1.3.7"
-      ],
-      "sources": [
+            "name": "python3-setproctitle",
+            "buildsystem": "simple",
+            "build-commands": [
+                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"setproctitle==1.3.7\" --no-build-isolation"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "url": "https://files.pythonhosted.org/packages/8d/48/49393a96a2eef1ab418b17475fb92b8fcfad83d099e678751b05472e69de/setproctitle-1.3.7.tar.gz",
+                    "sha256": "bc2bc917691c1537d5b9bca1468437176809c7e11e5694ca79a9ca12345dcb9e"
+                }
+            ]
+        },
         {
-          "type": "file",
-          "url": "https://files.pythonhosted.org/packages/8d/48/49393a96a2eef1ab418b17475fb92b8fcfad83d099e678751b05472e69de/setproctitle-1.3.7.tar.gz",
-          "sha256": "bc2bc917691c1537d5b9bca1468437176809c7e11e5694ca79a9ca12345dcb9e"
+            "name": "python3-six",
+            "buildsystem": "simple",
+            "build-commands": [
+                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"six==1.17.0\" --no-build-isolation"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "url": "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl",
+                    "sha256": "4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

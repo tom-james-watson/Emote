@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 from tempfile import TemporaryDirectory
 
 from emote.keyboard_shortcuts import KeyboardShortcuts, format_accelerator_label
+from gi.repository import Gdk
 
 
 class KeyboardShortcutLabelTests(TestCase):
@@ -16,6 +17,45 @@ class KeyboardShortcutLabelTests(TestCase):
 
     def test_formats_portal_accelerator_syntax(self):
         self.assertEqual(format_accelerator_label("<Control><Alt>t"), "Ctrl+Alt+T")
+
+    def test_recording_waits_for_non_modifier_key(self):
+        dialog = SimpleNamespace(
+            recording=True,
+            record_button=Mock(),
+            update_accelerator=Mock(),
+        )
+
+        KeyboardShortcuts.on_key_pressed(
+            dialog, None, Gdk.KEY_Alt_L, 0, Gdk.ModifierType.CONTROL_MASK
+        )
+        self.assertTrue(dialog.recording)
+        dialog.update_accelerator.assert_not_called()
+
+        KeyboardShortcuts.on_key_pressed(
+            dialog,
+            None,
+            Gdk.KEY_e,
+            0,
+            Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.ALT_MASK,
+        )
+        self.assertFalse(dialog.recording)
+        dialog.update_accelerator.assert_called_once_with(
+            "<Control><Alt>e", "Ctrl+Alt+E"
+        )
+
+    def test_shift_alone_is_not_a_global_shortcut(self):
+        dialog = SimpleNamespace(
+            recording=True,
+            record_button=Mock(),
+            update_accelerator=Mock(),
+        )
+
+        KeyboardShortcuts.on_key_pressed(
+            dialog, None, Gdk.KEY_e, 0, Gdk.ModifierType.SHIFT_MASK
+        )
+
+        self.assertTrue(dialog.recording)
+        dialog.update_accelerator.assert_not_called()
 
     def test_removes_portal_press_prefix(self):
         self.assertEqual(format_accelerator_label("Press Ctrl+Alt+E"), "Ctrl+Alt+E")

@@ -1,4 +1,4 @@
-.PHONY: dev dev-debug dev-reset dev-reset-upgrade prod-reset dev-portal-identity format install clean update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub snap snap-clean
+.PHONY: dev dev-debug dev-reset prod-reset dev-portal-identity format install test clean update-emojis flatpak flatpak-install flatpak-requirements flatpak-validate flatpak-clean flathub snap snap-clean
 
 USER_DATA_HOME := $(if $(XDG_DATA_HOME),$(XDG_DATA_HOME),$(HOME)/.local/share)
 APP_ID := com.tomjwatson.Emote
@@ -25,13 +25,6 @@ dev-reset:
 	@gdbus call --session --dest org.kde.kglobalaccel --object-path /kglobalaccel --method org.kde.KGlobalAccel.unregister "$(APP_ID)" open-emote >/dev/null 2>&1 || true
 	@echo "Emote development state reset. Run 'make dev' to start the first-run flow."
 
-# Simulate upgrading a released Emote installation. Unlike dev-reset, this
-# retains the historical first-launch marker for migration testing. The setup
-# flow is shared with clean installs, and manual desktop shortcuts remain.
-dev-reset-upgrade: dev-reset
-	@pipenv run python -c "import shelve; from emote import user_data; db = shelve.open(user_data.SHELVE_PATH); db[user_data.LEGACY_SHOWN_WELCOME] = True; db.close()"
-	@echo "Emote upgrade state prepared. Run 'make dev' to test with an existing shortcut."
-
 # Clear settings and portal state for installed Emote builds without uninstalling them.
 prod-reset:
 	@pkill -x emote 2>/dev/null || true
@@ -49,12 +42,20 @@ prod-reset:
 # app ID backed by an installed desktop file before using GlobalShortcuts.
 dev-portal-identity:
 	install -Dm644 static/com.tomjwatson.Emote.desktop "$(DEV_DESKTOP_FILE)"
+	desktop-file-edit \
+		--set-key=Exec --set-value="$(shell command -v pipenv) run start" \
+		--set-key=Path --set-value="$(CURDIR)" \
+		--set-key=NoDisplay --set-value=true \
+		"$(DEV_DESKTOP_FILE)"
 
 format:
 	pipenv run black emote
 
 install:
 	pipenv install --site-packages -d
+
+test:
+	pipenv run python -m unittest discover -v
 
 clean:
 	rm -r .flatpak-builder build/
@@ -65,17 +66,19 @@ update-emojis:
 flatpak:
 	flatpak-builder --user --install --force-clean build com.tomjwatson.Emote.yml
 
-flatpak-install:
+flatpak-pip-generator:
+	wget -O $@.tmp https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/pip/flatpak-pip-generator.py
+	chmod +x $@.tmp
+	mv $@.tmp $@
+
+flatpak-install: flatpak-pip-generator
 	flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 	flatpak install flathub -y org.flatpak.Builder org.gnome.Platform//51 org.gnome.Sdk//51 org.freedesktop.appstream-glib
-	wget -N https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/pip/flatpak-pip-generator
-	chmod +x flatpak-pip-generator
 
-flatpak-requirements:
+flatpak-requirements: flatpak-pip-generator
 	pipenv lock
 	pipenv requirements > requirements.txt
-	pipenv run ./flatpak-pip-generator --runtime='org.gnome.Sdk//50' --output python3-requirements -r requirements.txt
-	mv python3-requirements.json flatpak/python3-requirements.json
+	pipenv run ./flatpak-pip-generator --runtime='org.gnome.Sdk//51' --output flatpak/python3-requirements -r requirements.txt
 
 flatpak-validate:
 	desktop-file-validate static/com.tomjwatson.Emote.desktop

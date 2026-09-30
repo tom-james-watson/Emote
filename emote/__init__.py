@@ -60,9 +60,12 @@ class EmoteApplication(Adw.Application):
                 on_missing=self.on_wayland_shortcut_missing,
                 on_unavailable=self.on_wayland_shortcut_unavailable,
             )
-            # Always ask the portal for a previously registered binding. This
-            # restores native shortcuts without showing configuration UI.
-            self.wayland_shortcut.enable()
+            # GNOME may return no shortcuts for a new session until BindShortcuts
+            # is called, even when the app already has a saved binding.
+            if user_data.load_wayland_global_shortcut_choice() is True:
+                self.wayland_shortcut.bind()
+            else:
+                self.wayland_shortcut.enable()
             # Restore an approved keyboard-control session before the picker is
             # needed, so the first emoji cannot outrun portal negotiation.
             self.maybe_start_wayland_paste()
@@ -272,7 +275,8 @@ class EmoteApplication(Adw.Application):
         self.pending_wayland_shortcut_setup = False
         self.wayland_shortcut_onboarding = False
         self.wayland_shortcut_needs_setup = False
-        user_data.update_wayland_global_shortcut_choice(False)
+        if pending:
+            user_data.update_wayland_global_shortcut_choice(False)
 
         if self.picker_window:
             self.picker_window.end_wayland_request(present=True)
@@ -355,9 +359,10 @@ class EmoteApplication(Adw.Application):
         return GLib.SOURCE_REMOVE
 
     def paste_wayland(self):
-        if self.wayland_paste and user_data.load_wayland_auto_paste_choice() is True:
-            if self.wayland_paste.paste():
-                return GLib.SOURCE_REMOVE
+        if user_data.load_wayland_auto_paste_choice() is not True:
+            return GLib.SOURCE_REMOVE
+        if self.wayland_paste and self.wayland_paste.paste():
+            return GLib.SOURCE_REMOVE
         user_data.update_wayland_auto_paste_choice(False)
         if self.wayland_paste:
             self.wayland_paste.close()

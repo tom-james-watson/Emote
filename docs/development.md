@@ -9,13 +9,13 @@ Emote requires GTK4, libadwaita 1.5 or newer, PyGObject, and Pipenv. It uses lib
 On Ubuntu or Debian, install the system dependencies:
 
 ```bash
-sudo apt install gir1.2-adw-1 gir1.2-gtk-4.0 python3-gi python3-venv pipenv xdotool librsvg2-common libei1
+sudo apt install gir1.2-adw-1 gir1.2-gtk-4.0 python3-gi python3-venv pipenv xdotool librsvg2-common libei1 desktop-file-utils
 ```
 
 On Fedora:
 
 ```bash
-sudo dnf install libadwaita gtk4 python3-gobject pipenv xdotool rsvg-pixbuf-loader libei
+sudo dnf install libadwaita gtk4 python3-gobject pipenv xdotool rsvg-pixbuf-loader libei desktop-file-utils
 ```
 
 If your distribution has an older version of libadwaita, you can build with the project's Flatpak runtime instead; see [Building a Flatpak](releasing.md#building-a-flatpak).
@@ -27,11 +27,25 @@ make install
 make dev
 ```
 
-`make install` creates the Pipenv environment with access to system Python packages. `make dev` installs Emote's desktop metadata in your user data directory and runs the application in the foreground. The metadata lets desktop portals identify the application when it requests a global shortcut.
+`make install` creates the Pipenv environment with access to system Python packages. `make dev` installs hidden desktop metadata for this checkout in your user data directory and runs the application in the foreground. The metadata lets desktop portals identify the application when it requests a global shortcut; it does not add an app-menu entry.
 
 Leave that terminal open, then run `make dev` in a second terminal to show the picker. On X11, you can also use `Ctrl+Alt+E` after the application starts. See [Desktop integration](../README.md#desktop-integration) for shortcut and automatic-paste setup.
 
 The source checkout stores settings and recently used emojis in `~/.local/share/Emote` by default.
+
+## Running automated tests
+
+After `make install`, run the Python unit tests from the repository root:
+
+```bash
+make test
+```
+
+These tests use the GTK and libadwaita system packages listed above, but do not need a running desktop session. To run one test module, for example:
+
+```bash
+pipenv run python -m unittest tests.test_wayland_shortcut -v
+```
 
 ## Debugging with GtkInspector
 
@@ -66,14 +80,7 @@ make prod-reset
 
 This removes settings, recent emojis, and the automatic-paste restore token for native/Snap and Flatpak installs, and resets Emote's portal shortcut permissions. The next launch runs the first-start setup again.
 
-To simulate an upgrade from an older release instead:
-
-```bash
-make dev-reset-upgrade
-make dev
-```
-
-This performs the same reset, then restores the legacy first-launch marker. It leaves manually configured desktop shortcuts in place. Check that:
+To test an upgrade with an existing manual shortcut, leave that shortcut in your desktop settings, reset Emote, and launch it again. Check that:
 
 - An existing manual shortcut still opens Emote after accepting or skipping native shortcut setup.
 - Skipping setup does not prompt again on subsequent launches.

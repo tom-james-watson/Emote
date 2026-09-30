@@ -9,6 +9,24 @@ from emote.picker import EmojiPicker
 
 class PasteCancellationTests(TestCase):
     @patch("emote.config.is_wayland", True)
+    def test_copy_only_mode_does_not_reopen_picker_or_report_failure(self):
+        with TemporaryDirectory() as directory, patch(
+            "emote.user_data.SHELVE_PATH", directory + "/user_data"
+        ):
+            user_data.update_wayland_auto_paste_choice(False)
+            application = SimpleNamespace(
+                wayland_paste=None,
+                wayland_paste_error_pending=False,
+                activate=Mock(),
+            )
+
+            EmoteApplication.paste_wayland(application)
+
+            application.activate.assert_not_called()
+            self.assertFalse(application.wayland_paste_error_pending)
+            self.assertFalse(user_data.load_wayland_auto_paste_choice())
+
+    @patch("emote.config.is_wayland", True)
     @patch("emote.picker.Adw.AlertDialog.new")
     def test_cancel_releases_input_and_keeps_failure_dialog_tracked(self, new_dialog):
         with TemporaryDirectory() as directory, patch(

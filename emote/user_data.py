@@ -21,10 +21,6 @@ DEFAULT_ACCELERATOR_STRING = "<Primary><Alt>e"
 ACCELERATOR_LABEL = "accelerator_label"
 DEFAULT_ACCELERATOR_LABEL = "Ctrl+Alt+E"
 
-# Historical first-launch marker, retained for upgrade test fixtures. It does
-# not change the native shortcut setup flow.
-LEGACY_SHOWN_WELCOME = "shown_welcome"
-
 WAYLAND_AUTO_PASTE = "wayland_auto_paste"
 X11_AUTO_PASTE = "x11_auto_paste"
 WAYLAND_GLOBAL_SHORTCUT = "wayland_global_shortcut"
@@ -84,11 +80,6 @@ def update_accelerator(accel_string, accel_label):
     with shelve.open(SHELVE_PATH) as db:
         db[ACCELERATOR_STRING] = accel_string
         db[ACCELERATOR_LABEL] = accel_label
-
-
-def is_pre_native_shortcut_install():
-    with shelve.open(SHELVE_PATH) as db:
-        return bool(db.get(LEGACY_SHOWN_WELCOME, False))
 
 
 def load_wayland_auto_paste_choice():

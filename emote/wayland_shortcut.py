@@ -272,6 +272,7 @@ class WaylandShortcut:
             self._bind_shortcut(self._generation)
         elif self._on_missing:
             self._registered = False
+            self._last_bound_trigger = None
             self._on_missing(False)
 
     def _bind_shortcut(self, generation):
@@ -459,6 +460,7 @@ class WaylandShortcut:
             self._notify_bound(shortcut)
         elif self._on_missing:
             self._registered = False
+            self._last_bound_trigger = None
             self._on_missing(False)
 
     def _on_session_closed(self, *_args):

@@ -24,7 +24,7 @@ This command installs the Flatpak builder app, runtime, SDK, and validation tool
 make flatpak-install
 ```
 
-If Python dependencies have changed, regenerate [`flatpak/python3-requirements.json`](../flatpak/python3-requirements.json) from the Pipenv environment:
+If Python dependencies have changed, regenerate [`flatpak/python3-requirements.json`](../flatpak/python3-requirements.json) from the Pipenv environment. This target downloads `flatpak-pip-generator` automatically if it is missing:
 
 ```bash
 make flatpak-requirements

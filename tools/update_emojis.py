@@ -8,8 +8,9 @@ from pathlib import Path
 import tempfile
 from urllib.request import urlopen
 
-
-SOURCE_URL = "https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv"
+SOURCE_URL = (
+    "https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv"
+)
 MAX_UNICODE_VERSION = (17, 0)
 OUTPUT_PATH = Path(__file__).resolve().parents[1] / "static" / "emojis.csv"
 
@@ -57,9 +58,7 @@ def main():
             delete=False,
         ) as output:
             temporary_path = Path(output.name)
-            writer = csv.DictWriter(
-                output, fieldnames=fieldnames, lineterminator="\n"
-            )
+            writer = csv.DictWriter(output, fieldnames=fieldnames, lineterminator="\n")
             writer.writeheader()
             writer.writerows(rows)
         os.replace(temporary_path, OUTPUT_PATH)

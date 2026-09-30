@@ -16,7 +16,6 @@ from emote import EmoteApplication, config, user_data, css, emojis
 from emote.wayland_shortcut import WaylandShortcut, SHORTCUT_ID
 from gi.repository import Adw, Gio, GLib, Gtk
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--scenario", choices=("bound", "disabled", "cancel"), default="bound"

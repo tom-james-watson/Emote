@@ -14,4 +14,6 @@ configure_file(
   install_dir: join_paths(datadir, 'applications')
 )
 
-install_subdir('.', install_dir: join_paths(datadir, meson.project_name(), 'static'))
+staticdir = join_paths(datadir, meson.project_name(), 'static')
+install_data('emojis.csv', 'style.css', install_dir: staticdir)
+install_subdir('icons', install_dir: staticdir)

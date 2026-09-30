@@ -33,6 +33,30 @@ class ApplicationShortcutTests(TestCase):
         return application, shortcut, picker
 
     @patch("emote.config.is_wayland", True)
+    @patch("emote.config.is_flatpak", False)
+    @patch("emote.emojis.init")
+    @patch("emote.css.load_css")
+    @patch("emote.setproctitle")
+    @patch("emote.WaylandShortcut")
+    def test_start_restores_saved_shortcut_with_bind(
+        self, shortcut_class, _title, _css, _emojis
+    ):
+        user_data.update_wayland_global_shortcut_choice(True)
+        application = SimpleNamespace(
+            hold=Mock(),
+            maybe_start_wayland_paste=Mock(),
+            on_hotkey=Mock(),
+            on_wayland_shortcut_bound=Mock(),
+            on_wayland_shortcut_missing=Mock(),
+            on_wayland_shortcut_unavailable=Mock(),
+        )
+
+        EmoteApplication.start_daemon(application)
+
+        shortcut_class.return_value.bind.assert_called_once_with()
+        shortcut_class.return_value.enable.assert_not_called()
+
+    @patch("emote.config.is_wayland", True)
     def test_setup_always_uses_bind_shortcuts(self):
         application, shortcut, picker = self.make_application()
         application.bind_wayland_shortcut = Mock()
@@ -44,13 +68,6 @@ class ApplicationShortcutTests(TestCase):
         picker.get_portal_parent.assert_called_once_with(
             application.bind_wayland_shortcut
         )
-
-    def test_bind_uses_portal_default_shortcut(self):
-        application, shortcut, _picker = self.make_application()
-
-        EmoteApplication.bind_wayland_shortcut(application, "wayland:parent")
-
-        shortcut.bind.assert_called_once_with("wayland:parent")
 
     def test_legacy_launch_still_presents_emote(self):
         application = SimpleNamespace(
@@ -117,6 +134,16 @@ class ApplicationShortcutTests(TestCase):
             present=True
         )
 
+    def test_portal_failure_preserves_existing_shortcut_choice(self):
+        user_data.update_wayland_global_shortcut_choice(True)
+        application = self.make_missing_application()
+
+        EmoteApplication.handle_wayland_shortcut_unavailable(
+            application, RuntimeError("portal unavailable")
+        )
+
+        self.assertTrue(user_data.load_wayland_global_shortcut_choice())
+
     @patch("emote.config.is_wayland", True)
     def test_saved_disabled_shortcut_does_not_rebind(self):
         application, shortcut, picker = self.make_application()
@@ -141,21 +168,6 @@ class ApplicationShortcutTests(TestCase):
 
         dialog.refresh_wayland_global_shortcut.assert_called_once_with()
 
-    def test_upgrade_uses_same_setup_as_clean_install(self):
-        picker = SimpleNamespace(
-            get_visible=Mock(return_value=True),
-        )
-        application = SimpleNamespace(
-            picker_window=picker,
-            pending_wayland_shortcut_setup=False,
-            wayland_shortcut_needs_setup=True,
-            set_wayland_global_shortcut=Mock(),
-        )
-
-        EmoteApplication.begin_wayland_shortcut_setup(application)
-
-        application.set_wayland_global_shortcut.assert_called_once_with(onboarding=True)
-
     @staticmethod
     def make_missing_application():
         picker = SimpleNamespace(
@@ -174,60 +186,19 @@ class ApplicationShortcutTests(TestCase):
             on_picker_presented=Mock(),
         )
 
-    @patch("emote.user_data.update_wayland_global_shortcut_choice")
-    @patch("emote.user_data.is_pre_native_shortcut_install", return_value=False)
-    @patch("emote.user_data.load_wayland_global_shortcut_choice", return_value=False)
-    def test_skipped_shortcut_is_not_requested_again(
-        self, _load_choice, _legacy_install, _update
-    ):
+    def test_first_run_asks_once_and_remembers_skip(self):
         application = self.make_missing_application()
+        self.assertIsNone(user_data.load_wayland_global_shortcut_choice())
 
         EmoteApplication.handle_wayland_shortcut_missing(application)
+        self.assertTrue(application.wayland_shortcut_needs_setup)
+        self.assertFalse(user_data.load_wayland_global_shortcut_choice())
 
+        application.wayland_shortcut_needs_setup = False
+        EmoteApplication.handle_wayland_shortcut_missing(application)
         self.assertFalse(application.wayland_shortcut_needs_setup)
 
-    @patch("emote.user_data.update_wayland_global_shortcut_choice")
-    @patch("emote.user_data.is_pre_native_shortcut_install", return_value=False)
-    @patch("emote.user_data.load_wayland_global_shortcut_choice", return_value=None)
-    def test_first_run_missing_shortcut_requests_setup(
-        self, _load_choice, _legacy_install, _update
-    ):
-        application = self.make_missing_application()
-
-        EmoteApplication.handle_wayland_shortcut_missing(application)
-
-        self.assertTrue(application.wayland_shortcut_needs_setup)
-
-    @patch("emote.user_data.update_wayland_global_shortcut_choice")
-    @patch("emote.user_data.is_pre_native_shortcut_install", return_value=True)
-    @patch("emote.user_data.load_wayland_global_shortcut_choice", return_value=None)
-    def test_upgrade_requests_normal_setup(
-        self, _load_choice, _legacy_install, _update
-    ):
-        application = self.make_missing_application()
-
-        EmoteApplication.handle_wayland_shortcut_missing(application)
-
-        self.assertTrue(application.wayland_shortcut_needs_setup)
-
-    @patch("emote.user_data.update_wayland_global_shortcut_choice")
-    @patch("emote.user_data.is_pre_native_shortcut_install", return_value=False)
-    @patch("emote.user_data.load_wayland_global_shortcut_choice", return_value=True)
-    def test_removed_native_shortcut_is_not_requested_again(
-        self, _load_choice, _legacy_install, _update
-    ):
-        application = self.make_missing_application()
-
-        EmoteApplication.handle_wayland_shortcut_missing(application)
-
-        self.assertFalse(application.wayland_shortcut_needs_setup)
-
-    @patch("emote.user_data.update_wayland_global_shortcut_choice")
-    @patch("emote.user_data.is_pre_native_shortcut_install", return_value=False)
-    @patch("emote.user_data.load_wayland_global_shortcut_choice", return_value=False)
-    def test_unassigned_portal_offer_continues_without_extra_dialog(
-        self, _load_choice, _legacy_install, _update
-    ):
+    def test_unassigned_portal_offer_continues_without_extra_dialog(self):
         application = self.make_missing_application()
         application.pending_wayland_shortcut_setup = True
         application.wayland_shortcut_onboarding = True

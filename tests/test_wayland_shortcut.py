@@ -209,14 +209,38 @@ class WaylandShortcutTests(unittest.TestCase):
         shortcut = self.make_shortcut()
         shortcut._enabled = True
         shortcut._session_handle = "/session"
-        shortcut._close_session = Mock()
+        shortcut._last_bound_trigger = "Ctrl+Alt+E"
 
         shortcut._connection_lost(RuntimeError("portal restarted"))
 
         self.assertFalse(shortcut._enabled)
-        shortcut._close_session.assert_called_once_with(close_remote=False)
+        self.assertIsNone(shortcut._session_handle)
+        self.assertIsNone(shortcut._last_bound_trigger)
         timeout_add.assert_called_once()
         self.assertEqual(shortcut._recover_source, 99)
+
+    def test_removing_and_readding_same_trigger_reports_new_binding(self):
+        shortcut = self.make_shortcut()
+        shortcut._enabled = True
+        shortcut._session_handle = "/session"
+
+        def changed(entries):
+            shortcut._on_shortcuts_changed(
+                None,
+                None,
+                None,
+                None,
+                None,
+                Mock(unpack=Mock(return_value=("/session", entries))),
+            )
+
+        binding = [(SHORTCUT_ID, {"trigger_description": "Ctrl+Alt+E"})]
+        changed(binding)
+        changed([])
+        changed(binding)
+
+        self.assertEqual(self.bound.call_count, 2)
+        self.missing.assert_called_once_with(False)
 
     def test_existing_unassigned_shortcut_is_remembered(self):
         shortcut = self.make_shortcut()

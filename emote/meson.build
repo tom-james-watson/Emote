@@ -16,4 +16,20 @@ configure_file(
   install_dir: get_option('bindir')
 )
 
-install_subdir('.', install_dir: moduledir)
+install_data(
+  '__init__.py',
+  '__main__.py',
+  'config.py',
+  'css.py',
+  'debouncer.py',
+  'emojis.py',
+  'keyboard_shortcuts.py',
+  'picker.py',
+  'picker_dialogs.py',
+  'settings.py',
+  'user_data.py',
+  'wayland_paste.py',
+  'wayland_shortcut.py',
+  'x11_hotkey.py',
+  install_dir: moduledir,
+)

@@ -6,6 +6,25 @@ from gi.repository import Adw, Gdk, Gtk
 
 from emote import config, user_data
 
+MODIFIER_KEYS = {
+    Gdk.KEY_Shift_L,
+    Gdk.KEY_Shift_R,
+    Gdk.KEY_Shift_Lock,
+    Gdk.KEY_Control_L,
+    Gdk.KEY_Control_R,
+    Gdk.KEY_Alt_L,
+    Gdk.KEY_Alt_R,
+    Gdk.KEY_Meta_L,
+    Gdk.KEY_Meta_R,
+    Gdk.KEY_Super_L,
+    Gdk.KEY_Super_R,
+    Gdk.KEY_Hyper_L,
+    Gdk.KEY_Hyper_R,
+    Gdk.KEY_ISO_Level3_Shift,
+    Gdk.KEY_ISO_Level3_Latch,
+    Gdk.KEY_ISO_Level3_Lock,
+}
+
 
 def format_accelerator_label(label):
     label = label.removeprefix("Press ")
@@ -127,8 +146,14 @@ class KeyboardShortcuts(Adw.Dialog):
             self.recording = False
             return True
 
+        if keyval in MODIFIER_KEYS:
+            return True
         modifiers = state & Gtk.accelerator_get_default_mod_mask()
-        if not modifiers:
+        if not modifiers & (
+            Gdk.ModifierType.CONTROL_MASK
+            | Gdk.ModifierType.ALT_MASK
+            | Gdk.ModifierType.SUPER_MASK
+        ):
             self.record_button.set_label("Include Ctrl, Alt, or Super")
             return True
         accelerator = Gtk.accelerator_name(keyval, modifiers)
