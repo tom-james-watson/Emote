@@ -2,6 +2,11 @@
 
 Emote is a popup emoji picker for Linux, built with GTK4 and libadwaita.
 
+> [!IMPORTANT]
+> **Call for testers!**
+>
+> Emote 5.0 is a major update with several big improvements. It needs your help to test it and verify it's ready for release. Please [try the beta and share feedback](https://github.com/tom-james-watson/Emote/issues/199).
+
 <p align="center">
   <img width="500" src="images/screenshot-dark.png" alt="Emote emoji picker in dark mode">
 </p>
