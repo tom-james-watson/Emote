@@ -81,6 +81,27 @@ class ApplicationShortcutTests(TestCase):
         application.picker_window.present.assert_called_once_with()
         application.on_picker_presented.assert_called_once_with()
 
+    def test_first_launch_opens_picker_and_later_startup_stays_hidden(self):
+        def new_application():
+            application = SimpleNamespace(
+                started=False,
+                create_picker_window=Mock(),
+            )
+            application.start_daemon = Mock(
+                side_effect=lambda: setattr(application, "started", True)
+            )
+            return application
+
+        first = new_application()
+        EmoteApplication.do_activate(first)
+        first.create_picker_window.assert_called_once_with()
+        self.assertTrue(user_data.load_shown_welcome())
+
+        later = new_application()
+        EmoteApplication.do_activate(later)
+        later.start_daemon.assert_called_once_with()
+        later.create_picker_window.assert_not_called()
+
     def test_setup_response_continues_onboarding_directly(self):
         application = SimpleNamespace(
             pending_wayland_shortcut_setup=True,

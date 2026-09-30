@@ -31,7 +31,9 @@ class EmoteApplication(Adw.Application):
     def do_activate(self):
         if not self.started:
             self.start_daemon()
-            self.create_picker_window()
+            if not user_data.load_shown_welcome():
+                user_data.update_shown_welcome()
+                self.create_picker_window()
             return
 
         if self.picker_window:

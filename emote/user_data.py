@@ -25,6 +25,7 @@ WAYLAND_AUTO_PASTE = "wayland_auto_paste"
 X11_AUTO_PASTE = "x11_auto_paste"
 WAYLAND_GLOBAL_SHORTCUT = "wayland_global_shortcut"
 WAYLAND_GLOBAL_SHORTCUT_LABEL = "wayland_global_shortcut_label"
+SHOWN_WELCOME = "shown_welcome"
 
 SKINTONE_INDEX = "skintone_index"
 DEFAULT_SKINTONE_INDEX = 0
@@ -122,6 +123,16 @@ def load_wayland_global_shortcut_label():
 def update_wayland_global_shortcut_label(label):
     with shelve.open(SHELVE_PATH) as db:
         db[WAYLAND_GLOBAL_SHORTCUT_LABEL] = str(label)
+
+
+def load_shown_welcome():
+    with shelve.open(SHELVE_PATH) as db:
+        return db.get(SHOWN_WELCOME, False)
+
+
+def update_shown_welcome():
+    with shelve.open(SHELVE_PATH) as db:
+        db[SHOWN_WELCOME] = True
 
 
 def normalize_picker_size(size):
