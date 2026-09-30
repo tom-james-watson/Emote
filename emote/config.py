@@ -1,8 +1,8 @@
 import os
 
-app_id = "com.tomjwatson.Emote"
 is_debug = os.environ.get("GTK_DEBUG") == "interactive"
 is_dev = os.environ.get("ENV") == "dev"
+app_id = "com.tomjwatson.Emote.Devel" if is_dev else "com.tomjwatson.Emote"
 is_snap = os.environ.get("SNAP") is not None
 snap_root = os.environ.get("SNAP")
 is_flatpak = "FLATPAK_ID" in os.environ

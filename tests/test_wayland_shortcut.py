@@ -79,6 +79,16 @@ class WaylandShortcutTests(unittest.TestCase):
         self.assertTrue(shortcut._host_registered)
         shortcut._create_session.assert_called_once_with(shortcut._generation)
 
+    @patch("emote.wayland_shortcut.config.app_id", "com.tomjwatson.Emote.Devel")
+    def test_host_registration_uses_current_application_id(self):
+        shortcut = self.make_shortcut()
+        shortcut._bus = Mock()
+
+        shortcut._register_host_app(shortcut._generation)
+
+        registration = shortcut._bus.call.call_args.args[4]
+        self.assertEqual(registration.unpack()[0], "com.tomjwatson.Emote.Devel")
+
     def test_existing_binding_is_reported_without_rebinding(self):
         shortcut = self.make_shortcut()
         shortcut._bind_shortcut = Mock()

@@ -2,7 +2,8 @@
 
 USER_DATA_HOME := $(if $(XDG_DATA_HOME),$(XDG_DATA_HOME),$(HOME)/.local/share)
 APP_ID := com.tomjwatson.Emote
-DEV_DESKTOP_FILE := $(USER_DATA_HOME)/applications/com.tomjwatson.Emote.desktop
+DEV_APP_ID := com.tomjwatson.Emote.Devel
+DEV_DESKTOP_FILE := $(USER_DATA_HOME)/applications/$(DEV_APP_ID).desktop
 DEV_DATA_DIR := $(USER_DATA_HOME)/Emote
 PROD_DATA_DIR := $(HOME)/.local/share/Emote
 FLATPAK_DATA_DIR := $(HOME)/.var/app/$(APP_ID)/data
@@ -14,15 +15,14 @@ dev: dev-portal-identity
 dev-debug: dev-portal-identity
 	GTK_DEBUG=interactive ENV=dev pipenv run start
 
-# Restore first-run state for local testing. Portal permissions use Emote's
-# production app ID, so this also resets them for an installed Emote build.
+# Restore first-run state for local testing.
 dev-reset:
 	@pkill -x emote 2>/dev/null || true
 	@rm -f "$(DEV_DATA_DIR)"/user_data* "$(DEV_DATA_DIR)/remote-desktop-token"
-	@flatpak permission-reset "$(APP_ID)" >/dev/null 2>&1 || true
-	@gsettings reset "org.gnome.settings-daemon.global-shortcuts.application:/org/gnome/settings-daemon/global-shortcuts/$(APP_ID)/" shortcuts >/dev/null 2>&1 || true
-	@gdbus call --session --dest org.kde.kglobalaccel --object-path /kglobalaccel --method org.kde.KGlobalAccel.unregister "$(APP_ID)" open-picker >/dev/null 2>&1 || true
-	@gdbus call --session --dest org.kde.kglobalaccel --object-path /kglobalaccel --method org.kde.KGlobalAccel.unregister "$(APP_ID)" open-emote >/dev/null 2>&1 || true
+	@flatpak permission-reset "$(DEV_APP_ID)" >/dev/null 2>&1 || true
+	@gsettings reset "org.gnome.settings-daemon.global-shortcuts.application:/org/gnome/settings-daemon/global-shortcuts/$(DEV_APP_ID)/" shortcuts >/dev/null 2>&1 || true
+	@gdbus call --session --dest org.kde.kglobalaccel --object-path /kglobalaccel --method org.kde.KGlobalAccel.unregister "$(DEV_APP_ID)" open-picker >/dev/null 2>&1 || true
+	@gdbus call --session --dest org.kde.kglobalaccel --object-path /kglobalaccel --method org.kde.KGlobalAccel.unregister "$(DEV_APP_ID)" open-emote >/dev/null 2>&1 || true
 	@echo "Emote development state reset. Run 'make dev' to start the first-run flow."
 
 # Clear settings and portal state for installed Emote builds without uninstalling them.
@@ -46,6 +46,7 @@ dev-portal-identity:
 		--set-key=Exec --set-value="$(shell command -v pipenv) run start" \
 		--set-key=Path --set-value="$(CURDIR)" \
 		--set-key=NoDisplay --set-value=true \
+		--remove-key=X-Flatpak \
 		"$(DEV_DESKTOP_FILE)"
 
 format:

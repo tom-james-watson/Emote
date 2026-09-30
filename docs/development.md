@@ -27,7 +27,7 @@ make install
 make dev
 ```
 
-`make install` creates the Pipenv environment with access to system Python packages. `make dev` installs hidden desktop metadata for this checkout in your user data directory and runs the application in the foreground. The metadata lets desktop portals identify the application when it requests a global shortcut; it does not add an app-menu entry.
+`make install` creates the Pipenv environment with access to system Python packages. `make dev` installs hidden desktop metadata under the separate development ID `com.tomjwatson.Emote.Devel` and runs the application in the foreground. The metadata lets desktop portals identify the development build without hiding an installed Flatpak from the app menu. Development and installed builds have separate portal shortcut permissions.
 
 Leave that terminal open, then run `make dev` in a second terminal to show the picker. On X11, you can also use `Ctrl+Alt+E` after the application starts. See [Desktop integration](../README.md#desktop-integration) for shortcut and automatic-paste setup.
 

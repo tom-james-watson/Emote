@@ -8,6 +8,8 @@ import gi
 gi.require_version("Gio", "2.0")
 from gi.repository import Gio, GLib
 
+from emote import config
+
 PORTAL_NAME = "org.freedesktop.portal.Desktop"
 PORTAL_PATH = "/org/freedesktop/portal/desktop"
 PORTAL_INTERFACE = "org.freedesktop.portal.GlobalShortcuts"
@@ -15,8 +17,6 @@ DBUS_INTERFACE = "org.freedesktop.DBus"
 HOST_REGISTRY_INTERFACE = "org.freedesktop.host.portal.Registry"
 REQUEST_INTERFACE = "org.freedesktop.portal.Request"
 SESSION_INTERFACE = "org.freedesktop.portal.Session"
-
-APP_ID = "com.tomjwatson.Emote"
 
 SHORTCUT_ID = "open-emote"
 LEGACY_SHORTCUT_ID = "open-picker"
@@ -158,7 +158,7 @@ class WaylandShortcut:
             PORTAL_PATH,
             HOST_REGISTRY_INTERFACE,
             "Register",
-            GLib.Variant("(sa{sv})", (APP_ID, {})),
+            GLib.Variant("(sa{sv})", (config.app_id, {})),
             None,
             Gio.DBusCallFlags.NONE,
             CALL_TIMEOUT_MS,
