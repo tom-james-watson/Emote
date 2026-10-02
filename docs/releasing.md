@@ -77,10 +77,11 @@ Emote's Flathub package is maintained in [flathub/com.tomjwatson.Emote](https://
 Update that repository's [`com.tomjwatson.Emote.yml`](https://github.com/flathub/com.tomjwatson.Emote/blob/master/com.tomjwatson.Emote.yml) to match the locally tested manifest, replacing the local `dir` source with the release tag archive and its SHA-256 checksum. Open a pull request and install the temporary test build posted by the Flathub bot before publishing it.
 
 The Flathub repository's `master` branch publishes to the stable repository. Its
-`beta` branch publishes to the separate Flathub Beta repository. Prepare beta
-changes on a branch based on `master`; after its pull-request test build passes,
-create or update the `beta` branch with those changes. Do not merge beta-only
-changes into `master`.
+`beta` branch publishes to the separate Flathub Beta repository. For a beta
+update, create a branch based on `beta` and open a pull request targeting `beta`.
+Install and check the test build posted by the Flathub bot, then merge the pull
+request after its required build check passes. The `beta` branch is protected
+and rejects direct pushes. Do not merge beta-only changes into `master`.
 
 Pushing or merging the publishing branch triggers the official build. Monitor it
 in [Flathub Buildbot](https://buildbot.flathub.org/#/apps/com.tomjwatson.Emote).
