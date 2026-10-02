@@ -132,6 +132,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         pointer.connect("enter", self.on_pointer_enter)
         pointer.connect("leave", self.on_pointer_leave)
         self.add_controller(pointer)
+        self.connect("realize", self.on_realize)
         self.connect("notify::is-active", self.on_active_changed)
         self.connect("close-request", self.on_close_request)
 
@@ -214,7 +215,9 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         self.list_view.set_single_click_activate(False)
         self.scroller = WidthAwareScrolledWindow(self.on_grid_width_changed)
         self.scroller.set_vexpand(True)
-        self.scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        # Rebuilt rows must not raise the window's minimum width.
+        self.scroller.set_min_content_width(460)
+        self.scroller.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.scroller.set_child(self.list_view)
         self.scroller.get_vadjustment().connect("value-changed", self.on_scroll_changed)
 
@@ -786,20 +789,14 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
     def on_pointer_enter(self, _controller, _x, _y):
         self.pointer_in_picker = True
 
-    def on_pointer_leave(self, controller):
-        event = controller.get_current_event()
-        # GtkEventControllerMotion emits leave for GTK's own pointer-focus
-        # changes too, without a Gdk.CrossingEvent. Only ignore an explicit
-        # grab crossing; all other leaves must clear the hover guard.
-        if (
-            isinstance(event, Gdk.CrossingEvent)
-            and event.get_mode() == Gdk.CrossingMode.GRAB
-        ):
-            return
+    def on_pointer_leave(self, _controller):
         self.pointer_in_picker = False
         # Focus can leave before the pointer. Re-evaluate now instead of
         # waiting for another focus notification that will never arrive.
         self.maybe_schedule_inactive_close()
+
+    def on_realize(self, _window):
+        self.get_surface().connect("notify::state", self.on_active_changed)
 
     def on_active_changed(self, _window, _property):
         if self.is_active():
@@ -827,8 +824,14 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
 
     def close_if_inactive(self):
         self.pending_inactive_close = None
+        # Compositor drags take keyboard focus without deactivating the window.
+        surface = self.get_surface()
+        surface_focused = surface is not None and bool(
+            surface.get_state() & Gdk.ToplevelState.FOCUSED
+        )
         if (
             self.is_active()
+            or surface_focused
             or self.pointer_in_picker
             or self.menu_button.get_active()
             or self.active_dialog is not None

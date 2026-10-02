@@ -39,7 +39,7 @@ class EmoteApplication(Adw.Application):
         if self.picker_window:
             if not self.picker_window.get_visible():
                 self.picker_window.prepare_for_open()
-            self.prepare_wayland_picker_focus()
+            self.prepare_picker_focus()
             self.picker_window.present()
             self.on_picker_presented()
         else:
@@ -134,16 +134,16 @@ class EmoteApplication(Adw.Application):
             application=self,
             update_accelerator=self.update_accelerator,
         )
-        self.prepare_wayland_picker_focus()
+        self.prepare_picker_focus()
         self.picker_window.present()
         self.on_picker_presented()
 
-    def prepare_wayland_picker_focus(self):
-        if not config.is_wayland:
-            return
+    def prepare_picker_focus(self):
         if self.pending_activation_token:
             self.picker_window.set_startup_id(self.pending_activation_token)
             self.pending_activation_token = None
+        if not config.is_wayland:
+            return
         choice = user_data.load_wayland_auto_paste_choice()
         if choice is None or (
             choice is True

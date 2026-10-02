@@ -3,7 +3,7 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 from emote.picker import EmojiPicker
-from gi.repository import GLib, Gtk
+from gi.repository import Gdk, GLib, GObject, Gtk
 
 
 class PickerFocusTests(TestCase):
@@ -80,6 +80,8 @@ class PickerFocusTests(TestCase):
         picker.get_application.return_value.close_picker_window.assert_called_once_with()
 
     def make_picker(self):
+        surface = Mock()
+        surface.get_state.return_value = Gdk.ToplevelState(0)
         return SimpleNamespace(
             was_active=True,
             pointer_in_picker=True,
@@ -90,17 +92,50 @@ class PickerFocusTests(TestCase):
             menu_button=SimpleNamespace(get_active=Mock(return_value=False)),
             get_visible_dialog=Mock(return_value=None),
             get_application=Mock(),
+            get_surface=Mock(return_value=surface),
             schedule_inactive_close=Mock(),
         )
 
-    def test_window_manager_drag_does_not_schedule_close(self):
+    def test_compositor_drag_keeps_picker_open_without_pointer_or_keyboard_focus(self):
         picker = self.make_picker()
+        picker.maybe_schedule_inactive_close = (
+            EmojiPicker.maybe_schedule_inactive_close.__get__(picker)
+        )
 
-        EmojiPicker.maybe_schedule_inactive_close(picker)
+        class Toplevel(GObject.Object):
+            state = GObject.Property(type=int, default=int(Gdk.ToplevelState.FOCUSED))
 
-        picker.schedule_inactive_close.assert_not_called()
+            def get_state(self):
+                return Gdk.ToplevelState(self.state)
 
-    def test_pending_close_does_not_fire_during_window_manager_drag(self):
+        surface = Toplevel()
+        picker.get_surface.return_value = surface
+        picker.on_active_changed = EmojiPicker.on_active_changed.__get__(picker)
+        EmojiPicker.on_realize(picker, None)
+        controller = Gtk.EventControllerMotion.new()
+        controller.connect(
+            "leave", lambda source: EmojiPicker.on_pointer_leave(picker, source)
+        )
+
+        # Super+drag is handled by GNOME before GTK sees the mouse press.
+        # GTK loses both pointer and keyboard focus; the window stays active.
+        controller.emit("leave")
+        EmojiPicker.on_active_changed(picker, None, None)
+        EmojiPicker.close_if_inactive(picker)
+
+        self.assertFalse(picker.pointer_in_picker)
+        picker.get_application.return_value.close_picker_window.assert_not_called()
+
+        # A later activation change must still dismiss the picker, even if
+        # GTK's keyboard focus was already lost during the drag.
+        picker.schedule_inactive_close.reset_mock()
+        surface.state = 0
+        picker.schedule_inactive_close.assert_called_once_with()
+        EmojiPicker.close_if_inactive(picker)
+
+        picker.get_application.return_value.close_picker_window.assert_called_once_with()
+
+    def test_pending_close_does_not_fire_while_pointer_is_in_picker(self):
         picker = self.make_picker()
 
         EmojiPicker.close_if_inactive(picker)

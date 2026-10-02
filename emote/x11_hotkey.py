@@ -75,7 +75,9 @@ class X11Hotkey:
                 while connection.pending_events():
                     event = connection.next_event()
                     if event.type == X.KeyPress:
-                        GLib.idle_add(self.callback)
+                        # GTK has not seen this Xlib event. Give it the user
+                        # timestamp so the window manager can transfer focus.
+                        GLib.idle_add(self.callback, f"_TIME{event.time}")
         finally:
             for lock_mask in lock_masks:
                 root.ungrab_key(keycode, mask | lock_mask)

@@ -73,13 +73,26 @@ class ApplicationShortcutTests(TestCase):
         application = SimpleNamespace(
             started=True,
             picker_window=Mock(),
-            prepare_wayland_picker_focus=Mock(),
+            prepare_picker_focus=Mock(),
             on_picker_presented=Mock(),
         )
         # An existing desktop command starts a secondary GApplication process.
         EmoteApplication.do_activate(application)
         application.picker_window.present.assert_called_once_with()
         application.on_picker_presented.assert_called_once_with()
+
+    @patch("emote.config.is_wayland", False)
+    def test_x11_shortcut_passes_activation_time_to_picker(self):
+        picker = Mock()
+        application = SimpleNamespace(
+            picker_window=picker, pending_activation_token="_TIME12345"
+        )
+
+        EmoteApplication.prepare_picker_focus(application)
+
+        picker.set_startup_id.assert_called_once_with("_TIME12345")
+        self.assertIsNone(application.pending_activation_token)
+        picker.begin_wayland_request.assert_not_called()
 
     def test_first_launch_opens_picker_and_later_startup_stays_hidden(self):
         def new_application():

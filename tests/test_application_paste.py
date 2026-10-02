@@ -80,7 +80,7 @@ class PasteCancellationTests(TestCase):
                     self.assertFalse(user_data.load_wayland_auto_paste_choice())
                     self.assertFalse(application.wayland_paste_error_pending)
                     # Reopening must not re-enter a dead permission request.
-                    EmoteApplication.prepare_wayland_picker_focus(
+                    EmoteApplication.prepare_picker_focus(
                         SimpleNamespace(
                             picker_window=picker, pending_activation_token=None
                         )

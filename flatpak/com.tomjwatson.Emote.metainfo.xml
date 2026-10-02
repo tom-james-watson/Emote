@@ -51,6 +51,15 @@
   </screenshots>
 
   <releases>
+    <release type="development" version="5.0.0~beta2" date="2026-10-02T00:00:00Z">
+      <description>
+        <ul>
+          <li>Fix the picker closing when dragging the window</li>
+          <li>Prevent repeated window growth when rebuilding emoji rows</li>
+          <li>Restore keyboard focus and automatic paste when using the X11 shortcut</li>
+        </ul>
+      </description>
+    </release>
     <release type="development" version="5.0.0~beta1" date="2026-09-29T00:00:00Z">
       <description>
         <ul>
