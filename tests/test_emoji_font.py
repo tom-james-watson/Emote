@@ -33,7 +33,8 @@ class EmojiFontTests(TestCase):
             with self.subTest(emoji=char):
                 layout.set_text(char, -1)
                 self.assertEqual(layout.get_unknown_glyphs_count(), 0)
-                run = layout.get_iter().get_run_readonly()
+                iterator = layout.get_iter()
+                run = iterator.get_run_readonly()
                 self.assertEqual(run.glyphs.num_glyphs, 1)
                 self.assertEqual(
                     run.item.analysis.font.describe().get_family(),
