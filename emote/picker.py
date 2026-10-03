@@ -39,6 +39,18 @@ class PickerRow(GObject.Object):
         self.start_index = start_index
 
 
+class EmojiLabel(Gtk.Label):
+    def __init__(self):
+        super().__init__()
+        self.set_overflow(Gtk.Overflow.HIDDEN)
+
+    def do_measure(self, orientation, for_size):
+        # A system font may split a joined emoji; keep it within its grid cell.
+        if orientation == Gtk.Orientation.HORIZONTAL:
+            return 0, 0, -1, -1
+        return Gtk.Label.do_measure(self, orientation, for_size)
+
+
 class WidthAwareScrolledWindow(Gtk.ScrolledWindow):
     def __init__(self, width_changed):
         super().__init__()
@@ -82,7 +94,6 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         self.selected_index = 0
         self.skintone_index = user_data.load_skintone_index()
         self.emoji_size = user_data.load_emoji_size()
-        self.emoji_cell_width = None
         self.emojis_per_row = 1
         self.active_category = "recent"
         self.category_jump = None
@@ -259,27 +270,8 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         self.footer.append(self.selection_box)
 
     def columns_for_width(self, width):
-        context = self.root.get_pango_context()
-        if getattr(self, "emoji_font_serial", None) != context.get_serial():
-            self.emoji_cell_width = None
-        if self.emoji_cell_width is None:
-            layout = Pango.Layout.new(context)
-            layout.set_attributes(self.emoji_attributes)
-            font = context.get_font_description().copy()
-            font.set_family(
-                emoji_font.BUNDLED_FAMILY if self.bundled_emoji_font else "emoji"
-            )
-            font.set_absolute_size(self.emoji_size * Pango.SCALE)
-            layout.set_font_description(font)
-            minimum = self.emoji_size + 20
-            # Older fonts can render a joined emoji as several separate glyphs.
-            for emoji in emojis.all_emojis:
-                layout.set_text(self.get_skintone_char(emoji), -1)
-                minimum = max(minimum, layout.get_pixel_size()[0])
-            self.emoji_cell_width = minimum
-            self.emoji_font_serial = context.get_serial()
         # Row padding plus Gtk.ListView's row borders.
-        return max(1, (width - 12) // self.emoji_cell_width)
+        return max(1, (width - 12) // (self.emoji_size + 20))
 
     def apply_emoji_font(self, choice):
         font_map, self.bundled_emoji_font = emoji_font.create_font_map(choice)
@@ -296,7 +288,6 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
             label = getattr(self, name, None)
             if label is not None:
                 label.set_attributes(self.emoji_attributes)
-        self.emoji_cell_width = None
 
     def set_emoji_font(self, choice):
         self.apply_emoji_font(choice)
@@ -316,7 +307,6 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
             return
         self.root.remove_css_class(f"emoji-size-{self.emoji_size}")
         self.emoji_size = size
-        self.emoji_cell_width = None
         self.root.add_css_class(f"emoji-size-{size}")
         self.emojis_per_row = self.columns_for_width(self.scroller.last_width)
         user_data.update_emoji_size(size)
@@ -713,6 +703,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
             button.set_hexpand(True)
             button.add_css_class("emoji-cell")
             button.set_focusable(False)
+            button.set_child(EmojiLabel())
             button.emoji_index = None
             button.connect("clicked", self.on_bound_button_clicked)
             box.append(button)
@@ -725,7 +716,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
                 continue
             if offset >= len(row.entries):
                 button.emoji_index = None
-                button.set_label("")
+                button.get_child().set_text("")
                 button.set_tooltip_text(None)
                 button.set_sensitive(False)
                 button.remove_css_class("keyboard-selected")
@@ -734,7 +725,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
             emoji = row.entries[offset]
             index = row.start_index + offset
             button.emoji_index = index
-            button.set_label(self.get_skintone_char(emoji))
+            button.get_child().set_text(self.get_skintone_char(emoji))
             button.get_child().set_attributes(self.emoji_attributes)
             button.set_tooltip_text(emoji["name"])
             button.set_sensitive(True)
@@ -1062,7 +1053,6 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         if index == self.skintone_index:
             return
         self.skintone_index = index
-        self.emoji_cell_width = None
         user_data.update_skintone_index(index)
         self.emojis_per_row = self.columns_for_width(self.scroller.last_width)
         self.refresh_rows()
