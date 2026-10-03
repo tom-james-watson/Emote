@@ -54,6 +54,14 @@
   </screenshots>
 
   <releases>
+    <release type="development" version="5.0.0~beta4" date="2026-10-03T00:00:00Z">
+      <description>
+        <ul>
+          <li>Use fixed emoji cell widths without scanning the catalogue</li>
+          <li>Keep split system-font sequences inside their grid cells</li>
+        </ul>
+      </description>
+    </release>
     <release type="development" version="5.0.0~beta3" date="2026-10-03T00:00:00Z">
       <description>
         <ul>
