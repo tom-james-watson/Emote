@@ -127,3 +127,13 @@ class SettingsFileTests(TestCase):
             },
         )
         self.assertEqual(user_data.load_recent_emojis(), ["🧪"])
+
+    def test_partial_shortcuts_merge_with_defaults(self):
+        self.write_settings(
+            json.dumps({"shortcuts": {"close": "q", "focus_search": 1, "other": "x"}})
+        )
+
+        self.assertEqual(
+            user_data.load_shortcuts(),
+            {**user_data.DEFAULT_SHORTCUTS, "close": "q"},
+        )

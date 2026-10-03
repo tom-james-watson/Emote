@@ -30,6 +30,25 @@ CATEGORY_ICONS = {
 }
 
 
+def normalize_key(keyval, modifiers):
+    keyval = Gdk.keyval_to_lower(keyval)
+    if keyval == Gdk.KEY_ISO_Left_Tab:
+        keyval = Gdk.KEY_Tab
+    return keyval, modifiers & Gtk.accelerator_get_default_mod_mask()
+
+
+def parse_shortcuts(shortcuts):
+    parsed = {}
+    for action, accelerator in shortcuts.items():
+        valid, keyval, modifiers = Gtk.accelerator_parse(accelerator)
+        if not valid or not keyval:
+            default = user_data.DEFAULT_SHORTCUTS[action]
+            print(f"Ignoring {action} shortcut {accelerator!r}, using {default!r}")
+            _, keyval, modifiers = Gtk.accelerator_parse(default)
+        parsed[action] = normalize_key(keyval, modifiers)
+    return parsed
+
+
 class PickerRow(GObject.Object):
     def __init__(self, category, title, entries=(), start_index=0):
         super().__init__()
@@ -82,6 +101,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         self.selected_index = 0
         self.skintone_index = user_data.load_skintone_index()
         self.emoji_size = user_data.load_emoji_size()
+        self.shortcuts = parse_shortcuts(user_data.load_shortcuts())
         self.emojis_per_row = 1
         self.active_category = "recent"
         self.category_jump = None
@@ -845,17 +865,18 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
     def on_key_pressed(self, _controller, keyval, _keycode, state):
         if self.get_visible_dialog() is not None or self.waiting_for_wayland_setup:
             return False
-        control = bool(state & Gdk.ModifierType.CONTROL_MASK)
+        actions = {
+            "focus_search": self.search_entry.grab_focus,
+            "next_category": lambda: self.cycle_category(1),
+            "previous_category": lambda: self.cycle_category(-1),
+            "close": self.get_application().close_picker_window,
+        }
+        key = normalize_key(keyval, state)
+        for action, shortcut in self.shortcuts.items():
+            if key == shortcut:
+                actions[action]()
+                return True
         shift = bool(state & Gdk.ModifierType.SHIFT_MASK)
-        if keyval == Gdk.KEY_Escape:
-            self.get_application().close_picker_window()
-            return True
-        if control and keyval in (Gdk.KEY_f, Gdk.KEY_F):
-            self.search_entry.grab_focus()
-            return True
-        if control and keyval in (Gdk.KEY_Tab, Gdk.KEY_ISO_Left_Tab):
-            self.cycle_category(-1 if shift else 1)
-            return True
         if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter) and self.display_emojis:
             if shift:
                 self.append_emoji(self.selected_index)
