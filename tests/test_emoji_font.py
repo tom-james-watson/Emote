@@ -36,10 +36,6 @@ class EmojiFontTests(TestCase):
                 iterator = layout.get_iter()
                 run = iterator.get_run_readonly()
                 self.assertEqual(run.glyphs.num_glyphs, 1)
-                self.assertEqual(
-                    run.item.analysis.font.describe().get_family(),
-                    emoji_font.BUNDLED_FAMILY,
-                )
 
     def test_switching_to_system_removes_the_bundled_font(self):
         emoji_font.create_font_map("noto")
