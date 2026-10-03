@@ -9,7 +9,12 @@ from gi.repository import Adw, Gio, GLib, Gtk
 
 from emote import config, css, emojis, picker, user_data
 from emote.x11_hotkey import X11Hotkey
-from emote.wayland_paste import WaylandPaste, clear_restore_token
+from emote.wayland_paste import (
+    PermissionNotSavedError,
+    SessionEndedError,
+    WaylandPaste,
+    clear_restore_token,
+)
 from emote.wayland_shortcut import WaylandShortcut
 
 
@@ -27,6 +32,7 @@ class EmoteApplication(Adw.Application):
         self.wayland_shortcut_onboarding = False
         self.pending_activation_token = None
         self.wayland_paste_error_pending = False
+        self.wayland_paste_error_message = None
 
     def do_activate(self):
         if not self.started:
@@ -68,9 +74,6 @@ class EmoteApplication(Adw.Application):
                 self.wayland_shortcut.bind()
             else:
                 self.wayland_shortcut.enable()
-            # Restore an approved keyboard-control session before the picker is
-            # needed, so the first emoji cannot outrun portal negotiation.
-            self.maybe_start_wayland_paste()
 
         if config.is_flatpak:
             self.flatpak_autostart()
@@ -159,7 +162,10 @@ class EmoteApplication(Adw.Application):
             and self.picker_window.get_visible_dialog() is None
         ):
             self.wayland_paste_error_pending = False
-            GLib.idle_add(self.picker_window.show_wayland_paste_unavailable)
+            GLib.idle_add(
+                self.picker_window.show_wayland_paste_unavailable,
+                self.wayland_paste_error_message,
+            )
             return
         if not self.wayland_shortcut_checked:
             return
@@ -311,6 +317,7 @@ class EmoteApplication(Adw.Application):
             self.wayland_paste = WaylandPaste(
                 on_ready=self.on_wayland_paste_ready,
                 on_unavailable=self.on_wayland_paste_unavailable,
+                keep_session_open=config.is_kde,
             )
         if (
             self.picker_window
@@ -325,6 +332,7 @@ class EmoteApplication(Adw.Application):
             return
         user_data.update_wayland_auto_paste_choice(enabled)
         if enabled:
+            self.wayland_paste_error_message = None
             self.maybe_start_wayland_paste()
         else:
             if self.picker_window:
@@ -346,18 +354,34 @@ class EmoteApplication(Adw.Application):
             self.picker_window.end_wayland_request(present=True)
         return GLib.SOURCE_REMOVE
 
-    def on_wayland_paste_unavailable(self, backend, _error):
-        GLib.idle_add(self.handle_wayland_paste_unavailable, backend)
+    def on_wayland_paste_unavailable(self, backend, error):
+        GLib.idle_add(self.handle_wayland_paste_unavailable, backend, error)
 
-    def handle_wayland_paste_unavailable(self, backend):
+    def handle_wayland_paste_unavailable(self, backend, error=None):
         if self.wayland_paste is backend:
+            if isinstance(error, PermissionNotSavedError):
+                self.wayland_paste_error_message = (
+                    "Automatic paste needs permission that your desktop can remember. "
+                    "Enable it again in Preferences and allow your desktop to remember "
+                    "the permission. Your emojis will still be copied to the clipboard."
+                )
+            elif isinstance(error, SessionEndedError):
+                self.wayland_paste_error_message = (
+                    "Your desktop stopped keyboard control. Your emojis will still be "
+                    "copied to the clipboard. You can enable automatic paste again "
+                    "in Preferences."
+                )
+            else:
+                self.wayland_paste_error_message = None
             self.wayland_paste_error_pending = True
             self.set_wayland_auto_paste(False)
             if self.picker_window and self.picker_window.get_visible():
                 self.wayland_paste_error_pending = False
                 if self.picker_window.get_visible_dialog() is None:
                     self.picker_window.present()
-                self.picker_window.show_wayland_paste_unavailable()
+                self.picker_window.show_wayland_paste_unavailable(
+                    self.wayland_paste_error_message
+                )
         return GLib.SOURCE_REMOVE
 
     def paste_wayland(self):
@@ -370,6 +394,7 @@ class EmoteApplication(Adw.Application):
             self.wayland_paste.close()
             self.wayland_paste = None
         self.wayland_paste_error_pending = True
+        self.wayland_paste_error_message = None
         self.activate()
         return GLib.SOURCE_REMOVE
 

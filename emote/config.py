@@ -13,3 +13,4 @@ elif is_snap:
 else:
     static_dir = "static"
 is_wayland = os.environ.get("XDG_SESSION_TYPE", "").lower() == "wayland"
+is_kde = "KDE" in os.environ.get("XDG_CURRENT_DESKTOP", "").upper().split(":")

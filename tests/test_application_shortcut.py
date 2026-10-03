@@ -33,6 +33,24 @@ class ApplicationShortcutTests(TestCase):
         return application, shortcut, picker
 
     @patch("emote.config.is_wayland", True)
+    @patch("emote.WaylandPaste")
+    def test_paste_session_policy_follows_desktop(self, backend_class):
+        user_data.update_wayland_auto_paste_choice(True)
+        for is_kde in (True, False):
+            with self.subTest(is_kde=is_kde), patch("emote.config.is_kde", is_kde):
+                application = SimpleNamespace(
+                    wayland_paste=None,
+                    picker_window=None,
+                    on_wayland_paste_ready=Mock(),
+                    on_wayland_paste_unavailable=Mock(),
+                )
+                EmoteApplication.maybe_start_wayland_paste(application)
+                self.assertEqual(
+                    backend_class.call_args.kwargs["keep_session_open"], is_kde
+                )
+                application.wayland_paste.ensure_started.assert_called()
+
+    @patch("emote.config.is_wayland", True)
     @patch("emote.config.is_flatpak", False)
     @patch("emote.emojis.init")
     @patch("emote.css.load_css")
@@ -55,6 +73,7 @@ class ApplicationShortcutTests(TestCase):
 
         shortcut_class.return_value.bind.assert_called_once_with()
         shortcut_class.return_value.enable.assert_not_called()
+        application.maybe_start_wayland_paste.assert_not_called()
 
     @patch("emote.config.is_wayland", True)
     def test_setup_always_uses_bind_shortcuts(self):

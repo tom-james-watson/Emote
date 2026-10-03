@@ -15,6 +15,14 @@ KEY_V = 47
 TOKEN_PATH = Path(user_data.DATA_DIR) / "remote-desktop-token"
 
 
+class PermissionNotSavedError(RuntimeError):
+    pass
+
+
+class SessionEndedError(RuntimeError):
+    pass
+
+
 def load_restore_token():
     try:
         return TOKEN_PATH.read_text(encoding="utf-8").strip() or None
@@ -50,14 +58,15 @@ def clear_restore_token():
 
 
 class WaylandPaste:
-    def __init__(self, on_ready=None, on_unavailable=None):
+    def __init__(self, on_ready=None, on_unavailable=None, keep_session_open=False):
         self._ready = threading.Event()
         self._stop = threading.Event()
-        self._discard_token = threading.Event()
+        self._state_lock = threading.Lock()
         self._requests = queue.SimpleQueue()
         self._thread = None
         self._on_ready = on_ready
         self._on_unavailable = on_unavailable
+        self._keep_session_open = keep_session_open
 
     @property
     def is_ready(self):
@@ -69,51 +78,46 @@ class WaylandPaste:
             self._thread.start()
 
     def paste(self):
-        """Queue a shortcut only while the portal has an active keyboard."""
+        """Queue a paste after the initial permission request has finished."""
         if not self._ready.is_set():
             return False
         self._requests.put(True)
         return True
 
     def close(self, discard_token=False):
-        self._ready.clear()
-        self._stop.set()
-        if discard_token:
-            self._discard_token.set()
-            try:
-                clear_restore_token()
-            except OSError as exc:
-                print("Failed to remove Wayland auto-paste permission:", exc)
+        with self._state_lock:
+            self._ready.clear()
+            self._stop.set()
+            if discard_token:
+                try:
+                    clear_restore_token()
+                except OSError as exc:
+                    print("Failed to remove Wayland auto-paste permission:", exc)
+        self._requests.put(None)
 
     def _run(self):
         try:
+            if self._stop.is_set():
+                return
             from libei import ei, portal
 
-            session = portal.RemoteDesktopSession.negotiate(
-                devices=portal.DeviceType.KEYBOARD,
-                persist_mode=portal.PersistMode.UNTIL_REVOKED,
-                restore_token=load_restore_token(),
-            )
-            with session:
+            # KDE shows a notification for every new remote-control session.
+            if self._keep_session_open:
+                self._open_session(ei, portal, paste=False)
+                return
+            if load_restore_token() is None:
+                self._open_session(ei, portal, paste=False)
+            with self._state_lock:
                 if self._stop.is_set():
                     return
-                try:
-                    save_restore_token(session.restore_token)
-                except OSError as exc:
-                    print("Failed to save Wayland auto-paste permission:", exc)
+                self._ready.set()
+            if self._on_ready:
+                self._on_ready(self)
 
-                if self._stop.is_set():
+            while not self._stop.is_set():
+                if self._requests.get() is None or self._stop.is_set():
                     return
-                sender = ei.Sender.create_for_fd(session.eis_fd, name="Emote")
-                try:
-                    self._serve(sender, ei)
-                    if not self._stop.is_set():
-                        raise RuntimeError(
-                            "the desktop ended the keyboard control session"
-                        )
-                finally:
-                    self._ready.clear()
-                    sender.release()
+                self._open_session(ei, portal, paste=True)
         except Exception as exc:
             self._ready.clear()
             if not self._stop.is_set():
@@ -123,14 +127,29 @@ class WaylandPaste:
                 if self._on_unavailable:
                     self._on_unavailable(self, exc)
         finally:
-            if self._discard_token.is_set():
-                try:
-                    clear_restore_token()
-                except OSError as exc:
-                    print("Failed to remove Wayland auto-paste permission:", exc)
+            self._ready.clear()
 
-    def _serve(self, sender, ei):
+    def _open_session(self, ei, portal, paste):
+        with portal.RemoteDesktopSession.negotiate(
+            devices=portal.DeviceType.KEYBOARD,
+            persist_mode=portal.PersistMode.UNTIL_REVOKED,
+            restore_token=load_restore_token(),
+        ) as session:
+            with self._state_lock:
+                if self._stop.is_set():
+                    return
+                save_restore_token(session.restore_token)
+            if session.restore_token is None:
+                raise PermissionNotSavedError("the desktop did not remember permission")
+            sender = ei.Sender.create_for_fd(session.eis_fd, name="Emote")
+            try:
+                self._serve(sender, ei, paste)
+            finally:
+                sender.release()
+
+    def _serve(self, sender, ei, paste):
         device = None
+        announced_ready = False
         first_keyboard_deadline = time.monotonic() + 10
         while not self._stop.is_set():
             readable, _, _ = select.select([sender.fd], [], [], 0.1)
@@ -138,7 +157,7 @@ class WaylandPaste:
                 sender.dispatch()
                 for event in sender.events:
                     if event.event_type == ei.EventType.DISCONNECT:
-                        return
+                        raise SessionEndedError("the desktop ended keyboard control")
                     if event.event_type == ei.EventType.SEAT_ADDED:
                         seat = event.seat
                         if ei.DeviceCapability.KEYBOARD in seat.capabilities:
@@ -148,28 +167,71 @@ class WaylandPaste:
                         if ei.DeviceCapability.KEYBOARD in candidate.capabilities:
                             device = candidate
                             first_keyboard_deadline = None
-                            was_ready = self._ready.is_set()
-                            self._ready.set()
-                            if not was_ready and self._on_ready:
-                                self._on_ready(self)
                     elif event.event_type in (
                         ei.EventType.DEVICE_PAUSED,
                         ei.EventType.DEVICE_REMOVED,
                     ):
                         if event.device == device:
                             device = None
-                            self._ready.clear()
+                            first_keyboard_deadline = time.monotonic() + 10
+                            if self._keep_session_open:
+                                self._ready.clear()
+                                announced_ready = False
+                                # A held session can pause while the screen is locked.
+                                first_keyboard_deadline = None
 
             if first_keyboard_deadline and time.monotonic() > first_keyboard_deadline:
                 raise TimeoutError("the desktop did not provide a keyboard device")
 
-            while True:
-                try:
-                    self._requests.get_nowait()
-                except queue.Empty:
-                    break
-                if device is not None:
+            if device is not None:
+                if self._keep_session_open:
+                    with self._state_lock:
+                        if self._stop.is_set():
+                            return
+                        self._ready.set()
+                    if not announced_ready:
+                        announced_ready = True
+                        if self._on_ready:
+                            self._on_ready(self)
+                    try:
+                        request = self._requests.get_nowait()
+                    except queue.Empty:
+                        continue
+                    if request is None or self._stop.is_set():
+                        return
                     self._send_paste(device)
+                    continue
+                if paste and not self._stop.is_set():
+                    self._send_paste(device)
+                    self._finish_input(sender, ei)
+                return
+
+    def _finish_input(self, sender, ei):
+        try:
+            ping = sender.new_ping()
+        except ei.LibraryNotFoundError:
+            # libei before 1.4 has no round-trip acknowledgement. Allow the
+            # desktop to process the key releases before closing the session.
+            self._stop.wait(0.15)
+            return
+        try:
+            ping.send()
+            deadline = time.monotonic() + 10
+            while not self._stop.is_set():
+                select.select([sender.fd], [], [], 0.1)
+                sender.dispatch()
+                for event in sender.events:
+                    if event.event_type == ei.EventType.DISCONNECT:
+                        raise SessionEndedError("the desktop ended keyboard control")
+                    if (
+                        event.event_type == ei.EventType.PONG
+                        and event.pong.id == ping.id
+                    ):
+                        return
+                if time.monotonic() > deadline:
+                    raise TimeoutError("the desktop did not acknowledge the paste")
+        finally:
+            ping.release()
 
     @staticmethod
     def _send_paste(device):

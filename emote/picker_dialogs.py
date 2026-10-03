@@ -28,7 +28,8 @@ class PickerDialogs:
         dialog = Adw.AlertDialog.new("Enable automatic paste", None)
         body = Gtk.Label(
             label="To automatically paste the selected emoji into your current app, "
-            "you must grant the “Remote Interaction” permission.",
+            "you must grant the “Remote Interaction” permission and allow your "
+            "desktop to remember it.",
             xalign=0,
             wrap=True,
             max_width_chars=42,
@@ -92,13 +93,14 @@ class PickerDialogs:
         ):
             self.present()
 
-    def show_wayland_paste_unavailable(self):
+    def show_wayland_paste_unavailable(self, message=None):
         current_dialog = self.get_visible_dialog() or self.active_dialog
         if isinstance(current_dialog, settings.Settings):
             current_dialog.refresh_wayland_auto_paste()
         dialog = Adw.AlertDialog.new(
             "Automatic paste is off",
-            "Emote could not get keyboard control from your desktop. Your emojis "
+            message
+            or "Your desktop refused or ended keyboard control. Your emojis "
             "will still be copied to the clipboard. You can try again in Preferences.",
         )
         dialog.add_response("ok", "OK")
