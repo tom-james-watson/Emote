@@ -54,6 +54,18 @@
   </screenshots>
 
   <releases>
+    <release type="development" version="5.0.0~beta3" date="2026-10-03T00:00:00Z">
+      <description>
+        <ul>
+          <li>Allow resizing the picker while preserving the selected emoji and scroll position</li>
+          <li>Bundle Noto Color Emoji with Unicode 18 support and add a system font option</li>
+          <li>Prevent horizontal overflow with older system emoji fonts</li>
+          <li>Show selected emojis at full opacity with a count for additional selections</li>
+          <li>Use temporary keyboard control on GNOME and reuse the session on KDE</li>
+          <li>Explain when the desktop stops automatic paste</li>
+        </ul>
+      </description>
+    </release>
     <release type="development" version="5.0.0~beta2" date="2026-10-02T00:00:00Z">
       <description>
         <ul>
