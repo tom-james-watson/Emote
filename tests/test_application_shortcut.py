@@ -4,15 +4,14 @@ from unittest.mock import Mock, patch
 from tempfile import TemporaryDirectory
 
 from emote import EmoteApplication, user_data
+from tests import isolate_user_data
 
 
 class ApplicationShortcutTests(TestCase):
     def setUp(self):
         directory = TemporaryDirectory()
         self.addCleanup(directory.cleanup)
-        patcher = patch("emote.user_data.SHELVE_PATH", directory.name + "/user_data")
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        self.addCleanup(isolate_user_data(directory.name).close)
 
     def make_application(self):
         shortcut = SimpleNamespace(

@@ -34,6 +34,10 @@ def format_accelerator_label(label):
     return label
 
 
+def current_accelerator_label():
+    return format_accelerator_label(user_data.load_accelerator()) or "Unassigned"
+
+
 class KeyboardShortcuts(Adw.Dialog):
     def __init__(self, picker, update_accelerator):
         super().__init__(title="Keyboard Shortcuts")
@@ -70,7 +74,7 @@ class KeyboardShortcuts(Adw.Dialog):
         else:
             row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
             row.append(Gtk.Label(label="Open Emote", xalign=0, hexpand=True))
-            self.record_button = Gtk.Button(label=user_data.load_accelerator()[1])
+            self.record_button = Gtk.Button(label=current_accelerator_label())
             self.record_button.connect("clicked", self.start_recording)
             row.append(self.record_button)
             box.append(row)
@@ -137,11 +141,11 @@ class KeyboardShortcuts(Adw.Dialog):
         if not self.recording:
             return False
         if keyval == Gdk.KEY_Escape:
-            self.record_button.set_label(user_data.load_accelerator()[1])
+            self.record_button.set_label(current_accelerator_label())
             self.recording = False
             return True
         if keyval == Gdk.KEY_BackSpace:
-            self.update_accelerator("", "Unassigned")
+            self.update_accelerator("")
             self.record_button.set_label("Unassigned")
             self.recording = False
             return True
@@ -158,7 +162,7 @@ class KeyboardShortcuts(Adw.Dialog):
             return True
         accelerator = Gtk.accelerator_name(keyval, modifiers)
         label = Gtk.accelerator_get_label(keyval, modifiers)
-        self.update_accelerator(accelerator, label)
+        self.update_accelerator(accelerator)
         self.record_button.set_label(label)
         self.recording = False
         return True

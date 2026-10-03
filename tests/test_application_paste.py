@@ -5,14 +5,13 @@ from unittest.mock import Mock, patch
 
 from emote import EmoteApplication, user_data
 from emote.picker import EmojiPicker
+from tests import isolate_user_data
 
 
 class PasteCancellationTests(TestCase):
     @patch("emote.config.is_wayland", True)
     def test_copy_only_mode_does_not_reopen_picker_or_report_failure(self):
-        with TemporaryDirectory() as directory, patch(
-            "emote.user_data.SHELVE_PATH", directory + "/user_data"
-        ):
+        with TemporaryDirectory() as directory, isolate_user_data(directory):
             user_data.update_wayland_auto_paste_choice(False)
             application = SimpleNamespace(
                 wayland_paste=None,
@@ -29,9 +28,7 @@ class PasteCancellationTests(TestCase):
     @patch("emote.config.is_wayland", True)
     @patch("emote.picker.Adw.AlertDialog.new")
     def test_cancel_releases_input_and_keeps_failure_dialog_tracked(self, new_dialog):
-        with TemporaryDirectory() as directory, patch(
-            "emote.user_data.SHELVE_PATH", directory + "/user_data"
-        ):
+        with TemporaryDirectory() as directory, isolate_user_data(directory):
             for shortcut_enabled in (False, True):
                 with self.subTest(shortcut_enabled=shortcut_enabled):
                     user_data.update_wayland_global_shortcut_choice(shortcut_enabled)

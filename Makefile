@@ -8,6 +8,10 @@ DEV_DATA_DIR := $(USER_DATA_HOME)/Emote
 PROD_DATA_DIR := $(HOME)/.local/share/Emote
 FLATPAK_DATA_DIR := $(HOME)/.var/app/$(APP_ID)/data
 SNAP_DATA_DIR := $(HOME)/snap/emote/current/.local/share/Emote
+USER_CONFIG_HOME := $(if $(XDG_CONFIG_HOME),$(XDG_CONFIG_HOME),$(HOME)/.config)
+SETTINGS_FILE := $(USER_CONFIG_HOME)/Emote/settings.json
+FLATPAK_SETTINGS_FILE := $(HOME)/.var/app/$(APP_ID)/config/Emote/settings.json
+SNAP_SETTINGS_FILE := $(HOME)/snap/emote/current/.config/Emote/settings.json
 
 dev: dev-portal-identity
 	ENV=dev pipenv run start
@@ -18,7 +22,7 @@ dev-debug: dev-portal-identity
 # Restore first-run state for local testing.
 dev-reset:
 	@pkill -x emote 2>/dev/null || true
-	@rm -f "$(DEV_DATA_DIR)"/user_data* "$(DEV_DATA_DIR)/remote-desktop-token"
+	@rm -f "$(DEV_DATA_DIR)"/user_data* "$(DEV_DATA_DIR)/remote-desktop-token" "$(SETTINGS_FILE)"
 	@flatpak permission-reset "$(DEV_APP_ID)" >/dev/null 2>&1 || true
 	@gsettings reset "org.gnome.settings-daemon.global-shortcuts.application:/org/gnome/settings-daemon/global-shortcuts/$(DEV_APP_ID)/" shortcuts >/dev/null 2>&1 || true
 	@gdbus call --session --dest org.kde.kglobalaccel --object-path /kglobalaccel --method org.kde.KGlobalAccel.unregister "$(DEV_APP_ID)" open-picker >/dev/null 2>&1 || true
@@ -32,6 +36,7 @@ prod-reset:
 	@rm -f "$(PROD_DATA_DIR)"/user_data* "$(PROD_DATA_DIR)/remote-desktop-token"
 	@rm -f "$(FLATPAK_DATA_DIR)"/user_data* "$(FLATPAK_DATA_DIR)/remote-desktop-token"
 	@rm -f "$(SNAP_DATA_DIR)"/user_data* "$(SNAP_DATA_DIR)/remote-desktop-token"
+	@rm -f "$(SETTINGS_FILE)" "$(FLATPAK_SETTINGS_FILE)" "$(SNAP_SETTINGS_FILE)"
 	@flatpak permission-reset "$(APP_ID)" >/dev/null 2>&1 || true
 	@gsettings reset "org.gnome.settings-daemon.global-shortcuts.application:/org/gnome/settings-daemon/global-shortcuts/$(APP_ID)/" shortcuts >/dev/null 2>&1 || true
 	@gdbus call --session --dest org.kde.kglobalaccel --object-path /kglobalaccel --method org.kde.KGlobalAccel.unregister "$(APP_ID)" open-picker >/dev/null 2>&1 || true

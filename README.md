@@ -61,6 +61,36 @@ Open **Preferences** to change the emoji size or skin tone.
 | Next category | `Ctrl+Tab` |
 | Previous category | `Ctrl+Shift+Tab` |
 
+### Settings file
+
+Emote keeps its settings in a JSON file, so you can edit them by hand or manage them alongside your other dotfiles:
+
+- Native installs: `~/.config/Emote/settings.json` (or `$XDG_CONFIG_HOME/Emote/settings.json`)
+- Flatpak: `~/.var/app/com.tomjwatson.Emote/config/Emote/settings.json`
+- Snap: `~/snap/emote/current/.config/Emote/settings.json`
+
+Emote creates the file with these defaults the first time it starts:
+
+```json
+{
+  "accelerator": "<Primary><Alt>e",
+  "skintone_index": 0,
+  "emoji_size": 28,
+  "picker_size": [515, 500],
+  "x11_auto_paste": true,
+  "wayland_auto_paste": null,
+  "shown_welcome": false
+}
+```
+
+- `accelerator` is the X11 global shortcut in GTK accelerator syntax. Use `""` for none. On Wayland your desktop owns the shortcut.
+- `skintone_index` runs from `0` (no skin tone) to `5`.
+- `emoji_size` is one of `20`, `24`, `28`, `32` or `36`.
+- `wayland_auto_paste` stays `null` until you choose a paste mode during Wayland setup.
+- Set `shown_welcome` to `true` to skip the picker that opens on first launch.
+
+Restart Emote after editing the file. Emote only rewrites the keys it changes, so a running Emote won't overwrite your edits. Emote ignores a value of the wrong type and uses the default instead. If the file is not valid JSON, Emote uses the defaults and moves the file to `settings.json.bak` the next time it saves a setting.
+
 ## Desktop integration
 
 ### Global shortcut

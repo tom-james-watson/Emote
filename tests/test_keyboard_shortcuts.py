@@ -5,15 +5,14 @@ from tempfile import TemporaryDirectory
 
 from emote.keyboard_shortcuts import KeyboardShortcuts, format_accelerator_label
 from gi.repository import Gdk
+from tests import isolate_user_data
 
 
 class KeyboardShortcutLabelTests(TestCase):
     def setUp(self):
         directory = TemporaryDirectory()
         self.addCleanup(directory.cleanup)
-        patcher = patch("emote.user_data.SHELVE_PATH", directory.name + "/user_data")
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        self.addCleanup(isolate_user_data(directory.name).close)
 
     def test_formats_portal_accelerator_syntax(self):
         self.assertEqual(format_accelerator_label("<Control><Alt>t"), "Ctrl+Alt+T")
@@ -39,9 +38,7 @@ class KeyboardShortcutLabelTests(TestCase):
             Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.ALT_MASK,
         )
         self.assertFalse(dialog.recording)
-        dialog.update_accelerator.assert_called_once_with(
-            "<Control><Alt>e", "Ctrl+Alt+E"
-        )
+        dialog.update_accelerator.assert_called_once_with("<Control><Alt>e")
 
     def test_shift_alone_is_not_a_global_shortcut(self):
         dialog = SimpleNamespace(

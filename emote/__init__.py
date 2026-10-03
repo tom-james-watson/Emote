@@ -115,8 +115,7 @@ class EmoteApplication(Adw.Application):
 
     def set_accelerator(self):
         if self.hotkey:
-            accel, _ = user_data.load_accelerator()
-            self.hotkey.bind(accel)
+            self.hotkey.bind(user_data.load_accelerator())
 
     def on_hotkey(self, activation_token=None):
         if self.picker_window and self.picker_window.get_visible():
@@ -125,8 +124,8 @@ class EmoteApplication(Adw.Application):
             self.pending_activation_token = activation_token
             self.activate()
 
-    def update_accelerator(self, accel, label):
-        user_data.update_accelerator(accel, label)
+    def update_accelerator(self, accel):
+        user_data.update_accelerator(accel)
         self.set_accelerator()
 
     def create_picker_window(self):

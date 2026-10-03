@@ -6,15 +6,14 @@ from unittest.mock import Mock, patch
 from emote import user_data
 from emote.picker import EmojiPicker
 from emote.settings import Settings
+from tests import isolate_user_data
 
 
 class X11PasteTests(TestCase):
     def setUp(self):
         directory = TemporaryDirectory()
         self.addCleanup(directory.cleanup)
-        patcher = patch("emote.user_data.SHELVE_PATH", directory.name + "/user_data")
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        self.addCleanup(isolate_user_data(directory.name).close)
 
     @patch("emote.settings.config.is_wayland", False)
     def test_preference_defaults_on_and_can_be_toggled(self):
