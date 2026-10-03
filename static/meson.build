@@ -17,3 +17,4 @@ configure_file(
 staticdir = join_paths(datadir, meson.project_name(), 'static')
 install_data('emojis.csv', 'style.css', install_dir: staticdir)
 install_subdir('icons', install_dir: staticdir)
+install_subdir('fonts', install_dir: staticdir)

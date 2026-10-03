@@ -112,7 +112,7 @@ To refresh the bundled emoji catalogue from [OpenMoji](https://openmoji.org/):
 make update-emojis
 ```
 
-The source is OpenMoji's [emoji data CSV](https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv). The updater currently includes emoji through Unicode 17.0 so newer characters that are not yet supported by common system emoji fonts do not appear as missing-glyph boxes.
+The source is OpenMoji's [emoji data CSV](https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv). The updater includes emoji through Unicode 18.0, supported by the bundled Noto Color Emoji font.
 
 ## Formatting
 

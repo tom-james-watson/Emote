@@ -13,7 +13,8 @@ class Settings(Adw.PreferencesDialog):
         self.picker = picker
         self._refreshing_auto_paste = False
         self.set_content_width(390)
-        self.set_content_height(390 if config.is_wayland else 340)
+        self.set_content_height(450 if config.is_wayland else 400)
+        self.set_font_map(picker.root.get_font_map())
         page = Adw.PreferencesPage()
         group = Adw.PreferencesGroup()
         page.add(group)
@@ -32,6 +33,13 @@ class Settings(Adw.PreferencesDialog):
         size.set_selected(user_data.EMOJI_SIZES.index(picker.emoji_size))
         size.connect("notify::selected", self.on_size_changed)
         group.add(size)
+
+        font = Adw.ComboRow(
+            title="Emoji font", model=Gtk.StringList.new(user_data.EMOJI_FONT_LABELS)
+        )
+        font.set_selected(user_data.EMOJI_FONTS.index(user_data.load_emoji_font()))
+        font.connect("notify::selected", self.on_font_changed)
+        group.add(font)
 
         paste_group = Adw.PreferencesGroup()
         page.add(paste_group)
@@ -53,6 +61,10 @@ class Settings(Adw.PreferencesDialog):
 
     def on_tone_changed(self, row, _property):
         self.picker.set_skin_tone(row.get_selected())
+
+    def on_font_changed(self, row, _property):
+        self.picker.set_emoji_font(user_data.EMOJI_FONTS[row.get_selected()])
+        self.set_font_map(self.picker.root.get_font_map())
 
     def on_auto_paste_changed(self, row, _property):
         if not self._refreshing_auto_paste:

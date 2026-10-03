@@ -23,6 +23,7 @@ install_data(
   'css.py',
   'debouncer.py',
   'emojis.py',
+  'emoji_font.py',
   'keyboard_shortcuts.py',
   'picker.py',
   'picker_dialogs.py',

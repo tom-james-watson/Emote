@@ -34,6 +34,12 @@
   transition: none;
 }
 
+.bundled-emojis .emoji-cell,
+.bundled-emojis .preview-emoji,
+.bundled-emojis .emoji-glyph {
+  font-family: "Emote Emoji";
+}
+
 .picker.emoji-size-20 .emoji-cell {
   font-size: 20px;
   min-height: 33px;

@@ -22,6 +22,9 @@
       Written in GTK4, Emote offers a continuous emoji catalogue with category navigation.
     </p>
     <p>
+      Includes emojis through Unicode 18 and a bundled Noto Color Emoji font. Choose your system emoji font in Preferences if you prefer.
+    </p>
+    <p>
       On X11, launch the picker with the configurable keyboard shortcut Ctrl+Alt+E. On supported Wayland desktops, Emote can register Ctrl+Alt+E through the Global Shortcuts portal. Selected emojis are copied to the clipboard and, when automatic paste is enabled, pasted into the previously focused app.
     </p>
     <ul>

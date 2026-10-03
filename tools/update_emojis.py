@@ -11,7 +11,7 @@ from urllib.request import urlopen
 SOURCE_URL = (
     "https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/data/openmoji.csv"
 )
-MAX_UNICODE_VERSION = (17, 0)
+MAX_UNICODE_VERSION = (18, 0)
 OUTPUT_PATH = Path(__file__).resolve().parents[1] / "static" / "emojis.csv"
 
 
@@ -66,7 +66,8 @@ def main():
         if temporary_path and temporary_path.exists():
             temporary_path.unlink()
 
-    print(f"Wrote {len(rows)} emoji catalogue entries through Unicode 17.0")
+    version = ".".join(str(part) for part in MAX_UNICODE_VERSION)
+    print(f"Wrote {len(rows)} emoji catalogue entries through Unicode {version}")
 
 
 if __name__ == "__main__":

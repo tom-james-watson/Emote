@@ -33,6 +33,7 @@ SKINTONES = ["✋", "✋🏻", "✋🏼", "✋🏽", "✋🏾", "✋🏿"]
 
 PICKER_SIZE = "picker_size"
 DEFAULT_PICKER_SIZE = (515, 500)
+MIN_PICKER_SIZE = (356, 300)
 
 EMOJI_SIZE = "emoji_size"
 DEFAULT_EMOJI_SIZE = 28
@@ -44,6 +45,10 @@ EMOJI_SIZE_LABELS = (
     "Large (32 px)",
     "Extra large (36 px)",
 )
+
+EMOJI_FONT = "emoji_font"
+EMOJI_FONTS = ("noto", "system")
+EMOJI_FONT_LABELS = ("Noto Color Emoji (bundled)", "System")
 
 
 # Ensure the data dir exists
@@ -138,7 +143,7 @@ def update_shown_welcome():
 def normalize_picker_size(size):
     try:
         width, height = size
-        return max(460, int(width)), max(300, int(height))
+        return max(MIN_PICKER_SIZE[0], int(width)), max(MIN_PICKER_SIZE[1], int(height))
     except (TypeError, ValueError):
         return DEFAULT_PICKER_SIZE
 
@@ -173,6 +178,17 @@ def update_emoji_size(size):
 def load_skintone_index():
     with shelve.open(SHELVE_PATH) as db:
         return db.get(SKINTONE_INDEX, DEFAULT_SKINTONE_INDEX)
+
+
+def load_emoji_font():
+    with shelve.open(SHELVE_PATH) as db:
+        font = db.get(EMOJI_FONT, "noto")
+        return font if font in EMOJI_FONTS else "noto"
+
+
+def update_emoji_font(font):
+    with shelve.open(SHELVE_PATH) as db:
+        db[EMOJI_FONT] = font if font in EMOJI_FONTS else "noto"
 
 
 def update_skintone_index(skintone):
