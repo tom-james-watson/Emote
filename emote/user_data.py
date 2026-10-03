@@ -48,7 +48,7 @@ EMOJI_SIZE_LABELS = (
 
 EMOJI_FONT = "emoji_font"
 EMOJI_FONTS = ("noto", "system")
-EMOJI_FONT_LABELS = ("Noto Color Emoji (bundled)", "System")
+EMOJI_FONT_LABELS = ("Noto", "System")
 
 
 # Ensure the data dir exists

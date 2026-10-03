@@ -163,7 +163,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         self.search_entry = Gtk.SearchEntry()
         self.search_entry.set_placeholder_text("Search emoji")
         self.search_entry.set_hexpand(True)
-        self.search_entry.connect("search-changed", self.on_search_changed)
+        self.search_entry.connect("changed", self.on_search_changed)
         bar.append(self.search_entry)
 
         menu = Gio.Menu()
@@ -579,14 +579,17 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         self.searching = True
         self.display_emojis = emojis.search(query)
         self.emoji_rows = {}
-        rows = [PickerRow("search", f"Results for “{query}”")]
+        title = (
+            f"Results for “{query}”"
+            if self.display_emojis
+            else f"No matches for “{query}”"
+        )
+        rows = [PickerRow("search", title)]
         for offset in range(0, len(self.display_emojis), self.emojis_per_row):
             chunk = self.display_emojis[offset : offset + self.emojis_per_row]
             rows.append(PickerRow("search", None, chunk, offset))
             for index in range(offset, offset + len(chunk)):
                 self.emoji_rows[index] = len(rows) - 1
-        if not self.display_emojis:
-            rows.append(PickerRow("search", "No matching emoji"))
         self.replace_rows(rows)
 
     def replace_rows(self, rows, reset_scroll=True):
@@ -1060,7 +1063,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
     def update_preview(self, index=None):
         if not self.display_emojis:
             self.preview_emoji.set_text("")
-            self.preview_name.set_text("No emoji")
+            self.preview_name.set_text("")
             return
         emoji = self.display_emojis[self.selected_index if index is None else index]
         self.preview_emoji.set_text(self.get_skintone_char(emoji))

@@ -1,9 +1,6 @@
 from typing import Callable
 from gi.repository import GLib
 
-# Debounce interval in seconds.
-DEBOUNCE_INTERVAL = 0.2
-
 
 class SearchDebouncer:
     def __init__(self, search_callback: Callable[[str], None]):
@@ -12,9 +9,7 @@ class SearchDebouncer:
 
     def search(self, query: str):
         self.cancel()
-        self.source_id = GLib.timeout_add(
-            int(DEBOUNCE_INTERVAL * 1000), self._run, query
-        )
+        self.source_id = GLib.idle_add(self._run, query)
 
     def _run(self, query):
         self.source_id = None
