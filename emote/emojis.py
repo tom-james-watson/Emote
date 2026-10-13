@@ -13,9 +13,16 @@ all_emojis = []
 def make_emoji_data(row):
     shortcode = row["annotation"].lower().replace("-", " ")
     shortcode = re.sub(r"[^\w\s]", "", shortcode).replace(" ", "_")
+    keywords = [
+        token
+        for token in ", ".join(
+            field for field in (row["tags"], row["openmoji_tags"]) if field
+        ).split(", ")
+        if token
+    ]
 
     return {
-        "keywords": (row["tags"] + row["openmoji_tags"]).split(", "),
+        "keywords": keywords,
         "char": row["emoji"],
         "name": row["annotation"].capitalize(),
         "shortcode": shortcode,
