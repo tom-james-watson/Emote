@@ -10,6 +10,8 @@ Run the commands below from the repository root.
 2. Add a release entry to [`flatpak/com.tomjwatson.Emote.metainfo.xml`](../flatpak/com.tomjwatson.Emote.metainfo.xml).
 3. Build and test the packages using the instructions below.
 
+For native desktop integration checks, see [Testing in desktop VMs](vm-testing.md).
+
 For a beta, use a version such as `5.0.0-beta.1`. Use the AppStream form
 `5.0.0~beta1` with `type="development"` so it sorts before the final release.
 Publishing remains a manual step for both stores.

@@ -47,6 +47,12 @@ These tests use the GTK and libadwaita system packages listed above, but do not 
 pipenv run python -m unittest tests.test_wayland_shortcut -v
 ```
 
+## Testing in desktop VMs
+
+For native desktop, compositor and packaged-app checks, see
+[Testing in desktop VMs](vm-testing.md). It covers creating or reusing the test
+VMs, X11/Wayland sessions, package checks and screenshots.
+
 ## Debugging with GtkInspector
 
 Launch Emote with the interactive inspector:
