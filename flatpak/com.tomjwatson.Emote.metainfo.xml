@@ -54,6 +54,13 @@
   </screenshots>
 
   <releases>
+    <release type="development" version="5.0.0~beta7" date="2026-10-15T00:00:00Z">
+      <description>
+        <ul>
+          <li>Add Quit Emote to the menu and Ctrl+Q to exit the application</li>
+        </ul>
+      </description>
+    </release>
     <release type="development" version="5.0.0~beta6" date="2026-10-15T00:00:00Z">
       <description>
         <ul>
