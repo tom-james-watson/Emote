@@ -54,6 +54,14 @@
   </screenshots>
 
   <releases>
+    <release type="development" version="5.0.0~beta6" date="2026-10-15T00:00:00Z">
+      <description>
+        <ul>
+          <li>Fix search keywords being joined together when combining tag lists</li>
+          <li>Add search keywords for the Unicode 18 emojis</li>
+        </ul>
+      </description>
+    </release>
     <release type="development" version="5.0.0~beta5" date="2026-10-03T00:00:00Z">
       <description>
         <ul>
