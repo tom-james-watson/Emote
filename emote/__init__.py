@@ -21,6 +21,10 @@ from emote.wayland_shortcut import WaylandShortcut
 class EmoteApplication(Adw.Application):
     def __init__(self):
         super().__init__(application_id=config.app_id)
+        quit_action = Gio.SimpleAction.new("quit", None)
+        quit_action.connect("activate", lambda _action, _param: self.quit())
+        self.add_action(quit_action)
+        self.set_accels_for_action("app.quit", ["<Primary>q"])
         self.started = False
         self.picker_window = None
         self.hotkey = None

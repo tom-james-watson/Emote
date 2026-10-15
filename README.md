@@ -60,6 +60,7 @@ Open **Preferences** to change the emoji size, skin tone, or font. Emote include
 | Focus search | `Ctrl+F` |
 | Next category | `Ctrl+Tab` |
 | Previous category | `Ctrl+Shift+Tab` |
+| Quit Emote | `Ctrl+Q` |
 
 ## Desktop integration
 
