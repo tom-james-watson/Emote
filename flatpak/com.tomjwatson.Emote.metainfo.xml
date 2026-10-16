@@ -54,6 +54,13 @@
   </screenshots>
 
   <releases>
+    <release type="development" version="5.0.0~beta8" date="2026-10-16T00:00:00Z">
+      <description>
+        <ul>
+          <li>Restore saved Wayland shortcuts after restart and reboot on Plasma 6.7</li>
+        </ul>
+      </description>
+    </release>
     <release type="development" version="5.0.0~beta7" date="2026-10-15T00:00:00Z">
       <description>
         <ul>
