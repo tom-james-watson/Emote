@@ -262,7 +262,14 @@ class WaylandShortcut:
 
     def _on_shortcuts_listed(self, results):
         shortcut = self._find_shortcut(results)
-        if shortcut is not None:
+        if shortcut is not None and self._trigger_description(shortcut):
+            # ListShortcuts returns saved settings, but does not necessarily
+            # activate them for this session (notably on KDE Plasma 6.7).
+            # Bind again on every new session, including portal recovery.
+            self._registered = False
+            self._bind_requested = False
+            self._bind_shortcut(self._generation)
+        elif shortcut is not None:
             self._registered = True
             self._bind_requested = False
             self._notify_bound(shortcut)

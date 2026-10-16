@@ -89,17 +89,36 @@ class WaylandShortcutTests(unittest.TestCase):
         registration = shortcut._bus.call.call_args.args[4]
         self.assertEqual(registration.unpack()[0], "com.tomjwatson.Emote.Devel")
 
-    def test_existing_binding_is_reported_without_rebinding(self):
-        shortcut = self.make_shortcut()
-        shortcut._bind_shortcut = Mock()
+    def test_saved_binding_is_activated_before_reporting_success(self):
+        for shortcut_id in (SHORTCUT_ID, "open-picker"):
+            for bind_requested in (False, True):
+                with self.subTest(id=shortcut_id, bind_requested=bind_requested):
+                    shortcut = self.make_shortcut()
+                    shortcut._bind_requested = bind_requested
+                    shortcut._session_handle = "/session"
+                    shortcut._call_request = Mock()
+                    results = {
+                        "shortcuts": [
+                            (shortcut_id, {"trigger_description": "Super+period"})
+                        ]
+                    }
 
-        shortcut._on_shortcuts_listed(
-            {"shortcuts": [(SHORTCUT_ID, {"trigger_description": "Super+period"})]}
-        )
+                    shortcut._on_shortcuts_listed(results)
 
-        self.bound.assert_called_once_with("Super+period")
-        self.missing.assert_not_called()
-        shortcut._bind_shortcut.assert_not_called()
+                    self.bound.assert_not_called()
+                    self.missing.assert_not_called()
+                    self.assertFalse(shortcut.is_registered)
+                    self.assertFalse(shortcut._bind_requested)
+                    call = shortcut._call_request.call_args
+                    self.assertEqual(call.args[0], "BindShortcuts")
+                    parameters = call.args[1].unpack()
+                    self.assertEqual(parameters[0], "/session")
+                    self.assertEqual(parameters[1][0][0], shortcut_id)
+
+                    call.args[4](results)
+
+                    self.bound.assert_called_once_with("Super+period")
+                    self.assertTrue(shortcut.is_registered)
 
     def test_duplicate_bound_signal_is_reported_once(self):
         shortcut = self.make_shortcut()
@@ -120,6 +139,8 @@ class WaylandShortcutTests(unittest.TestCase):
 
     def test_legacy_disabled_entry_is_preserved_instead_of_replaced(self):
         shortcut = self.make_shortcut()
+        shortcut._bind_shortcut = Mock()
+        shortcut._bind_requested = True
 
         shortcut._on_shortcuts_listed(
             {"shortcuts": [("open-picker", {"trigger_description": ""})]}
@@ -128,6 +149,7 @@ class WaylandShortcutTests(unittest.TestCase):
         self.assertTrue(shortcut.is_registered)
         self.assertEqual(shortcut._shortcut_id, "open-picker")
         self.missing.assert_called_once_with(True)
+        shortcut._bind_shortcut.assert_not_called()
 
     def test_setup_binds_default_when_discovery_finds_nothing(self):
         shortcut = self.make_shortcut()
