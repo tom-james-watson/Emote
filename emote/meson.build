@@ -32,5 +32,6 @@ install_data(
   'wayland_paste.py',
   'wayland_shortcut.py',
   'x11_hotkey.py',
+  'x11_window.py',
   install_dir: moduledir,
 )
