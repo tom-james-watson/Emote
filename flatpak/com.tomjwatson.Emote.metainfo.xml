@@ -54,6 +54,16 @@
   </screenshots>
 
   <releases>
+    <release type="stable" version="5.0.0" date="2026-10-19T00:00:00Z">
+      <description>
+        <ul>
+          <li>Redesign the picker with GTK4 and libadwaita</li>
+          <li>Add global shortcut setup and optional automatic paste on supported Wayland desktops</li>
+          <li>Update emojis through Unicode 18 and bundle Noto with a system font option</li>
+          <li>Allow resizing the picker and improve search and multi-emoji selection</li>
+        </ul>
+      </description>
+    </release>
     <release type="development" version="5.0.0~beta8" date="2026-10-16T00:00:00Z">
       <description>
         <ul>
