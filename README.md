@@ -57,7 +57,6 @@ Open **Preferences** to change the emoji size, skin tone, or font. Emote include
 | Open or close the picker | `Ctrl+Alt+E` (default global shortcut) |
 | Select emoji | `Enter` |
 | Add emoji to selection | `Shift+Enter` |
-| Focus search | `Ctrl+F` |
 | Next category | `Ctrl+Tab` |
 | Previous category | `Ctrl+Shift+Tab` |
 | Quit Emote | `Ctrl+Q` |
@@ -68,7 +67,7 @@ Open **Preferences** to change the emoji size, skin tone, or font. Emote include
 
 On **X11**, Emote handles the global shortcut itself. Change it from **Keyboard Shortcuts** in Emote.
 
-On **Wayland**, your desktop manages the shortcut through its Global Shortcuts portal. Emote offers to set this up the first time you open the picker. You can skip setup and keep an existing manual shortcut, or set it up later from **Keyboard Shortcuts**. To change or enable a registered shortcut, use your desktop's shortcut settings.
+On **Wayland**, your desktop manages the shortcut through its Global Shortcuts portal. Emote offers to set this up the first time you open the picker. You can skip setup and keep an existing manual shortcut, or set it up later from **Keyboard Shortcuts**. Once a keyboard shortcut is set in the app, you need to update it in your desktop's shortcut settings as Wayland currently provides no way to update it from Emote.
 
 If your desktop does not support the portal, configure a shortcut manually using the [Wayland shortcut guide](https://github.com/tom-james-watson/Emote/wiki/Hotkey-In-Wayland).
 
@@ -76,11 +75,7 @@ If your desktop does not support the portal, configure a shortcut manually using
 
 Automatic paste is optional on both X11 and Wayland. Turn it on or off in **Preferences**. It is on by default on X11.
 
-On **Wayland**, it also needs your desktop's permission to control the keyboard. Emote offers to enable it during setup. On GNOME, allow “Remote Interaction” when prompted. Emote requests keyboard control, not screen access.
-
-On KDE, Emote keeps keyboard control active while automatic paste is enabled, avoiding a notification for every paste. On other desktops, it releases control after each paste. You can stop keyboard control using your desktop's indicator or turn automatic paste off in Preferences.
-
-If automatic paste is disabled or unavailable, your selection is still copied to the clipboard.
+On **Wayland**, it also needs your desktop's permission to control the keyboard. Emote offers to enable it during setup. On GNOME, allow “Remote Interaction” when prompted.
 
 ### Login startup
 

@@ -80,7 +80,6 @@ class KeyboardShortcuts(Adw.Dialog):
         for label, binding in (
             ("Select Emoji", "Enter"),
             ("Add to Selection", "Shift+Enter"),
-            ("Focus Search", "Ctrl+F"),
             ("Next Category", "Ctrl+Tab"),
             ("Previous Category", "Ctrl+Shift+Tab"),
         ):
