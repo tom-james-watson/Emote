@@ -14,7 +14,7 @@ try:
 except (ImportError, ValueError):
     GdkWayland = None
 
-from emote import config, css, debouncer, emoji_font, emojis, user_data
+from emote import config, css, debouncer, emoji_font, emojis, user_data, x11_window
 from emote.picker_dialogs import PickerDialogs
 
 CATEGORY_ICONS = {
@@ -147,6 +147,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         pointer.connect("leave", self.on_pointer_leave)
         self.add_controller(pointer)
         self.connect("realize", self.on_realize)
+        self.connect("map", self.on_map)
         self.connect("notify::is-active", self.on_active_changed)
         self.connect("close-request", self.on_close_request)
 
@@ -917,6 +918,10 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
 
     def on_realize(self, _window):
         self.get_surface().connect("notify::state", self.on_active_changed)
+        x11_window.configure_picker(self.get_surface())
+
+    def on_map(self, _window):
+        x11_window.center_picker(self.get_surface())
 
     def on_active_changed(self, _window, _property):
         if self.is_active():
