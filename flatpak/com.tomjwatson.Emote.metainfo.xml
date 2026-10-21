@@ -49,7 +49,20 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/tom-james-watson/Emote/master/images/screenshot.png</image>
+      <image>https://raw.githubusercontent.com/tom-james-watson/Emote/02c1fee661d90b0188c81d38b0bf49f37f134d21/images/screenshot-dark.png</image>
+      <caption>Browse emojis in dark mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/tom-james-watson/Emote/02c1fee661d90b0188c81d38b0bf49f37f134d21/images/screenshot-search.png</image>
+      <caption>Search for dog emojis</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/tom-james-watson/Emote/02c1fee661d90b0188c81d38b0bf49f37f134d21/images/screenshot-preferences.png</image>
+      <caption>Customize emoji appearance and automatic paste in Preferences</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/tom-james-watson/Emote/02c1fee661d90b0188c81d38b0bf49f37f134d21/images/screenshot-light.png</image>
+      <caption>Browse emojis in light mode</caption>
     </screenshot>
   </screenshots>
 
