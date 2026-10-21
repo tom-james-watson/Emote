@@ -1,5 +1,6 @@
 """A continuous emoji catalogue for GTK 4."""
 
+import os
 import subprocess
 
 import gi
@@ -16,6 +17,7 @@ except (ImportError, ValueError):
 
 from emote import config, css, debouncer, emoji_font, emojis, user_data, x11_window
 from emote.picker_dialogs import PickerDialogs
+from emote.clipboard import ClipboardRestore, restoration_enabled
 
 CATEGORY_ICONS = {
     "recent": "emote-category-recent-symbolic",
@@ -86,6 +88,14 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         self.set_hide_on_close(False)
 
         self.appended = []
+        display = Gdk.Display.get_default()
+        self.clipboard_restore = ClipboardRestore(
+            display.get_clipboard(),
+            needs_portal=config.is_wayland
+            and (not config.is_kde or display.__gtype__.name != "GdkWaylandDisplay"),
+            portal_restoration=not config.is_kde,
+        )
+        self.selection_pending = False
         self.display_emojis = []
         self.emoji_rows = {}
         self.category_rows = {}
@@ -403,6 +413,9 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         GLib.idle_add(self.focus_search_entry)
 
     def prepare_for_close(self):
+        if self.selection_pending:
+            self.selection_pending = False
+            self.clipboard_restore.cancel()
         self.was_active = False
         self.pointer_in_picker = False
         self.waiting_for_wayland_setup = False
@@ -1082,7 +1095,8 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
             return
         emoji = self.get_skintone_char(self.display_emojis[index])
         self.appended.append(emoji)
-        self.copy_to_clipboard("".join(self.appended))
+        if not restoration_enabled():
+            self.copy_to_clipboard("".join(self.appended))
         user_data.update_recent_emojis(emoji)
         self.recent_dirty = True
         shown = self.appended[-4:]
@@ -1095,23 +1109,54 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         self.selection_box.set_visible(True)
 
     def select_emoji(self, index):
-        if self.waiting_for_wayland_setup:
+        if self.waiting_for_wayland_setup or self.selection_pending:
             return
         emoji = self.get_skintone_char(self.display_emojis[index])
         content = "".join(self.appended) + emoji
-        self.copy_to_clipboard(content)
-        user_data.update_recent_emojis(emoji)
-        self.recent_dirty = True
-        self.get_application().close_picker_window()
-        if config.is_wayland:
-            if user_data.load_wayland_auto_paste_choice() is True:
-                GLib.timeout_add(150, self.get_application().paste_wayland)
-        elif user_data.load_x11_auto_paste_enabled():
-            GLib.timeout_add(150, self.paste_x11)
+        self.selection_pending = True
+        self.root.set_sensitive(False)
+
+        def copied(paste_sent, error):
+            if not self.selection_pending:
+                return
+            self.selection_pending = False
+            self.root.set_sensitive(True)
+            if error is not None:
+                dialog = Adw.AlertDialog.new(
+                    "Could not save the clipboard",
+                    f"{error}\n\nYour clipboard has not been replaced. "
+                    "Try again or turn off Restore clipboard in Preferences.",
+                )
+                dialog.add_response("close", "Close")
+                self.show_dialog(dialog)
+                return
+            user_data.update_recent_emojis(emoji)
+            self.recent_dirty = True
+            self.get_application().close_picker_window()
+            if config.is_wayland:
+                if user_data.load_wayland_auto_paste_choice() is True:
+                    GLib.timeout_add(
+                        150, self.get_application().paste_wayland, paste_sent
+                    )
+            elif user_data.load_x11_auto_paste_enabled():
+                GLib.timeout_add(150, self.paste_x11, paste_sent)
+
+        self.clipboard_restore.copy(content, copied)
 
     def copy_to_clipboard(self, content):
         Gdk.Display.get_default().get_clipboard().set(content)
 
-    def paste_x11(self):
-        subprocess.Popen(["xdotool", "key", "ctrl+v"])
+    def paste_x11(self, paste_sent=None):
+        if not user_data.load_x11_auto_paste_enabled() or getattr(
+            paste_sent, "cancelled", False
+        ):
+            return GLib.SOURCE_REMOVE
+        process = subprocess.Popen(["xdotool", "key", "ctrl+v"])
+
+        def finished(_pid, status):
+            process.returncode = os.waitstatus_to_exitcode(status)
+            if process.returncode == 0 and paste_sent is not None:
+                paste_sent()
+
+        GLib.child_watch_add(GLib.PRIORITY_DEFAULT, process.pid, finished)
         return GLib.SOURCE_REMOVE

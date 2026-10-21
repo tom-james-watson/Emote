@@ -8,6 +8,7 @@ gi.require_version("Adw", "1")
 from gi.repository import Adw, Gio, GLib, Gtk
 
 from emote import config, css, emojis, picker, user_data
+from emote.clipboard import restoration_enabled
 from emote.x11_hotkey import X11Hotkey
 from emote.wayland_paste import (
     PermissionNotSavedError,
@@ -323,6 +324,14 @@ class EmoteApplication(Adw.Application):
                 on_unavailable=self.on_wayland_paste_unavailable,
                 keep_session_open=config.is_kde,
             )
+            if (
+                restoration_enabled()
+                and self.picker_window
+                and self.picker_window.clipboard_restore.needs_portal
+            ):
+                self.request_clipboard_access(
+                    self.wayland_paste, self.finish_saved_clipboard_access
+                )
         if (
             self.picker_window
             and self.picker_window.get_visible()
@@ -330,6 +339,44 @@ class EmoteApplication(Adw.Application):
         ):
             self.picker_window.begin_wayland_request()
         self.wayland_paste.ensure_started()
+
+    def finish_saved_clipboard_access(self, error):
+        if error is not None:
+            user_data.update_restore_clipboard_enabled(False)
+        if self.picker_window:
+            dialog = (
+                self.picker_window.get_visible_dialog()
+                or self.picker_window.active_dialog
+            )
+            if dialog and hasattr(dialog, "refresh_clipboard_restoration"):
+                dialog.refresh_clipboard_restoration()
+
+    def ensure_clipboard_access(self, callback):
+        self.maybe_start_wayland_paste()
+        backend = self.wayland_paste
+        if backend is None:
+            callback(
+                RuntimeError("Enable automatic paste before restoring the clipboard.")
+            )
+            return
+        self.request_clipboard_access(backend, callback)
+
+    def request_clipboard_access(self, backend, callback):
+        """Finish both startup and Preferences requests on the GTK thread."""
+        if self.picker_window:
+            self.picker_window.begin_wayland_request()
+
+        def finished(error):
+            def apply():
+                if self.wayland_paste is backend:
+                    if self.picker_window and backend.is_ready:
+                        self.picker_window.end_wayland_request(present=True)
+                    callback(error)
+                return GLib.SOURCE_REMOVE
+
+            GLib.idle_add(apply)
+
+        backend.request_clipboard(finished)
 
     def set_wayland_auto_paste(self, enabled):
         if not config.is_wayland:
@@ -354,7 +401,11 @@ class EmoteApplication(Adw.Application):
         GLib.idle_add(self.handle_wayland_paste_ready, backend)
 
     def handle_wayland_paste_ready(self, backend):
-        if self.wayland_paste is backend and self.picker_window:
+        if (
+            self.wayland_paste is backend
+            and self.picker_window
+            and not backend.clipboard_pending
+        ):
             self.picker_window.end_wayland_request(present=True)
         return GLib.SOURCE_REMOVE
 
@@ -388,10 +439,10 @@ class EmoteApplication(Adw.Application):
                 )
         return GLib.SOURCE_REMOVE
 
-    def paste_wayland(self):
+    def paste_wayland(self, paste_sent=None):
         if user_data.load_wayland_auto_paste_choice() is not True:
             return GLib.SOURCE_REMOVE
-        if self.wayland_paste and self.wayland_paste.paste():
+        if self.wayland_paste and self.wayland_paste.paste(paste_sent):
             return GLib.SOURCE_REMOVE
         user_data.update_wayland_auto_paste_choice(False)
         if self.wayland_paste:

@@ -72,6 +72,8 @@ Automatic paste is optional on both X11 and Wayland. Turn it on or off in **Pref
 
 On **Wayland**, it also needs your desktop's permission to control the keyboard. Emote offers to enable it during setup. On GNOME, allow “Remote Interaction” when prompted.
 
+Enable **Restore clipboard** in Preferences to keep what you copied before inserting an emoji. It’s off by default and available with automatic paste, except on GNOME Wayland. Allow **Clipboard Access** if prompted.
+
 ### Login startup
 
 Emote starts automatically when you log in. Launch it once from your app menu after installing.

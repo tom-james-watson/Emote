@@ -59,6 +59,9 @@ class PickerSelectionTests(TestCase):
         application = SimpleNamespace(close_picker_window=Mock(), paste_wayland=Mock())
         picker = SimpleNamespace(
             waiting_for_wayland_setup=False,
+            selection_pending=False,
+            root=Mock(),
+            clipboard_restore=Mock(),
             display_emojis=[{"char": "🙂"}],
             appended=[],
             get_skintone_char=Mock(return_value="🙂"),
@@ -66,12 +69,16 @@ class PickerSelectionTests(TestCase):
             get_application=Mock(return_value=application),
             recent_dirty=False,
         )
+        paste_sent = Mock()
+        picker.clipboard_restore.copy.side_effect = lambda text, callback: callback(
+            paste_sent, None
+        )
 
         load_choice.return_value = False
         EmojiPicker.select_emoji(picker, 0)
-        picker.copy_to_clipboard.assert_called_with("🙂")
+        self.assertEqual(picker.clipboard_restore.copy.call_args.args[0], "🙂")
         timeout_add.assert_not_called()
 
         load_choice.return_value = True
         EmojiPicker.select_emoji(picker, 0)
-        timeout_add.assert_called_once_with(150, application.paste_wayland)
+        timeout_add.assert_called_once_with(150, application.paste_wayland, paste_sent)

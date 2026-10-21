@@ -23,6 +23,7 @@ DEFAULT_ACCELERATOR_LABEL = "Ctrl+Alt+E"
 
 WAYLAND_AUTO_PASTE = "wayland_auto_paste"
 X11_AUTO_PASTE = "x11_auto_paste"
+RESTORE_CLIPBOARD = "restore_clipboard"
 WAYLAND_GLOBAL_SHORTCUT = "wayland_global_shortcut"
 WAYLAND_GLOBAL_SHORTCUT_LABEL = "wayland_global_shortcut_label"
 SHOWN_WELCOME = "shown_welcome"
@@ -113,6 +114,16 @@ def load_wayland_global_shortcut_choice():
     """Return whether the portal most recently reported Emote's shortcut."""
     with shelve.open(SHELVE_PATH) as db:
         return db.get(WAYLAND_GLOBAL_SHORTCUT)
+
+
+def load_restore_clipboard_enabled():
+    with shelve.open(SHELVE_PATH) as db:
+        return db.get(RESTORE_CLIPBOARD, False)
+
+
+def update_restore_clipboard_enabled(enabled):
+    with shelve.open(SHELVE_PATH) as db:
+        db[RESTORE_CLIPBOARD] = bool(enabled)
 
 
 def update_wayland_global_shortcut_choice(enabled):
