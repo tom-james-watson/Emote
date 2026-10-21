@@ -19,7 +19,11 @@ class X11PasteTests(TestCase):
     @patch("emote.settings.config.is_wayland", False)
     def test_preference_defaults_on_and_can_be_toggled(self):
         self.assertTrue(user_data.load_x11_auto_paste_enabled())
-        settings = SimpleNamespace(_refreshing_auto_paste=False)
+        settings = SimpleNamespace(
+            _refreshing_auto_paste=False,
+            restore_clipboard=Mock(),
+            refresh_clipboard_restoration=Mock(),
+        )
         row = SimpleNamespace(get_active=Mock(return_value=False))
 
         Settings.on_auto_paste_changed(settings, row, None)
@@ -35,6 +39,9 @@ class X11PasteTests(TestCase):
         application = SimpleNamespace(close_picker_window=Mock())
         picker = SimpleNamespace(
             waiting_for_wayland_setup=False,
+            selection_pending=False,
+            root=Mock(),
+            clipboard_restore=Mock(),
             display_emojis=[{"name": "smile"}],
             appended=[],
             get_skintone_char=Mock(return_value="🙂"),
@@ -43,14 +50,37 @@ class X11PasteTests(TestCase):
             paste_x11=Mock(),
             recent_dirty=False,
         )
+        paste_sent = Mock()
+        picker.clipboard_restore.copy.side_effect = lambda text, callback: callback(
+            paste_sent, None
+        )
 
         with patch("emote.picker.user_data.update_recent_emojis"):
             user_data.update_x11_auto_paste_enabled(False)
             EmojiPicker.select_emoji(picker, 0)
-            picker.copy_to_clipboard.assert_called_once_with("🙂")
+            self.assertEqual(picker.clipboard_restore.copy.call_args.args[0], "🙂")
             application.close_picker_window.assert_called_once_with()
             timeout_add.assert_not_called()
 
             user_data.update_x11_auto_paste_enabled(True)
             EmojiPicker.select_emoji(picker, 0)
-            timeout_add.assert_called_once_with(150, picker.paste_x11)
+            timeout_add.assert_called_once_with(150, picker.paste_x11, paste_sent)
+
+    @patch("emote.picker.GLib.child_watch_add")
+    @patch("emote.picker.subprocess.Popen")
+    def test_restore_timer_is_not_started_until_xdotool_succeeds(self, popen, watch):
+        for status in (0, 256):
+            with self.subTest(status=status):
+                sent = Mock(cancelled=False)
+                EmojiPicker.paste_x11(SimpleNamespace(), sent)
+                sent.assert_not_called()
+                finished = watch.call_args.args[2]
+                finished(popen.return_value.pid, status)
+                self.assertEqual(sent.call_count, int(status == 0))
+
+    @patch("emote.picker.subprocess.Popen")
+    def test_new_copy_before_scheduled_paste_does_not_insert_unrelated_content(
+        self, popen
+    ):
+        EmojiPicker.paste_x11(SimpleNamespace(), SimpleNamespace(cancelled=True))
+        popen.assert_not_called()

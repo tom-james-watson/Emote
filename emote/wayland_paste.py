@@ -23,6 +23,24 @@ class SessionEndedError(RuntimeError):
     pass
 
 
+class ClipboardPermissionRequest:
+    needs_portal = True
+    cancelled = False
+
+    def __init__(self, callback):
+        self.callback = callback
+        self._lock = threading.Lock()
+
+    def finish(self, error=None):
+        with self._lock:
+            callback, self.callback = self.callback, None
+        if callback is not None:
+            callback(error)
+
+    def use_portal(self, *_args):
+        pass
+
+
 def load_restore_token():
     try:
         return TOKEN_PATH.read_text(encoding="utf-8").strip() or None
@@ -67,21 +85,45 @@ class WaylandPaste:
         self._on_ready = on_ready
         self._on_unavailable = on_unavailable
         self._keep_session_open = keep_session_open
+        self._clipboard_request = None
+        self._active_clipboard_lease = None
+
+    @property
+    def clipboard_pending(self):
+        return self._clipboard_request is not None
+
+    def request_clipboard(self, callback):
+        lease = self._active_clipboard_lease
+        if (
+            lease is not None
+            and not lease.finished.is_set()
+            and not self._stop.is_set()
+        ):
+            callback(None)
+            return
+
+        def finished(error):
+            self._clipboard_request = None
+            callback(error)
+
+        request = ClipboardPermissionRequest(finished)
+        self._clipboard_request = request
+        self._requests.put(request)
 
     @property
     def is_ready(self):
-        return self._ready.is_set()
+        return self._ready.is_set() and not self.clipboard_pending
 
     def ensure_started(self):
         if self._thread is None:
             self._thread = threading.Thread(target=self._run, daemon=True)
             self._thread.start()
 
-    def paste(self):
+    def paste(self, on_pasted=None):
         """Queue a paste after the initial permission request has finished."""
-        if not self._ready.is_set():
+        if not self.is_ready:
             return False
-        self._requests.put(True)
+        self._requests.put(on_pasted or True)
         return True
 
     def close(self, discard_token=False):
@@ -94,6 +136,10 @@ class WaylandPaste:
                 except OSError as exc:
                     print("Failed to remove Wayland auto-paste permission:", exc)
         self._requests.put(None)
+        if self._clipboard_request is not None:
+            self._clipboard_request.finish(
+                RuntimeError("Automatic paste was disabled.")
+            )
 
     def _run(self):
         try:
@@ -115,9 +161,10 @@ class WaylandPaste:
                 self._on_ready(self)
 
             while not self._stop.is_set():
-                if self._requests.get() is None or self._stop.is_set():
+                request = self._requests.get()
+                if request is None or self._stop.is_set():
                     return
-                self._open_session(ei, portal, paste=True)
+                self._open_session(ei, portal, paste=request)
         except Exception as exc:
             self._ready.clear()
             if not self._stop.is_set():
@@ -130,24 +177,87 @@ class WaylandPaste:
             self._ready.clear()
 
     def _open_session(self, ei, portal, paste):
-        with portal.RemoteDesktopSession.negotiate(
-            devices=portal.DeviceType.KEYBOARD,
-            persist_mode=portal.PersistMode.UNTIL_REVOKED,
-            restore_token=load_restore_token(),
-        ) as session:
-            with self._state_lock:
-                if self._stop.is_set():
-                    return
-                save_restore_token(session.restore_token)
-            if session.restore_token is None:
-                raise PermissionNotSavedError("the desktop did not remember permission")
-            sender = ei.Sender.create_for_fd(session.eis_fd, name="Emote")
-            try:
-                self._serve(sender, ei, paste)
-            finally:
-                sender.release()
+        try:
+            self._open_session_with_permission(ei, portal, paste)
+        except Exception as error:
+            if not isinstance(paste, ClipboardPermissionRequest):
+                raise
+            if self._keep_session_open:
+                self._ready.clear()
+            paste.finish(error)
+            # Declining restoration must leave keyboard-only automatic paste usable.
+            if self._keep_session_open and not self._stop.is_set():
+                self._open_session(ei, portal, paste=False)
 
-    def _serve(self, sender, ei, paste):
+    def _open_session_with_permission(self, ei, portal, paste):
+        lease = None
+        upgrade = None
+        if getattr(paste, "needs_portal", False):
+            from emote import portal_clipboard
+
+            session, lease = portal_clipboard.negotiate(portal, load_restore_token())
+            self._active_clipboard_lease = lease
+        else:
+            session = portal.RemoteDesktopSession.negotiate(
+                devices=portal.DeviceType.KEYBOARD,
+                persist_mode=portal.PersistMode.UNTIL_REVOKED,
+                restore_token=load_restore_token(),
+            )
+        try:
+            with session:
+                with self._state_lock:
+                    if self._stop.is_set():
+                        return
+                    save_restore_token(session.restore_token)
+                if session.restore_token is None:
+                    raise PermissionNotSavedError(
+                        "the desktop did not remember permission"
+                    )
+                if (
+                    lease is not None
+                    and not self._keep_session_open
+                    and not isinstance(paste, ClipboardPermissionRequest)
+                ):
+                    paste.use_portal(lease.claim, lease.finished.set, lease.watch)
+                sender = ei.Sender.create_for_fd(session.eis_fd, name="Emote")
+                try:
+                    upgrade = self._serve(
+                        sender,
+                        ei,
+                        paste,
+                        hold=self._keep_session_open,
+                        lease=lease,
+                    )
+                finally:
+                    sender.release()
+                if (
+                    lease is not None
+                    and not self._keep_session_open
+                    and not isinstance(paste, ClipboardPermissionRequest)
+                ):
+                    lease.wait(self._stop)
+                    if lease.revoked:
+                        raise SessionEndedError("the desktop ended clipboard access")
+        finally:
+            if lease is not None:
+                lease.close()
+                if self._active_clipboard_lease is lease:
+                    self._active_clipboard_lease = None
+        if upgrade is not None and not self._stop.is_set():
+            # Replace KDE's keyboard-only session before asking for clipboard
+            # access. Reuse the upgraded session, so consent is needed once.
+            self._open_session(ei, portal, upgrade)
+        elif isinstance(paste, ClipboardPermissionRequest):
+            paste.finish(
+                RuntimeError("Automatic paste was disabled.")
+                if self._stop.is_set()
+                else None
+            )
+
+    def _serve(self, sender, ei, paste, hold=None, lease=None):
+        if hold is None:
+            hold = self._keep_session_open
+        pending = paste if hold and paste else None
         device = None
         announced_ready = False
         first_keyboard_deadline = time.monotonic() + 10
@@ -174,7 +284,7 @@ class WaylandPaste:
                         if event.device == device:
                             device = None
                             first_keyboard_deadline = time.monotonic() + 10
-                            if self._keep_session_open:
+                            if hold:
                                 self._ready.clear()
                                 announced_ready = False
                                 # A held session can pause while the screen is locked.
@@ -184,7 +294,7 @@ class WaylandPaste:
                 raise TimeoutError("the desktop did not provide a keyboard device")
 
             if device is not None:
-                if self._keep_session_open:
+                if hold:
                     with self._state_lock:
                         if self._stop.is_set():
                             return
@@ -193,17 +303,41 @@ class WaylandPaste:
                         announced_ready = True
                         if self._on_ready:
                             self._on_ready(self)
-                    try:
-                        request = self._requests.get_nowait()
-                    except queue.Empty:
-                        continue
+                    if pending is not None:
+                        request, pending = pending, None
+                    else:
+                        try:
+                            request = self._requests.get_nowait()
+                        except queue.Empty:
+                            continue
                     if request is None or self._stop.is_set():
                         return
+                    if getattr(request, "cancelled", False):
+                        continue
+                    if getattr(request, "needs_portal", False) and lease is None:
+                        return request
+                    if isinstance(request, ClipboardPermissionRequest):
+                        request.finish()
+                        continue
+                    if lease is not None and getattr(request, "needs_portal", False):
+                        request.use_portal(
+                            lease.claim, lease.stop_watching, lease.watch
+                        )
                     self._send_paste(device)
+                    if callable(request):
+                        request()
                     continue
-                if paste and not self._stop.is_set():
+                if isinstance(paste, ClipboardPermissionRequest):
+                    return
+                if (
+                    paste
+                    and not self._stop.is_set()
+                    and not getattr(paste, "cancelled", False)
+                ):
                     self._send_paste(device)
                     self._finish_input(sender, ei)
+                    if callable(paste):
+                        paste()
                 return
 
     def _finish_input(self, sender, ei):

@@ -4,6 +4,7 @@ from tempfile import TemporaryDirectory
 from unittest.mock import Mock, patch
 
 from emote.wayland_paste import (
+    ClipboardPermissionRequest,
     PermissionNotSavedError,
     SessionEndedError,
     WaylandPaste,
@@ -13,6 +14,101 @@ from emote.wayland_paste import (
 
 
 class WaylandPasteTests(unittest.TestCase):
+    def test_paste_waits_for_clipboard_preflight(self):
+        backend = WaylandPaste()
+        backend._ready.set()
+        backend.request_clipboard(Mock())
+        self.assertFalse(backend.is_ready)
+        self.assertFalse(backend.paste())
+
+    def test_active_clipboard_grant_is_reused_without_waiting_for_another_copy(self):
+        backend = WaylandPaste()
+        backend._active_clipboard_lease = Mock()
+        backend._active_clipboard_lease.finished.is_set.return_value = False
+        callback = Mock()
+        backend.request_clipboard(callback)
+        callback.assert_called_once_with(None)
+        self.assertTrue(backend._requests.empty())
+        self.assertFalse(backend.clipboard_pending)
+
+    @patch("emote.portal_clipboard.negotiate")
+    @patch("libei.ei.Sender.create_for_fd")
+    def test_clipboard_preflight_completes_after_session_close_without_pasting(
+        self, sender, negotiate
+    ):
+        from libei import ei, portal
+
+        with TemporaryDirectory() as directory, patch(
+            "emote.wayland_paste.TOKEN_PATH", Path(directory) / "token"
+        ):
+            session = Mock(restore_token="clipboard")
+            session.__enter__ = Mock(return_value=session)
+            session.__exit__ = Mock(return_value=False)
+            lease = Mock()
+            negotiate.return_value = session, lease
+            backend = WaylandPaste()
+            backend._serve = Mock(return_value=None)
+
+            def finished(error):
+                self.assertIsNone(error)
+                session.__exit__.assert_called_once()
+                lease.close.assert_called_once()
+
+            callback = Mock(side_effect=finished)
+            backend.request_clipboard(callback)
+            request = backend._requests.get_nowait()
+            self.assertTrue(backend.clipboard_pending)
+            backend._open_session(ei, portal, request)
+            callback.assert_called_once_with(None)
+            self.assertFalse(backend.clipboard_pending)
+            lease.wait.assert_not_called()
+            lease.claim.assert_not_called()
+
+    @patch("emote.portal_clipboard.negotiate", side_effect=RuntimeError("declined"))
+    def test_declined_clipboard_preflight_leaves_automatic_paste_ready(self, negotiate):
+        from libei import ei, portal
+
+        backend = WaylandPaste()
+        backend._ready.set()
+        callback = Mock()
+        backend.request_clipboard(callback)
+        backend._open_session(ei, portal, backend._requests.get_nowait())
+        callback.assert_called_once()
+        self.assertEqual(str(callback.call_args.args[0]), "declined")
+        self.assertTrue(backend.is_ready)
+        self.assertTrue(backend.paste())
+
+    @patch("emote.wayland_paste.select.select")
+    def test_clipboard_preflight_never_sends_keys(self, select):
+        from libei import ei
+
+        device = Mock(capabilities=(ei.DeviceCapability.KEYBOARD,))
+        sender = Mock(
+            events=[Mock(event_type=ei.EventType.DEVICE_RESUMED, device=device)]
+        )
+        select.return_value = ([sender.fd], [], [])
+        backend = WaylandPaste()
+        backend._send_paste = Mock()
+        backend._serve(sender, ei, ClipboardPermissionRequest(Mock()))
+        backend._send_paste.assert_not_called()
+
+    @patch("emote.wayland_paste.select.select")
+    def test_kde_preflight_keeps_session_ready_without_sending_keys(self, select):
+        from libei import ei
+
+        device = Mock(capabilities=(ei.DeviceCapability.KEYBOARD,))
+        sender = Mock(
+            events=[Mock(event_type=ei.EventType.DEVICE_RESUMED, device=device)]
+        )
+        select.return_value = ([sender.fd], [], [])
+        backend = WaylandPaste(keep_session_open=True)
+        callback = Mock(side_effect=lambda error: backend.close())
+        backend.request_clipboard(callback)
+        backend._send_paste = Mock()
+        backend._serve(sender, ei, paste=False, lease=Mock())
+        callback.assert_called_once_with(None)
+        backend._send_paste.assert_not_called()
+
     def test_paste_is_rejected_until_permission_setup_finishes(self):
         backend = WaylandPaste()
 
@@ -54,7 +150,7 @@ class WaylandPasteTests(unittest.TestCase):
 
             backend._on_ready = ready
 
-            def serve(_sender, _ei, paste):
+            def serve(_sender, _ei, paste, hold=False, lease=None):
                 if backend._serve.call_count == 3:
                     backend.close()
 
@@ -73,6 +169,106 @@ class WaylandPasteTests(unittest.TestCase):
                 session.__exit__.assert_called_once()
             self.assertEqual(sender.return_value.release.call_count, 3)
             self.assertEqual(load_restore_token(), "three")
+
+    @patch("emote.portal_clipboard.negotiate")
+    @patch("libei.ei.Sender.create_for_fd")
+    def test_clipboard_session_releases_input_before_serving_saved_data(
+        self, sender_factory, negotiate
+    ):
+        from libei import ei, portal
+
+        with TemporaryDirectory() as directory, patch(
+            "emote.wayland_paste.TOKEN_PATH", Path(directory) / "token"
+        ):
+            session = Mock(restore_token="clipboard-grant")
+            session.__enter__ = Mock(return_value=session)
+            session.__exit__ = Mock(return_value=False)
+            lease = Mock(revoked=False)
+            negotiate.return_value = session, lease
+            backend = WaylandPaste()
+            backend._serve = Mock(return_value=None)
+            request = Mock(needs_portal=True)
+
+            def serving(_stop):
+                sender_factory.return_value.release.assert_called_once()
+                session.__exit__.assert_not_called()
+
+            lease.wait.side_effect = serving
+            backend._open_session(ei, portal, request)
+
+            request.use_portal.assert_called_once_with(
+                lease.claim, lease.finished.set, lease.watch
+            )
+            backend._serve.assert_called_once_with(
+                sender_factory.return_value, ei, request, hold=False, lease=lease
+            )
+            lease.close.assert_called_once()
+            session.__exit__.assert_called_once()
+
+    @patch("emote.portal_clipboard.negotiate")
+    @patch("libei.ei.Sender.create_for_fd")
+    @patch("libei.portal.RemoteDesktopSession.negotiate")
+    def test_kde_upgrade_closes_keyboard_session_before_requesting_clipboard(
+        self, keyboard, sender_factory, clipboard
+    ):
+        from libei import ei, portal
+
+        with TemporaryDirectory() as directory, patch(
+            "emote.wayland_paste.TOKEN_PATH", Path(directory) / "token"
+        ):
+            sessions = [
+                Mock(restore_token=token) for token in ("keyboard", "clipboard")
+            ]
+            for session in sessions:
+                session.__enter__ = Mock(return_value=session)
+                session.__exit__ = Mock(return_value=False)
+            keyboard.return_value = sessions[0]
+            lease = Mock()
+
+            def upgrade(*_args):
+                sessions[0].__exit__.assert_called_once()
+                return sessions[1], lease
+
+            clipboard.side_effect = upgrade
+            request = Mock(needs_portal=True, cancelled=False)
+            backend = WaylandPaste(keep_session_open=True)
+            backend._serve = Mock(side_effect=[request, None])
+            backend._open_session(ei, portal, paste=False)
+            clipboard.assert_called_once()
+            self.assertEqual(
+                backend._serve.call_args.kwargs, {"hold": True, "lease": lease}
+            )
+            self.assertIs(backend._serve.call_args.args[2], request)
+            lease.wait.assert_not_called()
+            lease.close.assert_called_once()
+            sessions[1].__exit__.assert_called_once()
+
+    @patch("emote.wayland_paste.select.select")
+    def test_kde_clipboard_permission_is_reused_for_subsequent_pastes(self, select):
+        from libei import ei
+
+        device = Mock(capabilities=(ei.DeviceCapability.KEYBOARD,))
+        sender = Mock(
+            events=[Mock(event_type=ei.EventType.DEVICE_RESUMED, device=device)]
+        )
+        select.return_value = ([sender.fd], [], [])
+        requests = [Mock(cancelled=False, needs_portal=True) for _ in range(2)]
+        lease = Mock()
+        backend = WaylandPaste(keep_session_open=True)
+        backend._on_ready = lambda backend: [backend.paste(r) for r in requests]
+
+        def sent(_device):
+            if backend._send_paste.call_count == 2:
+                backend.close()
+
+        backend._send_paste = Mock(side_effect=sent)
+        backend._serve(sender, ei, paste=False, lease=lease)
+        self.assertEqual(backend._send_paste.call_count, 2)
+        for request in requests:
+            request.use_portal.assert_called_once_with(
+                lease.claim, lease.stop_watching, lease.watch
+            )
+            request.assert_called_once_with()
 
     @patch("libei.portal.RemoteDesktopSession.negotiate")
     def test_saved_permission_does_not_open_an_idle_session(self, negotiate):
@@ -209,6 +405,30 @@ class WaylandPasteTests(unittest.TestCase):
 
         self.assertEqual(backend._on_ready.call_count, 2)
         backend._send_paste.assert_called_once_with(device)
+
+    @patch("emote.wayland_paste.select.select")
+    def test_cancelled_paste_is_skipped_without_disabling_the_next_request(
+        self, select
+    ):
+        from libei import ei
+
+        device = Mock(capabilities=(ei.DeviceCapability.KEYBOARD,))
+        sender = Mock(
+            events=[Mock(event_type=ei.EventType.DEVICE_RESUMED, device=device)]
+        )
+        select.return_value = ([sender.fd], [], [])
+        cancelled = Mock(cancelled=True, needs_portal=False)
+        live = Mock(cancelled=False, needs_portal=False)
+        backend = WaylandPaste(keep_session_open=True)
+        backend._on_ready = lambda backend: (
+            backend.paste(cancelled),
+            backend.paste(live),
+        )
+        backend._send_paste = Mock(side_effect=lambda _device: backend.close())
+        backend._serve(sender, ei, paste=False)
+        backend._send_paste.assert_called_once_with(device)
+        cancelled.assert_not_called()
+        live.assert_called_once_with()
 
     @patch("libei.ei.Sender.create_for_fd")
     @patch("libei.portal.RemoteDesktopSession.negotiate")

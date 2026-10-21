@@ -72,6 +72,27 @@ Automatic paste is optional on both X11 and Wayland. Turn it on or off in **Pref
 
 On **Wayland**, it also needs your desktop's permission to control the keyboard. Emote offers to enable it during setup. On GNOME, allow “Remote Interaction” when prompted.
 
+With automatic paste enabled, Preferences also offers **Restore previous clipboard**
+(off by default). Any required clipboard permission is requested when you enable
+the setting, before the clipboard is changed. Declining leaves restoration off and
+automatic paste enabled. Emote saves the clipboard's available formats, inserts the emoji,
+and restores them after a short delay. A new copy from another app cancels restoration.
+Adding emojis to a selection leaves the clipboard alone until you finish selecting.
+
+On GNOME Wayland, allow **Clipboard Access** when prompted. The remote-desktop
+session stays active while Emote serves the restored clipboard, until another app
+copies something or you disable automatic paste. Keyboard input devices are released
+after each paste.
+An initially empty clipboard is restored as empty text on GNOME. On Plasma,
+XWayland uses clipboard portal access to detect copies from native Wayland apps;
+that access is requested when restoration is enabled and retained until automatic
+paste is disabled. Native Wayland and X11 sessions restore directly through GTK.
+
+Restoration waits 500 ms after paste input is sent; an application that takes longer
+to read the clipboard may receive the previous contents instead. If the old clipboard
+cannot be saved within three seconds or is larger than 32 MiB, Emote leaves it unchanged
+and asks you to retry or disable restoration.
+
 ### Login startup
 
 Emote starts automatically when you log in. Launch it once from your app menu after installing.
