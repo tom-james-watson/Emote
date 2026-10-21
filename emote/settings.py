@@ -5,6 +5,7 @@ gi.require_version("Adw", "1")
 from gi.repository import Adw, Gtk
 
 from emote import config, user_data
+from emote.clipboard import restoration_available
 
 
 class Settings(Adw.PreferencesDialog):
@@ -58,10 +59,10 @@ class Settings(Adw.PreferencesDialog):
         self.auto_paste.connect("notify::active", self.on_auto_paste_changed)
         paste_group.add(self.auto_paste)
         self.restore_clipboard = Adw.SwitchRow(
-            title="Restore previous clipboard",
+            title="Restore clipboard",
             subtitle="Keep what you copied before inserting an emoji",
             active=user_data.load_restore_clipboard_enabled(),
-            visible=enabled,
+            visible=enabled and restoration_available(),
         )
         self.restore_clipboard.connect(
             "notify::active", self.on_restore_clipboard_changed
@@ -84,14 +85,17 @@ class Settings(Adw.PreferencesDialog):
                 self.picker.get_application().set_wayland_auto_paste(row.get_active())
             else:
                 user_data.update_x11_auto_paste_enabled(row.get_active())
-            self.restore_clipboard.set_visible(row.get_active())
+            self.restore_clipboard.set_visible(
+                row.get_active() and restoration_available()
+            )
             if not row.get_active():
                 self._restore_request = None
                 self.refresh_clipboard_restoration()
 
     def on_restore_clipboard_changed(self, row, _property):
         if (
-            not self.auto_paste.get_active()
+            not restoration_available()
+            or not self.auto_paste.get_active()
             or self._restore_request is not None
             or self._refreshing_restore
         ):
@@ -142,6 +146,6 @@ class Settings(Adw.PreferencesDialog):
         self._refreshing_auto_paste = True
         try:
             self.auto_paste.set_active(enabled)
-            self.restore_clipboard.set_visible(enabled)
+            self.restore_clipboard.set_visible(enabled and restoration_available())
         finally:
             self._refreshing_auto_paste = False

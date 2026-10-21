@@ -1125,7 +1125,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
                 dialog = Adw.AlertDialog.new(
                     "Could not save the clipboard",
                     f"{error}\n\nYour clipboard has not been replaced. "
-                    "Try again or turn off Restore previous clipboard in Preferences.",
+                    "Try again or turn off Restore clipboard in Preferences.",
                 )
                 dialog.add_response("close", "Close")
                 self.show_dialog(dialog)

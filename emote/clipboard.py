@@ -9,13 +9,22 @@ SNAPSHOT_TIMEOUT_MS = 3000
 MAX_SNAPSHOT_BYTES = 32 * 1024 * 1024
 
 
+def restoration_available():
+    # GNOME's clipboard portal keeps a visible remote-desktop session alive.
+    return not (config.is_wayland and config.is_gnome)
+
+
 def restoration_enabled():
     auto_paste = (
         user_data.load_wayland_auto_paste_choice() is True
         if config.is_wayland
         else user_data.load_x11_auto_paste_enabled()
     )
-    return auto_paste and user_data.load_restore_clipboard_enabled()
+    return (
+        restoration_available()
+        and auto_paste
+        and user_data.load_restore_clipboard_enabled()
+    )
 
 
 class ClipboardPaste:

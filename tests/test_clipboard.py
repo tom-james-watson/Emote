@@ -6,7 +6,12 @@ from unittest.mock import Mock, patch
 from gi.repository import Gdk, GLib
 
 from emote import EmoteApplication, user_data
-from emote.clipboard import ClipboardRestore, ClipboardSnapshot, restoration_enabled
+from emote.clipboard import (
+    ClipboardRestore,
+    ClipboardSnapshot,
+    restoration_available,
+    restoration_enabled,
+)
 from emote.settings import Settings
 
 
@@ -128,6 +133,17 @@ class ClipboardRestoreTests(TestCase):
         setter.assert_not_called()
         release.assert_called_once_with()
 
+    @patch("emote.config.is_wayland", True)
+    @patch("emote.config.is_gnome", True)
+    @patch("emote.user_data.load_wayland_auto_paste_choice", return_value=True)
+    @patch("emote.user_data.load_restore_clipboard_enabled", return_value=True)
+    def test_gnome_saved_choice_cannot_snapshot_or_request_clipboard_access(self, *_):
+        self.enabled.stop()
+        sent = self.copy()
+        self.snapshot_class.assert_not_called()
+        self.assertFalse(sent.needs_portal)
+        self.assertIsNone(self.restore._snapshot)
+
 
 class ClipboardSnapshotTests(TestCase):
     def test_unsupported_local_only_format_aborts_without_clearing_clipboard(self):
@@ -161,6 +177,9 @@ class ClipboardSnapshotTests(TestCase):
 
 class RestorePreferenceTests(TestCase):
     def setUp(self):
+        desktop = patch("emote.config.is_gnome", False)
+        desktop.start()
+        self.addCleanup(desktop.stop)
         directory = TemporaryDirectory()
         self.addCleanup(directory.cleanup)
         patcher = patch("emote.user_data.SHELVE_PATH", directory.name + "/settings")
@@ -178,6 +197,41 @@ class RestorePreferenceTests(TestCase):
                     user_data.update_x11_auto_paste_enabled(enabled)
                     user_data.update_wayland_auto_paste_choice(enabled)
                     self.assertEqual(restoration_enabled(), enabled)
+
+    def test_restoration_is_unavailable_only_on_gnome_wayland(self):
+        user_data.update_restore_clipboard_enabled(True)
+        user_data.update_wayland_auto_paste_choice(True)
+        user_data.update_x11_auto_paste_enabled(True)
+        for wayland in (False, True):
+            for gnome in (False, True):
+                with self.subTest(wayland=wayland, gnome=gnome), patch(
+                    "emote.config.is_wayland", wayland
+                ), patch("emote.config.is_gnome", gnome):
+                    expected = not (wayland and gnome)
+                    self.assertEqual(restoration_available(), expected)
+                    self.assertEqual(restoration_enabled(), expected)
+
+    @patch("emote.config.is_wayland", True)
+    @patch("emote.config.is_gnome", True)
+    def test_gnome_auto_paste_changes_cannot_show_or_enable_restoration(self):
+        user_data.update_wayland_auto_paste_choice(True)
+        settings = SimpleNamespace(
+            auto_paste=Mock(get_active=lambda: True),
+            restore_clipboard=Mock(),
+            picker=Mock(),
+            _refreshing_auto_paste=False,
+            _refreshing_restore=False,
+            _restore_request=None,
+        )
+        Settings.on_auto_paste_changed(settings, settings.auto_paste, None)
+        settings.restore_clipboard.set_visible.assert_called_with(False)
+        Settings.refresh_wayland_auto_paste(settings)
+        settings.restore_clipboard.set_visible.assert_called_with(False)
+        Settings.on_restore_clipboard_changed(
+            settings, Mock(get_active=lambda: True), None
+        )
+        self.assertFalse(user_data.load_restore_clipboard_enabled())
+        settings.picker.get_application.return_value.ensure_clipboard_access.assert_not_called()
 
     def test_hidden_preference_changes_are_ignored(self):
         settings = SimpleNamespace(
@@ -257,12 +311,22 @@ class RestorePreferenceTests(TestCase):
             on_wayland_paste_ready=Mock(),
             on_wayland_paste_unavailable=Mock(),
             finish_saved_clipboard_access=Mock(),
+            request_clipboard_access=Mock(),
         )
         application.picker_window.clipboard_restore.needs_portal = True
         EmoteApplication.maybe_start_wayland_paste(application)
-        backend.request_clipboard.assert_called_once()
+        application.request_clipboard_access.assert_called_once_with(
+            backend, application.finish_saved_clipboard_access
+        )
         backend.ensure_started.assert_called_once()
         application.picker_window.begin_wayland_request.assert_called_once()
+
+        # A setting saved on KDE must not request clipboard access on GNOME.
+        application.wayland_paste = None
+        application.request_clipboard_access.reset_mock()
+        with patch("emote.config.is_gnome", True):
+            EmoteApplication.maybe_start_wayland_paste(application)
+        application.request_clipboard_access.assert_not_called()
 
     def test_keyboard_readiness_does_not_unlock_picker_during_clipboard_prompt(self):
         backend = SimpleNamespace(clipboard_pending=True)
@@ -274,3 +338,57 @@ class RestorePreferenceTests(TestCase):
         application.picker_window.end_wayland_request.assert_called_once_with(
             present=True
         )
+
+    @patch("emote.GLib.idle_add")
+    def test_clipboard_permission_completion_runs_on_gtk_thread(self, idle):
+        for ready in (False, True):
+            with self.subTest(ready=ready):
+                backend = Mock(is_ready=ready)
+                application = SimpleNamespace(
+                    wayland_paste=backend, picker_window=Mock()
+                )
+                callback = Mock()
+                EmoteApplication.request_clipboard_access(
+                    application, backend, callback
+                )
+                application.picker_window.begin_wayland_request.assert_called_once()
+                error = RuntimeError("declined")
+                backend.request_clipboard.call_args.args[0](error)
+                callback.assert_not_called()
+                idle.call_args.args[0]()
+                callback.assert_called_once_with(error)
+                if ready:
+                    application.picker_window.end_wayland_request.assert_called_once_with(
+                        present=True
+                    )
+                else:
+                    application.picker_window.end_wayland_request.assert_not_called()
+
+    @patch("emote.GLib.idle_add")
+    def test_stale_backend_cannot_complete_permission_or_reset_saved_choice(self, idle):
+        user_data.update_restore_clipboard_enabled(True)
+        backend = Mock(is_ready=True)
+        application = SimpleNamespace(wayland_paste=backend, picker_window=Mock())
+        callback = lambda error: EmoteApplication.finish_saved_clipboard_access(
+            application, error
+        )
+        EmoteApplication.request_clipboard_access(application, backend, callback)
+        backend.request_clipboard.call_args.args[0](RuntimeError("disabled"))
+        application.wayland_paste = Mock()
+        idle.call_args.args[0]()
+        self.assertTrue(user_data.load_restore_clipboard_enabled())
+        application.picker_window.end_wayland_request.assert_not_called()
+
+    def test_saved_permission_failure_refreshes_preferences_and_disables_restoration(
+        self,
+    ):
+        user_data.update_restore_clipboard_enabled(True)
+        picker = Mock()
+        # Portal focus can hide the dialog temporarily.
+        picker.get_visible_dialog.return_value = None
+        application = SimpleNamespace(picker_window=picker)
+        EmoteApplication.finish_saved_clipboard_access(
+            application, RuntimeError("denied")
+        )
+        self.assertFalse(user_data.load_restore_clipboard_enabled())
+        picker.active_dialog.refresh_clipboard_restoration.assert_called_once()

@@ -1,5 +1,6 @@
 """Paste through the RemoteDesktop portal and libei on Wayland."""
 
+from dataclasses import dataclass
 import os
 from pathlib import Path
 import queue
@@ -7,8 +8,12 @@ import select
 import tempfile
 import threading
 import time
+from typing import TYPE_CHECKING
 
 from emote import user_data
+
+if TYPE_CHECKING:
+    from emote.clipboard import ClipboardPaste
 
 KEY_LEFTCTRL = 29
 KEY_V = 47
@@ -23,9 +28,25 @@ class SessionEndedError(RuntimeError):
     pass
 
 
+@dataclass
+class PasteRequest:
+    clipboard: "ClipboardPaste | None" = None
+
+    @property
+    def needs_portal(self):
+        return self.clipboard is not None and self.clipboard.needs_portal
+
+    @property
+    def cancelled(self):
+        return self.clipboard is not None and self.clipboard.cancelled
+
+    def finish(self):
+        if self.clipboard is not None:
+            self.clipboard()
+
+
 class ClipboardPermissionRequest:
     needs_portal = True
-    cancelled = False
 
     def __init__(self, callback):
         self.callback = callback
@@ -36,9 +57,6 @@ class ClipboardPermissionRequest:
             callback, self.callback = self.callback, None
         if callback is not None:
             callback(error)
-
-    def use_portal(self, *_args):
-        pass
 
 
 def load_restore_token():
@@ -119,11 +137,11 @@ class WaylandPaste:
             self._thread = threading.Thread(target=self._run, daemon=True)
             self._thread.start()
 
-    def paste(self, on_pasted=None):
+    def paste(self, clipboard: "ClipboardPaste | None" = None):
         """Queue a paste after the initial permission request has finished."""
         if not self.is_ready:
             return False
-        self._requests.put(on_pasted or True)
+        self._requests.put(PasteRequest(clipboard))
         return True
 
     def close(self, discard_token=False):
@@ -149,10 +167,10 @@ class WaylandPaste:
 
             # KDE shows a notification for every new remote-control session.
             if self._keep_session_open:
-                self._open_session(ei, portal, paste=False)
+                self._open_session(ei, portal)
                 return
             if load_restore_token() is None:
-                self._open_session(ei, portal, paste=False)
+                self._open_session(ei, portal)
             with self._state_lock:
                 if self._stop.is_set():
                     return
@@ -164,7 +182,7 @@ class WaylandPaste:
                 request = self._requests.get()
                 if request is None or self._stop.is_set():
                     return
-                self._open_session(ei, portal, paste=request)
+                self._open_session(ei, portal, request)
         except Exception as exc:
             self._ready.clear()
             if not self._stop.is_set():
@@ -176,23 +194,29 @@ class WaylandPaste:
         finally:
             self._ready.clear()
 
-    def _open_session(self, ei, portal, paste):
-        try:
-            self._open_session_with_permission(ei, portal, paste)
-        except Exception as error:
-            if not isinstance(paste, ClipboardPermissionRequest):
-                raise
-            if self._keep_session_open:
-                self._ready.clear()
-            paste.finish(error)
-            # Declining restoration must leave keyboard-only automatic paste usable.
-            if self._keep_session_open and not self._stop.is_set():
-                self._open_session(ei, portal, paste=False)
+    def _open_session(self, ei, portal, request=None):
+        while not self._stop.is_set():
+            try:
+                # Each session closes before a pending KDE upgrade is opened.
+                request = self._open_session_with_permission(ei, portal, request)
+            except Exception as error:
+                if not isinstance(request, ClipboardPermissionRequest):
+                    raise
+                if self._keep_session_open:
+                    self._ready.clear()
+                request.finish(error)
+                # Declining restoration leaves keyboard-only automatic paste usable.
+                if not self._keep_session_open:
+                    return
+                request = None
+                continue
+            if request is None:
+                return
 
-    def _open_session_with_permission(self, ei, portal, paste):
+    def _open_session_with_permission(self, ei, portal, request):
         lease = None
         upgrade = None
-        if getattr(paste, "needs_portal", False):
+        if request is not None and request.needs_portal:
             from emote import portal_clipboard
 
             session, lease = portal_clipboard.negotiate(portal, load_restore_token())
@@ -213,27 +237,15 @@ class WaylandPaste:
                     raise PermissionNotSavedError(
                         "the desktop did not remember permission"
                     )
-                if (
-                    lease is not None
-                    and not self._keep_session_open
-                    and not isinstance(paste, ClipboardPermissionRequest)
-                ):
-                    paste.use_portal(lease.claim, lease.finished.set, lease.watch)
                 sender = ei.Sender.create_for_fd(session.eis_fd, name="Emote")
                 try:
-                    upgrade = self._serve(
-                        sender,
-                        ei,
-                        paste,
-                        hold=self._keep_session_open,
-                        lease=lease,
-                    )
+                    upgrade = self._serve(sender, ei, request, lease=lease)
                 finally:
                     sender.release()
                 if (
                     lease is not None
                     and not self._keep_session_open
-                    and not isinstance(paste, ClipboardPermissionRequest)
+                    and isinstance(request, PasteRequest)
                 ):
                     lease.wait(self._stop)
                     if lease.revoked:
@@ -243,21 +255,17 @@ class WaylandPaste:
                 lease.close()
                 if self._active_clipboard_lease is lease:
                     self._active_clipboard_lease = None
-        if upgrade is not None and not self._stop.is_set():
-            # Replace KDE's keyboard-only session before asking for clipboard
-            # access. Reuse the upgraded session, so consent is needed once.
-            self._open_session(ei, portal, upgrade)
-        elif isinstance(paste, ClipboardPermissionRequest):
-            paste.finish(
+        if isinstance(request, ClipboardPermissionRequest):
+            request.finish(
                 RuntimeError("Automatic paste was disabled.")
                 if self._stop.is_set()
                 else None
             )
+        return upgrade
 
-    def _serve(self, sender, ei, paste, hold=None, lease=None):
-        if hold is None:
-            hold = self._keep_session_open
-        pending = paste if hold and paste else None
+    def _serve(self, sender, ei, request=None, lease=None):
+        hold = self._keep_session_open
+        pending = request
         device = None
         announced_ready = False
         first_keyboard_deadline = time.monotonic() + 10
@@ -310,35 +318,32 @@ class WaylandPaste:
                             request = self._requests.get_nowait()
                         except queue.Empty:
                             continue
-                    if request is None or self._stop.is_set():
-                        return
-                    if getattr(request, "cancelled", False):
-                        continue
-                    if getattr(request, "needs_portal", False) and lease is None:
-                        return request
-                    if isinstance(request, ClipboardPermissionRequest):
-                        request.finish()
-                        continue
-                    if lease is not None and getattr(request, "needs_portal", False):
-                        request.use_portal(
-                            lease.claim, lease.stop_watching, lease.watch
-                        )
-                    self._send_paste(device)
-                    if callable(request):
-                        request()
-                    continue
-                if isinstance(paste, ClipboardPermissionRequest):
+                if request is None or self._stop.is_set():
                     return
-                if (
-                    paste
-                    and not self._stop.is_set()
-                    and not getattr(paste, "cancelled", False)
-                ):
-                    self._send_paste(device)
+                if isinstance(request, ClipboardPermissionRequest):
+                    if not hold:
+                        return
+                    if lease is None:
+                        return request
+                    request.finish()
+                    continue
+                if request.cancelled:
+                    if hold:
+                        continue
+                    if lease is not None:
+                        lease.finished.set()
+                    return
+                if request.needs_portal:
+                    if lease is None:
+                        return request
+                    cancel = lease.stop_watching if hold else lease.finished.set
+                    request.clipboard.use_portal(lease.claim, cancel, lease.watch)
+                self._send_paste(device)
+                if not hold:
                     self._finish_input(sender, ei)
-                    if callable(paste):
-                        paste()
-                return
+                request.finish()
+                if not hold:
+                    return
 
     def _finish_input(self, sender, ei):
         try:
