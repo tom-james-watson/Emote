@@ -2,7 +2,7 @@
 <component type="desktop-application">
   <id>com.tomjwatson.Emote</id>
   <name>Emote</name>
-  <summary>Modern popup emoji picker</summary>
+  <summary>Popup emoji picker</summary>
   <url type="homepage">https://github.com/tom-james-watson/Emote</url>
   <url type="bugtracker">https://github.com/tom-james-watson/Emote/issues</url>
   <url type="vcs-browser">https://github.com/tom-james-watson/Emote</url>
@@ -16,34 +16,10 @@
 
   <description>
     <p>
-      Modern popup emoji picker for Linux with fast search, category navigation, and keyboard control.
+      Emote is a popup emoji picker for Linux. Open it with a keyboard shortcut, then search by name or browse the categories. Select an emoji to copy it, or turn on automatic paste to insert it into the app you’re using.
     </p>
     <p>
-      Written in GTK4, Emote offers a continuous emoji catalogue with category navigation.
-    </p>
-    <p>
-      Includes emojis through Unicode 18 and a bundled Noto Color Emoji font. Choose your system emoji font in Preferences if you prefer.
-    </p>
-    <p>
-      On X11, launch the picker with the configurable keyboard shortcut Ctrl+Alt+E. On supported Wayland desktops, Emote can register Ctrl+Alt+E through the Global Shortcuts portal. Selected emojis are copied to the clipboard and, when automatic paste is enabled, pasted into the previously focused app.
-    </p>
-    <ul>
-      <li>🍾 Built as a popup: quick invocation, and disappears when not needed, does not stay as a standalone window</li>
-      <li>🫠 Provide a large and up-to-date list of emojis retrieved from openmoji.org</li>
-      <li>🧠 Shows the last used emojis by default</li>
-      <li>📜 Scroll continuously through categories or select one to jump to it</li>
-      <li>🔎 Search text box automatically focused and ready to type when invoked</li>
-      <li>⌨️ Can use shortcuts to navigate and select emojis</li>
-      <li>✒️ Optional automatic paste into the previous app on X11 and supported Wayland desktops</li>
-    </ul>
-    <p>
-      Please note that:
-    </p>
-    <p>
-      On X11, Emote includes a configurable shortcut to open the picker.
-    </p>
-    <p>
-      🪟 On Wayland, Emote offers global shortcut setup the first time it opens. If skipped, setup remains available in Keyboard Shortcuts. Saved shortcuts can be changed in the desktop’s shortcut settings. Automatic paste separately requires keyboard-control permission, while copy-only mode needs no permission.
+      Your recently used emojis stay at the top. You can select several emojis at once, choose a skin tone, and change the emoji size and font.
     </p>
   </description>
 
