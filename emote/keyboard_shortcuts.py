@@ -26,12 +26,52 @@ MODIFIER_KEYS = {
 }
 
 
-def format_accelerator_label(label):
+def parse_shortcut_accelerator(label):
     label = label.removeprefix("Press ")
     valid, keyval, modifiers = Gtk.accelerator_parse(label)
-    if valid:
-        return Gtk.accelerator_get_label(keyval, modifiers)
-    return label
+    if not valid and "+" in label:
+        # Portal descriptions may use human-readable notation instead of GTK's.
+        *parts, key = label.split("+")
+        modifier_names = {
+            "Ctrl": "Control",
+            "Control": "Control",
+            "Alt": "Alt",
+            "Shift": "Shift",
+            "Super": "Super",
+            "Meta": "Meta",
+        }
+        if not all(part in modifier_names for part in parts):
+            return None
+        key = {"Enter": "Return", "Space": "space"}.get(key, key)
+        accelerator = "".join(f"<{modifier_names[part]}>" for part in parts) + key
+        valid, keyval, modifiers = Gtk.accelerator_parse(accelerator)
+    if valid and keyval:
+        return Gtk.accelerator_name(keyval, modifiers)
+    return None
+
+
+class ShortcutLabel(Gtk.Box):
+    """Native keycaps with a text fallback for desktop-provided descriptions."""
+
+    def __init__(self, label="", accelerator=None):
+        super().__init__(valign=Gtk.Align.CENTER)
+        # Older supported desktops predate libadwaita 1.8.
+        label_type = getattr(Adw, "ShortcutLabel", Gtk.ShortcutLabel)
+        self.keycaps = label_type()
+        self.text = Gtk.Label()
+        self.text.add_css_class("dim-label")
+        self.append(self.keycaps)
+        self.append(self.text)
+        self.set_label(label, accelerator)
+
+    def set_label(self, label, accelerator=None):
+        accelerator = parse_shortcut_accelerator(
+            label if accelerator is None else accelerator
+        )
+        self.keycaps.set_accelerator(accelerator or "")
+        self.keycaps.set_visible(accelerator is not None)
+        self.text.set_label(label)
+        self.text.set_visible(accelerator is None)
 
 
 class KeyboardShortcuts(Adw.Dialog):
@@ -61,8 +101,7 @@ class KeyboardShortcuts(Adw.Dialog):
             self.global_shortcut_button.connect(
                 "clicked", self.setup_wayland_global_shortcut
             )
-            self.global_shortcut_value = Gtk.Label(valign=Gtk.Align.CENTER)
-            self.global_shortcut_value.add_css_class("dim-label")
+            self.global_shortcut_value = ShortcutLabel()
             row.append(self.global_shortcut_button)
             row.append(self.global_shortcut_value)
             box.append(row)
@@ -70,7 +109,8 @@ class KeyboardShortcuts(Adw.Dialog):
         else:
             row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
             row.append(Gtk.Label(label="Open Emote", xalign=0, hexpand=True))
-            self.record_button = Gtk.Button(label=user_data.load_accelerator()[1])
+            accelerator, label = user_data.load_accelerator()
+            self.record_button = Gtk.Button(child=ShortcutLabel(label, accelerator))
             self.record_button.connect("clicked", self.start_recording)
             row.append(self.record_button)
             box.append(row)
@@ -78,15 +118,14 @@ class KeyboardShortcuts(Adw.Dialog):
         box.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL))
 
         for label, binding in (
-            ("Select Emoji", "Enter"),
-            ("Add to Selection", "Shift+Enter"),
-            ("Next Category", "Ctrl+Tab"),
-            ("Previous Category", "Ctrl+Shift+Tab"),
+            ("Select Emoji", "Return"),
+            ("Add to Selection", "<Shift>Return"),
+            ("Next Category", "<Control>Tab"),
+            ("Previous Category", "<Control><Shift>Tab"),
         ):
             row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
             row.append(Gtk.Label(label=label, xalign=0, hexpand=True))
-            shortcut = Gtk.Label(label=binding)
-            shortcut.add_css_class("dim-label")
+            shortcut = ShortcutLabel(accelerator=binding)
             row.append(shortcut)
             box.append(row)
 
@@ -109,9 +148,7 @@ class KeyboardShortcuts(Adw.Dialog):
     def refresh_wayland_global_shortcut(self):
         is_set = user_data.load_wayland_global_shortcut_choice() is True
         if is_set:
-            shortcut_label = format_accelerator_label(
-                user_data.load_wayland_global_shortcut_label()
-            )
+            shortcut_label = user_data.load_wayland_global_shortcut_label()
             self.global_shortcut_value.set_label(shortcut_label)
             self.global_shortcut_value.set_visible(True)
             self.global_shortcut_button.set_visible(False)
@@ -130,18 +167,19 @@ class KeyboardShortcuts(Adw.Dialog):
 
     def start_recording(self, _button):
         self.recording = True
-        self.record_button.set_label("Press a shortcut…")
+        self.record_button.get_child().set_label("Press a shortcut…")
 
     def on_key_pressed(self, _controller, keyval, _keycode, state):
         if not self.recording:
             return False
         if keyval == Gdk.KEY_Escape:
-            self.record_button.set_label(user_data.load_accelerator()[1])
+            accelerator, label = user_data.load_accelerator()
+            self.record_button.get_child().set_label(label, accelerator)
             self.recording = False
             return True
         if keyval == Gdk.KEY_BackSpace:
             self.update_accelerator("", "Unassigned")
-            self.record_button.set_label("Unassigned")
+            self.record_button.get_child().set_label("Unassigned", "")
             self.recording = False
             return True
 
@@ -153,11 +191,11 @@ class KeyboardShortcuts(Adw.Dialog):
             | Gdk.ModifierType.ALT_MASK
             | Gdk.ModifierType.SUPER_MASK
         ):
-            self.record_button.set_label("Include Ctrl, Alt, or Super")
+            self.record_button.get_child().set_label("Include Ctrl, Alt, or Super")
             return True
         accelerator = Gtk.accelerator_name(keyval, modifiers)
         label = Gtk.accelerator_get_label(keyval, modifiers)
         self.update_accelerator(accelerator, label)
-        self.record_button.set_label(label)
+        self.record_button.get_child().set_label(label, accelerator)
         self.recording = False
         return True
