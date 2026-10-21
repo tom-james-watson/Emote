@@ -1,5 +1,5 @@
 project('emote',
-    version: '5.0.1',
+    version: '5.1.0',
     meson_version: '>= 0.50.0',
     default_options: [ 'warning_level=1', ],
 )

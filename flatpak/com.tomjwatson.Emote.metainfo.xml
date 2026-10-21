@@ -43,6 +43,17 @@
   </screenshots>
 
   <releases>
+    <release type="stable" version="5.1.0" date="2026-10-21T00:00:00Z">
+      <description>
+        <ul>
+          <li>Restore clipboard after automatic paste. Enable “Restore clipboard” in Preferences to preserve what you copied before inserting an emoji. Off by default. Not available in GNOME Wayland.</li>
+          <li>Native keyboard shortcut keycaps in the Keyboard Shortcuts dialog.</li>
+        </ul>
+      </description>
+      <issues>
+        <issue url="https://github.com/tom-james-watson/Emote/issues/206">206</issue>
+      </issues>
+    </release>
     <release type="stable" version="5.0.1" date="2026-10-19T00:00:00Z">
       <description>
         <p>Fix picker placement and taskbar integration on X11.</p>
