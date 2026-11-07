@@ -94,6 +94,11 @@ class PickerDialogs:
             and self.get_visible_dialog() is None
         ):
             self.present()
+            # The search entry's focus request fails while the root is
+            # insensitive, as on the first open with automatic paste on.
+            # Leave focus alone while Preferences or another dialog is open.
+            if self.active_dialog is None:
+                self.focus_search_entry()
 
     def show_wayland_paste_unavailable(self, message=None):
         current_dialog = self.get_visible_dialog() or self.active_dialog

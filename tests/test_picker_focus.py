@@ -152,7 +152,9 @@ class PickerFocusTests(TestCase):
             is_active=Mock(return_value=True),
             get_visible=Mock(return_value=True),
             get_visible_dialog=Mock(return_value=None),
+            active_dialog=None,
             present=Mock(),
+            focus_search_entry=Mock(),
         )
 
         EmojiPicker.end_wayland_request(picker, present=True)
@@ -160,6 +162,45 @@ class PickerFocusTests(TestCase):
         self.assertTrue(picker.was_active)
         self.assertFalse(picker.pointer_in_picker)
         picker.present.assert_called_once_with()
+
+    def make_waiting_picker(self, active_dialog=None, visible_dialog=None):
+        return SimpleNamespace(
+            waiting_for_wayland_setup=True,
+            root=SimpleNamespace(set_sensitive=Mock()),
+            was_active=False,
+            pointer_in_picker=False,
+            pending_inactive_close=None,
+            is_active=Mock(return_value=True),
+            get_visible=Mock(return_value=True),
+            get_visible_dialog=Mock(return_value=visible_dialog),
+            active_dialog=active_dialog,
+            present=Mock(),
+            focus_search_entry=Mock(),
+        )
+
+    def test_finishing_portal_setup_refocuses_search_entry(self):
+        # The first open with automatic paste on makes the picker insensitive
+        # before it is presented, so its own focus request was dropped.
+        picker = self.make_waiting_picker()
+
+        EmojiPicker.end_wayland_request(picker, present=True)
+
+        picker.focus_search_entry.assert_called_once_with()
+
+    def test_finishing_portal_setup_leaves_dialog_focus_alone(self):
+        # Adw dialogs can be missing from get_visible_dialog while a portal
+        # window has focus.
+        picker = self.make_waiting_picker(active_dialog=object())
+
+        EmojiPicker.end_wayland_request(picker, present=True)
+
+        picker.focus_search_entry.assert_not_called()
+
+        picker = self.make_waiting_picker(visible_dialog=object())
+
+        EmojiPicker.end_wayland_request(picker, present=True)
+
+        picker.focus_search_entry.assert_not_called()
 
     def test_finishing_skip_does_not_disarm_blur_before_focus_returns(self):
         picker = SimpleNamespace(
