@@ -43,6 +43,22 @@
   </screenshots>
 
   <releases>
+    <release type="stable" version="5.2.0" date="2026-11-07T00:00:00Z">
+      <description>
+        <ul>
+          <li>Search shows the emojis you use most first.</li>
+          <li>New Statistics dialog with your most-used emojis.</li>
+          <li>Shift+click adds an emoji to the selection again.</li>
+          <li>Fix the Keyboard Shortcuts dialog not opening after upgrading from Emote 4.</li>
+          <li>Show the version number in About.</li>
+        </ul>
+      </description>
+      <issues>
+        <issue url="https://github.com/tom-james-watson/Emote/issues/136">136</issue>
+        <issue url="https://github.com/tom-james-watson/Emote/issues/211">211</issue>
+        <issue url="https://github.com/tom-james-watson/Emote/issues/213">213</issue>
+      </issues>
+    </release>
     <release type="development" version="5.2.0~beta1" date="2026-11-07T00:00:00Z">
       <description>
         <ul>
