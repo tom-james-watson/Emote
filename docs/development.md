@@ -51,7 +51,8 @@ pipenv run python -m unittest tests.test_wayland_shortcut -v
 
 For native desktop, compositor and packaged-app checks, see
 [Testing in desktop VMs](vm-testing.md). It covers creating or reusing the test
-VMs, X11/Wayland sessions, package checks and screenshots.
+VMs, X11/Wayland sessions, package checks and screenshots, and how coding agents
+share the VMs when testing changes in parallel.
 
 ## Debugging with GtkInspector
 
