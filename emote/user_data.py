@@ -77,10 +77,12 @@ def update_recent_emojis(char):
 
 def load_accelerator():
     with shelve.open(SHELVE_PATH) as db:
-        return (
-            db.get(ACCELERATOR_STRING, DEFAULT_ACCELERATOR_STRING),
-            db.get(ACCELERATOR_LABEL, DEFAULT_ACCELERATOR_LABEL),
-        )
+        accel_string = db.get(ACCELERATOR_STRING, DEFAULT_ACCELERATOR_STRING)
+        accel_label = db.get(ACCELERATOR_LABEL, DEFAULT_ACCELERATOR_LABEL)
+    # Emote 4.x stored None for both values when the shortcut was cleared.
+    if not accel_string:
+        return "", "Unassigned"
+    return accel_string, accel_label or accel_string
 
 
 def update_accelerator(accel_string, accel_label):
