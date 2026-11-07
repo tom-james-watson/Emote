@@ -8,6 +8,7 @@ from emote.keyboard_shortcuts import (
     ShortcutLabel,
     parse_shortcut_accelerator,
 )
+from emote import user_data
 from gi.repository import Gdk
 
 
@@ -89,6 +90,28 @@ class KeyboardShortcutLabelTests(TestCase):
 
         self.assertTrue(dialog.recording)
         dialog.update_accelerator.assert_not_called()
+
+    def test_legacy_cleared_shortcut_loads_as_unassigned(self):
+        # Emote 4.x stored None for both values when the shortcut was cleared.
+        user_data.update_accelerator(None, None)
+
+        self.assertEqual(user_data.load_accelerator(), ("", "Unassigned"))
+
+    def test_default_shortcut_is_loaded_without_saved_data(self):
+        self.assertEqual(
+            user_data.load_accelerator(), ("<Primary><Alt>e", "Ctrl+Alt+E")
+        )
+
+    def test_escape_restores_legacy_cleared_shortcut(self):
+        user_data.update_accelerator(None, None)
+        dialog = SimpleNamespace(recording=True, record_button=Mock())
+
+        KeyboardShortcuts.on_key_pressed(dialog, None, Gdk.KEY_Escape, 0, 0)
+
+        self.assertFalse(dialog.recording)
+        dialog.record_button.get_child().set_label.assert_called_once_with(
+            "Unassigned", ""
+        )
 
     def test_removes_portal_press_prefix(self):
         self.assertEqual(
