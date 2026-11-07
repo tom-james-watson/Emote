@@ -2,7 +2,7 @@ from types import SimpleNamespace
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from gi.repository import GLib
+from gi.repository import Gdk, GLib
 
 from emote.picker import EmojiPicker
 
@@ -82,3 +82,28 @@ class PickerSelectionTests(TestCase):
         load_choice.return_value = True
         EmojiPicker.select_emoji(picker, 0)
         timeout_add.assert_called_once_with(150, application.paste_wayland, paste_sent)
+
+    def test_shift_click_appends_and_plain_click_selects(self):
+        for state, appended in (
+            (Gdk.ModifierType.SHIFT_MASK, True),
+            (Gdk.ModifierType(0), False),
+        ):
+            with self.subTest(state=state):
+                picker = SimpleNamespace(append_emoji=Mock(), select_emoji=Mock())
+                gesture = SimpleNamespace(
+                    get_current_event_state=Mock(return_value=state)
+                )
+                box = SimpleNamespace()
+                button = SimpleNamespace(
+                    emoji_index=3, get_parent=Mock(return_value=box)
+                )
+
+                EmojiPicker.on_row_left_pressed(picker, gesture, 1, 0, 0, box)
+                EmojiPicker.on_bound_button_clicked(picker, button)
+
+                if appended:
+                    picker.append_emoji.assert_called_once_with(3)
+                    picker.select_emoji.assert_not_called()
+                else:
+                    picker.select_emoji.assert_called_once_with(3)
+                    picker.append_emoji.assert_not_called()

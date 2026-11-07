@@ -678,6 +678,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         box.emoji_buttons = []
         box.bound_row = None
         box.hovered_index = None
+        box.press_state = Gdk.ModifierType(0)
 
         motion = Gtk.EventControllerMotion.new()
         motion.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
@@ -691,6 +692,11 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         right_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
         right_click.connect("pressed", self.on_row_right_pressed, box)
         box.add_controller(right_click)
+
+        left_click = Gtk.GestureClick.new()
+        left_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        left_click.connect("pressed", self.on_row_left_pressed, box)
+        box.add_controller(left_click)
         list_item.set_child(box)
         list_item.set_selectable(False)
         list_item.set_activatable(False)
@@ -772,8 +778,16 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
             button.emoji_index = None
             button.remove_css_class("keyboard-selected")
 
+    def on_row_left_pressed(self, gesture, _n_press, _x, _y, box):
+        # Button "clicked" carries no event, so record modifiers at press time.
+        box.press_state = gesture.get_current_event_state()
+
     def on_bound_button_clicked(self, button):
-        if button.emoji_index is not None:
+        if button.emoji_index is None:
+            return
+        if button.get_parent().press_state & Gdk.ModifierType.SHIFT_MASK:
+            self.append_emoji(button.emoji_index)
+        else:
             self.select_emoji(button.emoji_index)
 
     def row_index_at(self, box, x):
