@@ -41,7 +41,7 @@ Launch Emote from your app menu. The default shortcut to open the picker is `Ctr
 
 Start typing to search, or browse the categories. Click an emoji or press `Enter` to copy it and close the picker. If automatic paste is enabled, Emote pastes it into the app you were using. Otherwise, paste it yourself.
 
-To select several emojis, right-click each one or press `Shift+Enter`. Click the final emoji or press `Enter` to finish the selection and close the picker.
+To select several emojis, Shift+click or right-click each one, or press `Shift+Enter`. Click the final emoji or press `Enter` to finish the selection and close the picker.
 
 Open **Preferences** to change the emoji size, skin tone, or font. Emote includes Noto Color Emoji with Unicode 18 support; choose **System** to use your desktop's emoji font.
 
