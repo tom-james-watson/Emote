@@ -30,6 +30,7 @@ install_data(
   'picker_dialogs.py',
   'portal_clipboard.py',
   'settings.py',
+  'statistics.py',
   'user_data.py',
   'wayland_paste.py',
   'wayland_shortcut.py',
