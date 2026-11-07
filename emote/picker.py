@@ -181,6 +181,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         standard_section = Gio.Menu()
         standard_section.append("Preferences", "win.preferences")
         standard_section.append("Keyboard Shortcuts", "win.shortcuts")
+        standard_section.append("Statistics", "win.statistics")
         standard_section.append("About Emote", "win.about")
         menu.append_section(None, standard_section)
         quit_section = Gio.Menu()
@@ -196,6 +197,7 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         for name, callback in (
             ("preferences", self.open_preferences),
             ("shortcuts", self.open_shortcuts),
+            ("statistics", self.open_statistics),
             ("about", self.open_about),
         ):
             action = Gio.SimpleAction.new(name, None)

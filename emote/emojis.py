@@ -134,4 +134,10 @@ def search(query):
         search_terms = [search_term.lower() for search_term in search_terms]
         return any(query in search_term for search_term in search_terms)
 
-    return list(filter(search_filter, all_emojis))
+    matches = list(filter(search_filter, all_emojis))
+    counts = user_data.load_emoji_usage_counts()
+    return sorted(
+        matches,
+        key=lambda emoji: counts.get(strip_qualified_variant(emoji["char"]), 0),
+        reverse=True,
+    )

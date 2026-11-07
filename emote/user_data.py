@@ -14,6 +14,7 @@ SHELVE_PATH = os.path.join(DATA_DIR, "user_data")
 RECENT_EMOJIS = "recent_emojis"
 DEFAULT_RECENT_EMOJIS = ["🙂", "😄", "❤️", "👍", "🤞", "🔥", "🤣", "😍", "😭"]
 MAX_RECENT_EMOJIS = 60
+EMOJI_USAGE_COUNTS = "emoji_usage_counts"
 
 ACCELERATOR_STRING = "accelerator_string"
 DEFAULT_ACCELERATOR_STRING = "<Primary><Alt>e"
@@ -61,6 +62,11 @@ def load_recent_emojis():
         return db.get(RECENT_EMOJIS, DEFAULT_RECENT_EMOJIS)
 
 
+def load_emoji_usage_counts():
+    with shelve.open(SHELVE_PATH) as db:
+        return db.get(EMOJI_USAGE_COUNTS, {})
+
+
 def update_recent_emojis(char):
     char = emojis.strip_char_skintone(char)
     recent_emojis = load_recent_emojis()
@@ -73,6 +79,10 @@ def update_recent_emojis(char):
 
     with shelve.open(SHELVE_PATH) as db:
         db[RECENT_EMOJIS] = new_recent_emojis
+        counts = db.get(EMOJI_USAGE_COUNTS, {})
+        usage_key = emojis.strip_qualified_variant(char)
+        counts[usage_key] = counts.get(usage_key, 0) + 1
+        db[EMOJI_USAGE_COUNTS] = counts
 
 
 def load_accelerator():

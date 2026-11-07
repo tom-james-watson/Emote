@@ -6,7 +6,7 @@ Emote is a popup emoji picker for Linux, built with GTK4 and libadwaita.
   <img width="500" src="images/screenshot-dark.png" alt="Emote emoji picker in dark mode">
 </p>
 
-- Start typing to search, or scroll through the emoji categories.
+- Start typing to search, or scroll through the emoji categories. Search shows the emojis you use most first.
 - Quickly find recently used emojis.
 - Navigate with your keyboard or mouse, and select one emoji or several.
 - Copy emojis to the clipboard and optionally paste them into your previous app.

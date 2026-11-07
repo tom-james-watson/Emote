@@ -8,12 +8,15 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, GLib, Gtk
 
-from emote import config, keyboard_shortcuts, settings, user_data
+from emote import config, keyboard_shortcuts, settings, statistics, user_data
 
 
 class PickerDialogs:
     def open_preferences(self):
         self.show_dialog(settings.Settings(self))
+
+    def open_statistics(self):
+        self.show_dialog(statistics.Statistics(self))
 
     def show_wayland_paste_choice(self):
         if (
