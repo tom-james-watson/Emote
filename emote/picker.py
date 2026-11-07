@@ -631,6 +631,27 @@ class EmojiPicker(PickerDialogs, Adw.ApplicationWindow):
         if reset_scroll:
             self.list_view.scroll_to(0, Gtk.ListScrollFlags.NONE, None)
             self.scroller.get_vadjustment().set_value(0)
+            self.schedule_scroll_reset()
+
+    def schedule_scroll_reset(self):
+        # Gtk.ListView moves a scrolled list to the end of a new model on its
+        # next allocation, so reset again once the adjustment has changed.
+        adjustment = self.scroller.get_vadjustment()
+        self.search_scroll_restore_handler = adjustment.connect(
+            "changed", self.finish_scroll_reset
+        )
+        self.pending_search_scroll_restore = GLib.timeout_add(
+            400, self.stop_scroll_reset
+        )
+
+    def finish_scroll_reset(self, adjustment):
+        self.cancel_search_scroll_restore()
+        adjustment.set_value(0)
+
+    def stop_scroll_reset(self):
+        self.pending_search_scroll_restore = None
+        self.cancel_search_scroll_restore()
+        return GLib.SOURCE_REMOVE
 
     def cancel_search_scroll_restore(self):
         if self.pending_search_scroll_restore is not None:

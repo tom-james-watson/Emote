@@ -2,7 +2,7 @@ from types import SimpleNamespace
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from gi.repository import Gdk, GLib
+from gi.repository import Gdk, GLib, Gtk
 
 from emote.picker import EmojiPicker
 
@@ -48,6 +48,35 @@ class PickerSelectionTests(TestCase):
         self.assertEqual(picker.selected_index, 1)
         picker.update_preview.assert_called_once_with()
         picker.list_view.scroll_to.assert_called_once()
+
+    @patch("emote.picker.GLib.source_remove")
+    @patch("emote.picker.GLib.timeout_add", return_value=1)
+    def test_scroll_reset_survives_the_next_allocation(
+        self, _timeout_add, _source_remove
+    ):
+        adjustment = Gtk.Adjustment(
+            value=0, lower=0, upper=9504, page_size=322, step_increment=1
+        )
+        picker = SimpleNamespace(
+            scroller=SimpleNamespace(get_vadjustment=Mock(return_value=adjustment)),
+            pending_search_scroll_restore=None,
+            search_scroll_restore_handler=None,
+            search_scroll_restore_target=None,
+        )
+        for name in (
+            "finish_scroll_reset",
+            "stop_scroll_reset",
+            "cancel_search_scroll_restore",
+        ):
+            setattr(picker, name, getattr(EmojiPicker, name).__get__(picker))
+
+        EmojiPicker.schedule_scroll_reset(picker)
+        adjustment.configure(6024, 0, 6346, 1, 0, 322)
+        self.assertEqual(adjustment.get_value(), 0)
+        self.assertIsNone(picker.search_scroll_restore_handler)
+
+        adjustment.configure(100, 0, 9504, 1, 0, 322)
+        self.assertEqual(adjustment.get_value(), 100)
 
     @patch("emote.picker.config.is_wayland", True)
     @patch("emote.picker.GLib.timeout_add")
