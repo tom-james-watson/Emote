@@ -22,6 +22,28 @@ uses these names and localhost ports:
 | `kubuntu-26.04` | Plasma X11 and Wayland | 2236 | 5916 | `emote-kubuntu-2604-vm` |
 | `fedora-44` | GNOME Wayland | 2244 | 5924 | `emote-fedora-44-vm` |
 
+Later testing added these VMs. They were set up by hand, so `init_vm.py` does not
+know their names, and their directories differ from the layout above:
+
+| Name | Desktop sessions | Directory | SSH | VNC | User service |
+| --- | --- | --- | --- | --- | --- |
+| `ubuntu-24.04` | GNOME 46 Wayland and X11 | `build/ubuntu-24.04-vm/` | 2224 | 5911 | `emote-ubuntu-2404-vm` |
+| `mint-22.3` | Cinnamon native X11 | `build/platform-tests/mint-22.3/` | 2253 | 5933 | `emote-mint-223-vm` |
+| `kubuntu-26.10` | Plasma 6.7 Wayland | `build/platform-tests/kubuntu-26.10/` | 2238 | 5918 | `emote-kubuntu-2610-vm` |
+
+- `ubuntu-24.04` uses 6 GiB of RAM; the others use 4 GiB. Its GDM session
+  defaults to Wayland.
+- `mint-22.3` boots the verified Mint live ISO from `build/platform-tests/images/`
+  with its changes kept on `persistence.qcow2`, not `guest.qcow2`. Its user is
+  `mint`, not `tester`. Its `desktop_run.py` copy also recognises `cinnamon` as
+  the desktop shell. It has a second virtual output, which can be enabled for
+  multi-monitor checks; see its `RESULTS.md`.
+- `kubuntu-26.10` is a copy of `kubuntu-26.04` upgraded to Plasma 6.7.5; see
+  `build/platform-tests/plasma-6.7.5-investigation/REPORT.md`.
+
+Ubuntu GNOME and Mint Cinnamon are likely the most common desktops among users.
+Cover them for input, window and X11 changes.
+
 Before creating anything, check for an existing
 `build/platform-tests/<name>/start-vm.sh` and `guest.qcow2`. Reuse them when
 appropriate. On the original test host, those VMs authorize the key at
@@ -281,6 +303,82 @@ checksum or Flatpak commit, guest OS/desktop version, native session/backend,
 exact checks and results, screenshots, and any limitations. Distinguish automated
 assertions, visual inspection, and checks not repeated. A hidden/unmapped window
 is not a valid layout or screenshot check. Shut down the VMs when done.
+
+## Parallel testing by agents
+
+Coding agents can verify several changes at once, one agent per change. Unit
+tests alone are not enough for input, focus, dialog or packaging fixes: each
+agent also checks its change in the VMs above. These rules keep agents from
+corrupting each other's work or VMs.
+
+### One worktree per change
+
+Give every agent its own git worktree and branch from `master`. Never run several
+agents in the main checkout, which may also hold the maintainer's uncommitted
+work. To hand over an existing change, save it as a patch with `git diff`, and
+have the agent `git apply` it in its worktree. Agents commit only to their own
+branch. They do not push, open pull requests or comment on issues unless asked.
+
+`build/` is ignored by git, so a new worktree does not contain the VMs, keys or
+earlier reports. They live in the main checkout's `build/platform-tests/`, and
+agents use absolute paths to it.
+
+### Lock a VM before touching it
+
+A VM may have only one user at a time. Before starting a VM, connecting by SSH,
+or sending QMP or VNC input, take its lock. The lock is a directory, because
+`mkdir` either succeeds or fails atomically:
+
+```bash
+L="/path/to/emote/build/platform-tests/locks/$VM_NAME"
+mkdir -p "$(dirname "$L")"
+until mkdir "$L" 2>/dev/null; do sleep 30; done
+echo "<task name> $(date -Is)" > "$L/owner"
+```
+
+While waiting, do other work such as building or testing on another free VM.
+Hold at most two locks at once. Never remove a lock you do not own, even if it
+looks stale; report it to the maintainer instead.
+
+Release the lock only after the VM is shut down and back in its usual state:
+
+1. Uninstall your test package and remove any test preferences you seeded.
+2. If you switched the desktop session, switch back and reboot.
+3. Run `sudo poweroff` in the guest, then confirm the service is inactive with
+   `systemctl --user is-active "$VM_UNIT"`. Stop it with
+   `systemctl --user stop "$VM_UNIT"` if it is still running.
+4. Run `rm -rf "$L"`.
+
+Release the lock after a failure as well. Before starting a VM, also check that
+no QEMU process already uses its disk:
+`pgrep -af "build/platform-tests/$VM_NAME/guest.qcow2"`.
+
+### Builds, memory and reports
+
+- Build each Flatpak in the agent's own worktree with its own `--state-dir`. An
+  agent may copy the main checkout's `.flatpak-builder` to seed its cache, but
+  must never build in that directory. Concurrent builds sharing a state
+  directory corrupt each other.
+- Each VM uses 4 GiB of RAM. Check `free -g` and run only as many VMs at once as
+  the host can hold, typically the three in the table above.
+- Each agent writes its report to its own directory,
+  `build/platform-tests/<change>/REPORT.md`, using the format in
+  [What to check and record](#what-to-check-and-record). Never overwrite another
+  run's directory.
+
+### What each agent proves
+
+- Reproduce the bug on unfixed code first, ideally on the released package, so
+  the result before the fix is real evidence.
+- Use real input through `qmp.py` for clicks, modifiers and menus. Calling
+  application methods from a harness does not prove event handling works.
+  State in the report which checks used which method.
+- Test an installed package built from the agent's branch, not a source
+  overlay, unless the report says otherwise.
+- For upgrade bugs, install the old version and its data first, then upgrade.
+- Choose VMs that match the bug from the tables above. For example: native X11
+  on `kubuntu-24.04` or `mint-22.3`, Plasma Wayland on `kubuntu-26.04`, and
+  GNOME Wayland on `ubuntu-24.04` or `fedora-44`.
 
 ## Known test-environment limitations
 
