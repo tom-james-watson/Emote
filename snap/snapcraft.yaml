@@ -15,6 +15,12 @@ parts:
   emote:
     plugin: python
     source: .
+    # The GNOME SDK's older pip comes first on PYTHONPATH, and pip 26.3's entry
+    # point imports a name that older pip lacks.
+    python-packages:
+      - pip<26.3
+      - setuptools
+      - wheel
     build-packages:
       - python3-setuptools
       - pkg-config
