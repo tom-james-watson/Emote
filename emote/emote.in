@@ -8,6 +8,7 @@ pkgdatadir = '@pkgdatadir@'
 
 sys.path.insert(1, pkgdatadir)
 os.environ["EMOTE_PKGDATADIR"] = pkgdatadir
+os.environ["EMOTE_VERSION"] = VERSION
 
 if __name__ == '__main__':
     from emote import main

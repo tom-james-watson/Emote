@@ -1,6 +1,5 @@
 """Picker dialogs and Wayland permission prompts."""
 
-import os
 from datetime import datetime
 
 import gi
@@ -164,9 +163,7 @@ class PickerDialogs:
         dialog = Adw.AboutDialog(
             application_name="Emote",
             application_icon=config.app_id,
-            version=os.environ.get(
-                "FLATPAK_APP_VERSION", os.environ.get("SNAP_VERSION", "dev build")
-            ),
+            version=config.version,
             developers=["Tom Watson", "Vincent Emonet"],
             artists=["Tom Watson, Matthew Wong"],
             documenters=["Irene Auñón"],

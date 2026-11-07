@@ -6,6 +6,11 @@ app_id = "com.tomjwatson.Emote.Devel" if is_dev else "com.tomjwatson.Emote"
 is_snap = os.environ.get("SNAP") is not None
 snap_root = os.environ.get("SNAP")
 is_flatpak = "FLATPAK_ID" in os.environ
+# The meson launcher (used by Flatpak) exports EMOTE_VERSION; snapd sets
+# SNAP_VERSION for the setuptools-based Snap build.
+version = (
+    os.environ.get("EMOTE_VERSION") or os.environ.get("SNAP_VERSION") or "dev build"
+)
 if "EMOTE_PKGDATADIR" in os.environ:
     static_dir = f"{os.environ['EMOTE_PKGDATADIR']}/static"
 elif is_snap:
