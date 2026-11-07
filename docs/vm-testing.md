@@ -31,8 +31,9 @@ know their names, and their directories differ from the layout above:
 | `mint-22.3` | Cinnamon native X11 | `build/platform-tests/mint-22.3/` | 2253 | 5933 | `emote-mint-223-vm` |
 | `kubuntu-26.10` | Plasma 6.7 Wayland | `build/platform-tests/kubuntu-26.10/` | 2238 | 5918 | `emote-kubuntu-2610-vm` |
 
-- `ubuntu-24.04` uses 6 GiB of RAM; the others use 4 GiB. Its GDM session
-  defaults to Wayland.
+- `ubuntu-24.04` uses 6 GiB of RAM; the others use 4 GiB. Its user is `ubuntu`,
+  not `tester`, with the key and `known_hosts` in its directory. Its GDM session
+  defaults to Wayland; "Ubuntu on Xorg" gives native X11.
 - `mint-22.3` boots the verified Mint live ISO from `build/platform-tests/images/`
   with its changes kept on `persistence.qcow2`, not `guest.qcow2`. Its user is
   `mint`, not `tester`. Its `desktop_run.py` copy also recognises `cinnamon` as
