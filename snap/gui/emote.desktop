@@ -5,5 +5,5 @@ Comment=Modern popup emoji picker
 Exec=emote
 Categories=Utility;GTK;
 Keywords=emoji
-Icon=${SNAP}/usr/share/icons/emote.svg
+Icon=com.tomjwatson.Emote
 Terminal=false

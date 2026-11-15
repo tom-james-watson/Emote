@@ -40,10 +40,10 @@ parts:
     source: snap/gui/
     organize:
       emote.desktop: usr/share/applications/emote.desktop
-      emote.svg: usr/share/icons/emote.svg
+      emote.svg: usr/share/icons/hicolor/scalable/apps/com.tomjwatson.Emote.svg
     stage:
       - usr/share/applications/emote.desktop
-      - usr/share/icons/emote.svg
+      - usr/share/icons/hicolor/scalable/apps/com.tomjwatson.Emote.svg
 
 slots:
   dbus-daemon:
